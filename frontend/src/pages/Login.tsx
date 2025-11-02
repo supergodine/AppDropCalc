@@ -109,7 +109,7 @@ const Login: React.FC = () => {
     
     try {
       // Para Google OAuth, sempre usar localhost para evitar problemas de IP privado
-      window.location.href = `http://localhost:3001/auth/google`;
+      window.location.href = `http://localhost:3002/auth/google`;
     } catch (error: any) {
       console.error('Google login error:', error);
       toast.error('Erro ao conectar com Google. Tente novamente.');

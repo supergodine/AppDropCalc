@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "DropCalc - Frontend da Calculadora de Precificação para Dropshipping",
+  "description": "DropCalc - Frontend da Calculadora de Precificacao para Dropshipping",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
