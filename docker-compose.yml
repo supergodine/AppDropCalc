@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: dropcalc
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dropcalc-network
+
+  # Backend NestJS API
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres123@postgres:5432/dropcalc"
+      JWT_SECRET: "your-super-secret-jwt-key-change-in-production"
+      EXCHANGE_API_KEY: "your-openexchangerates-api-key"
+      GOOGLE_CLIENT_ID: "your-google-client-id"
+      GOOGLE_CLIENT_SECRET: "your-google-client-secret"
+      NODE_ENV: "development"
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - dropcalc-network
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      VITE_API_URL: "http://localhost:3001"
+      VITE_GOOGLE_CLIENT_ID: "your-google-client-id"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - dropcalc-network
+
+  # Redis para cache (opcional, para produção)
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - dropcalc-network
+
+volumes:
+  postgres_data:
+
+networks:
+  dropcalc-network:
+    driver: bridge

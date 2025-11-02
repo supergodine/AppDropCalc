@@ -1,0 +1,39 @@
+{
+  "packageId": "app.dropcalc.twa",
+  "host": {
+    "url": "https://dropcalc.vercel.app"
+  },
+  "name": "DropCalc",
+  "launcherName": "DropCalc",
+  "display": "standalone",
+  "themeColor": "#1e293b",
+  "navigationColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "startUrl": "/",
+  "iconUrl": "https://dropcalc.vercel.app/icon-192x192.png",
+  "maskableIconUrl": "https://dropcalc.vercel.app/icon-192x192.png",
+  "monochromeIconUrl": "https://dropcalc.vercel.app/icon-192x192.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "dropcalc"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://dropcalc.vercel.app/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {
+    "locationDelegation": {
+      "enabled": false
+    },
+    "playBilling": {
+      "enabled": false
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableNotifications": true
+}
