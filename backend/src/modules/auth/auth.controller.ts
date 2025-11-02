@@ -1,0 +1,165 @@
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  Request,
+  HttpCode,
+  HttpStatus,
+  Res,
+} from '@nestjs/common';
+import { Response } from 'express';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiBody,
+} from '@nestjs/swagger';
+import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { SignUpDto } from './dto/signup.dto';
+import { LoginDto } from './dto/login.dto';
+import { AuthResponseDto } from './dto/auth-response.dto';
+
+@ApiTags('auth')
+@Controller('auth')
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
+
+  @Post('signup')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Criar nova conta de usuário' })
+  @ApiResponse({
+    status: 201,
+    description: 'Usuário criado com sucesso',
+    type: AuthResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Dados inválidos ou email já existe',
+  })
+  @ApiBody({ type: SignUpDto })
+  async signUp(@Body() signUpDto: SignUpDto): Promise<AuthResponseDto> {
+    return this.authService.signUp(signUpDto);
+  }
+
+  @Post('login')
+  @UseGuards(LocalAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Login com email e senha' })
+  @ApiResponse({
+    status: 200,
+    description: 'Login realizado com sucesso',
+    type: AuthResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Credenciais inválidas',
+  })
+  @ApiBody({ type: LoginDto })
+  async login(@Request() req): Promise<AuthResponseDto> {
+    console.log('🚀 Login controller chamado');
+    console.log('📝 Dados do usuário:', req.user);
+    
+    try {
+      const result = await this.authService.login(req.user);
+      console.log('✅ Login service retornou:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ Erro no login service:', error);
+      throw error;
+    }
+  }
+
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'Iniciar login com Google' })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirecionamento para Google OAuth',
+  })
+  async googleAuth() {
+    // Guard redireciona para Google OAuth
+  }
+
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'Callback do Google OAuth' })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirecionamento para frontend com token',
+  })
+  async googleAuthCallback(@Request() req, @Res() res: Response) {
+    try {
+      const authResult = await this.authService.login(req.user);
+      
+      // Determinar URL do frontend
+      const frontendURL = this.getFrontendURL(req);
+      
+      // Redirecionar para o frontend com token
+      const redirectUrl = `${frontendURL}/auth/callback?token=${authResult.accessToken}&user=${encodeURIComponent(JSON.stringify(authResult.user))}`;
+      res.redirect(redirectUrl);
+    } catch (error) {
+      const frontendURL = this.getFrontendURL(req);
+      const redirectUrl = `${frontendURL}/login?error=google_login_failed`;
+      res.redirect(redirectUrl);
+    }
+  }
+
+  private getFrontendURL(req?: any): string {
+    // Para Google OAuth, sempre usar localhost para evitar problemas de IP privado
+    return 'http://localhost:3000';
+  }
+
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Obter perfil do usuário autenticado' })
+  @ApiResponse({
+    status: 200,
+    description: 'Perfil do usuário',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Token inválido ou expirado',
+  })
+  async getProfile(@Request() req) {
+    return {
+      user: req.user,
+      message: 'Perfil carregado com sucesso',
+    };
+  }
+
+  @Post('refresh')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Renovar token de acesso' })
+  @ApiResponse({
+    status: 200,
+    description: 'Token renovado com sucesso',
+    type: AuthResponseDto,
+  })
+  async refresh(@Request() req): Promise<AuthResponseDto> {
+    return this.authService.refresh(req.user);
+  }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Logout do usuário' })
+  @ApiResponse({
+    status: 200,
+    description: 'Logout realizado com sucesso',
+  })
+  async logout(@Request() req) {
+    return {
+      message: 'Logout realizado com sucesso',
+      timestamp: new Date().toISOString(),
+    };
+  }
+}
