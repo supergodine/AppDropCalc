@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calculator, DollarSign, TrendingUp, Settings, HelpCircle, User, Crown, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const API_BASE = 'http://localhost:3002';
 
@@ -34,13 +35,14 @@ interface CalculationResult {
 
 const DashboardSimples: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   
   // Simulação de dados do usuário via localStorage
   const [user, setUser] = useState<any>(null);
   
   useEffect(() => {
     // Buscar dados do usuário do localStorage
-    const userData = localStorage.getItem('user');
+    const userData = localStorage.getItem('currentUser');
     if (userData) {
       setUser(JSON.parse(userData));
     }
@@ -368,7 +370,7 @@ const DashboardSimples: React.FC = () => {
 
             <div className="hidden md:flex items-center space-x-4">
               <span className="text-sm text-gray-600 dark:text-gray-300">
-                Bem-vindo, {user?.name || 'Usuário'}!
+                {t('calc.welcome')}, {user?.name || t('calc.user')}!
               </span>
               {isPremium && (
                 <span className="px-2 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold rounded-full flex items-center">
@@ -386,7 +388,7 @@ const DashboardSimples: React.FC = () => {
                 onClick={logout}
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors"
               >
-                Sair
+                {t('nav.logout')}
               </button>
             </div>
 
@@ -411,21 +413,21 @@ const DashboardSimples: React.FC = () => {
           >
             <div className="px-4 py-4 space-y-2">
               <div className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                Bem-vindo, {user?.name || 'Usuário'}!
+                {t('calc.welcome')}, {user?.name || t('calc.user')}!
               </div>
               <button
                 onClick={() => navigate('/settings')}
                 className="flex items-center w-full p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <Settings className="w-4 h-4 mr-2" />
-                Configurações
+                {t('nav.settings')}
               </button>
               <button
                 onClick={logout}
                 className="flex items-center w-full p-2 text-red-400 hover:text-red-300 transition-colors"
               >
                 <User className="w-4 h-4 mr-2" />
-                Sair
+                {t('nav.logout')}
               </button>
             </div>
           </motion.div>
@@ -443,10 +445,10 @@ const DashboardSimples: React.FC = () => {
           >
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
               <Calculator className="w-6 h-6 mr-2 text-purple-400" />
-              Calculadora de Preços
+              {t('calc.title')}
               {loading && (
                 <span className="ml-3 text-sm text-yellow-400 animate-pulse">
-                  Calculando...
+                  {t('calc.loading')}
                 </span>
               )}
             </h2>
@@ -455,7 +457,7 @@ const DashboardSimples: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Custo Fornecedor ({moedaOrigem})
+                    {t('calc.productCost')} ({moedaOrigem})
                   </label>
                   <input
                     type="number"
@@ -469,7 +471,7 @@ const DashboardSimples: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Moeda de Origem
+                    {t('calc.originCurrency')}
                   </label>
                   <select
                     value={moedaOrigem}
@@ -490,7 +492,7 @@ const DashboardSimples: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Moeda do Resultado
+                    {t('calc.saleCurrency')}
                   </label>
                   <select
                     value={moedaDestino}
@@ -513,7 +515,7 @@ const DashboardSimples: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Frete ({moedaOrigem})
+                    {t('calc.additionalCosts')} ({moedaOrigem})
                   </label>
                   <input
                     type="number"
@@ -527,7 +529,7 @@ const DashboardSimples: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Markup (Multiplicador)
+                    {t('calc.profitMargin')}
                   </label>
                   <input
                     type="number"
@@ -576,7 +578,7 @@ const DashboardSimples: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Plataforma
+                    {t('calc.platform')}
                   </label>
                   <select
                     value={plataforma}
@@ -597,7 +599,7 @@ const DashboardSimples: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Gateway de Pagamento
+                    {t('calc.paymentGateway')}
                   </label>
                   <select
                     value={gateway}
@@ -628,7 +630,7 @@ const DashboardSimples: React.FC = () => {
           >
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
               <TrendingUp className="w-6 h-6 mr-2 text-green-400" />
-              Resultado do Cálculo
+              {t('calc.calculationResult')}
             </h2>
 
             {resultado ? (
@@ -636,12 +638,12 @@ const DashboardSimples: React.FC = () => {
                 {/* Preço de Venda Principal */}
                 <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg p-4">
                   <div className="text-center">
-                    <p className="text-green-100 text-sm">Preço de Venda</p>
+                    <p className="text-green-100 text-sm">{t('calc.suggestedPrice')}</p>
                     <p className="text-3xl font-bold text-white">
                       {getSymbolMoeda(moedaDestino)} {resultado.precoVenda.toFixed(2)}
                     </p>
                     <p className="text-green-200 text-xs mt-1">
-                      Taxa: 1 {moedaOrigem} = {resultado.taxaCambio.toFixed(4)} {moedaDestino}
+                      {t('calc.exchangeRate')}: 1 {moedaOrigem} = {resultado.taxaCambio.toFixed(4)} {moedaDestino}
                     </p>
                   </div>
                 </div>
@@ -652,29 +654,29 @@ const DashboardSimples: React.FC = () => {
                   {/* Coluna 1: PRECIFICAÇÃO */}
                   <div className="bg-black/30 rounded-lg p-4">
                     <h3 className="text-white font-bold text-center bg-black text-sm py-2 mb-4 rounded">
-                      PRECIFICAÇÃO
+                      {t('calc.pricing')}
                     </h3>
                     
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between items-center bg-green-600 text-white px-2 py-1 rounded">
-                        <span>Preço de venda:</span>
+                        <span>{t('calc.sellingPrice')}:</span>
                         <span>{getSymbolMoeda(moedaDestino)} {resultado.precoVenda.toFixed(2)}</span>
                       </div>
                       
                       <div className="flex justify-between items-center bg-red-500 text-white px-2 py-1 rounded">
-                        <span>Custo Fornecedor:</span>
+                        <span>{t('calc.supplierCost')}:</span>
                         <span>{getSymbolMoeda(moedaDestino)} {resultado.custoFornecedor.toFixed(2)}</span>
                       </div>
                       
                       <div className="flex justify-between items-center bg-gray-500 text-white px-2 py-1 rounded">
-                        <span>Markup:</span>
+                        <span>{t('calc.markupLabel')}:</span>
                         <span>{resultado.markup.toFixed(8)}</span>
                       </div>
                     </div>
 
                     {/* Seção TAXAS */}
                     <h4 className="text-white font-bold text-center bg-blue-600 text-sm py-2 mt-4 mb-2 rounded">
-                      TAXAS
+                      {t('calc.taxes')}
                     </h4>
                     
                     <div className="space-y-1 text-sm">
@@ -691,13 +693,13 @@ const DashboardSimples: React.FC = () => {
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <span className="text-blue-400">Marketing</span>
+                        <span className="text-blue-400">{t('calc.marketing')}</span>
                         <span className="text-gray-900 dark:text-white">{resultado.taxas.marketing.percentual}%</span>
                         <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.taxas.marketing.valor.toFixed(2)}</span>
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <span className="text-blue-400">Extra</span>
+                        <span className="text-blue-400">{t('calc.extra')}</span>
                         <span className="text-gray-900 dark:text-white">0%</span>
                         <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.taxas.extra.valor.toFixed(2)}</span>
                       </div>
@@ -711,36 +713,36 @@ const DashboardSimples: React.FC = () => {
                   {/* Coluna 2: VALORES IMPORTANTES */}
                   <div className="bg-black/30 rounded-lg p-4">
                     <h3 className="text-white font-bold text-center bg-black text-sm py-2 mb-4 rounded">
-                      VALORES IMPORTANTES
+                      {t('calc.importantValues')}
                     </h3>
                     
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-300">Valor de venda</span>
+                        <span className="text-gray-600 dark:text-gray-300">{t('calc.saleValue')}</span>
                         <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.precoVenda.toFixed(2)}</span>
                         <span className="text-green-600 dark:text-green-400">100,00%</span>
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-300">Custo médio</span>
+                        <span className="text-gray-600 dark:text-gray-300">{t('calc.averageCost')}</span>
                         <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.custoTotal.toFixed(2)}</span>
                         <span className="text-red-400">{resultado.percentuais.custoMedio.toFixed(2)}%</span>
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-300">Marketing</span>
+                        <span className="text-gray-600 dark:text-gray-300">{t('calc.marketing')}</span>
                         <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.taxas.marketing.valor.toFixed(2)}</span>
                         <span className="text-yellow-400">{resultado.percentuais.marketing.toFixed(2)}%</span>
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-300">Margem Contrib.</span>
+                        <span className="text-gray-600 dark:text-gray-300">{t('calc.contributionMargin')}</span>
                         <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.lucroLiquido.toFixed(2)}</span>
                         <span className="text-green-600 dark:text-green-400">{resultado.percentuais.margemContrib.toFixed(2)}%</span>
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-300">Breakeven</span>
+                        <span className="text-gray-600 dark:text-gray-300">{t('calc.breakeven')}</span>
                         <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.breakeven.toFixed(2)}</span>
                         <span className="text-orange-400">{resultado.percentuais.breakeven.toFixed(2)}%</span>
                       </div>
@@ -748,18 +750,18 @@ const DashboardSimples: React.FC = () => {
 
                     {/* Seção VENDAS */}
                     <h4 className="text-white font-bold text-center bg-green-600 text-sm py-2 mt-4 mb-2 rounded">
-                      VENDAS
+                      {t('calc.sales')}
                     </h4>
                     
                     <div className="flex justify-between text-sm font-bold text-green-600 dark:text-green-400 mb-2">
-                      <span>Unidades:</span>
-                      <span>LUCRO</span>
+                      <span>{t('calc.units')}:</span>
+                      <span>{t('calc.profitLabel')}</span>
                     </div>
                     
                     <div className="space-y-1 text-sm">
                       {resultado.projecoes.map((proj, index) => (
                         <div key={index} className="flex justify-between items-center bg-green-100/10 px-2 py-1 rounded">
-                          <span className="text-gray-600 dark:text-gray-300">Unidades:</span>
+                          <span className="text-gray-600 dark:text-gray-300">{t('calc.units')}:</span>
                           <span className="text-gray-900 dark:text-white font-bold">{proj.quantidade}</span>
                           <span className="text-green-600 dark:text-green-400">{getSymbolMoeda(moedaDestino)} {proj.lucro.toFixed(2)}</span>
                         </div>
@@ -772,21 +774,21 @@ const DashboardSimples: React.FC = () => {
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-400 mx-auto mb-4"></div>
                 <p className="text-purple-400 font-medium">
-                  Calculando preço de venda...
+                  {t('calc.loading')}
                 </p>
               </div>
             ) : !custoProdutoUSD || !markup ? (
               <div className="text-center py-12">
                 <DollarSign className="w-16 h-16 text-gray-500 mx-auto mb-4" />
                 <p className="text-gray-600 dark:text-gray-400">
-                  Preencha o <span className="text-gray-900 dark:text-white font-semibold">custo fornecedor</span> e o <span className="text-gray-900 dark:text-white font-semibold">markup</span> para ver o cálculo automático
+                  {t('calc.fillFieldsMessage')}
                 </p>
               </div>
             ) : (
               <div className="text-center py-12">
                 <DollarSign className="w-16 h-16 text-gray-500 mx-auto mb-4" />
                 <p className="text-gray-600 dark:text-gray-400">
-                  Digite os valores para ver o resultado do cálculo
+                  {t('calc.enterValuesMessage')}
                 </p>
               </div>
             )}
