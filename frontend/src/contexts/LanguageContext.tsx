@@ -49,6 +49,12 @@ export const translations = {
     'calc.clear': 'Limpar',
     'calc.save': 'Salvar Cálculo',
     'calc.netProfit': 'Lucro Líquido',
+    'calc.productName': 'Nome do Produto',
+    'calc.calculationHistory': 'Histórico de Cálculos',
+    'calc.noHistory': 'Nenhum cálculo salvo ainda',
+    'calc.savedAt': 'Salvo em',
+    'calc.deleteCalculation': 'Excluir',
+    'calc.saveCalculation': 'Salvar Cálculo',
     'calc.welcome': 'Bem-vindo',
     'calc.user': 'Usuário',
     'calc.fillFieldsMessage': 'Preencha o custo fornecedor e o markup para ver o cálculo automático',
@@ -72,6 +78,7 @@ export const translations = {
     'calc.extra': 'Extra',
     
     // Tooltips
+    'tooltip.productName': 'Nome identificativo do produto para facilitar o histórico de cálculos',
     'tooltip.productCost': 'O custo que você paga para o fornecedor pelo produto',
     'tooltip.originCurrency': 'A moeda em que você paga o fornecedor',
     'tooltip.saleCurrency': 'A moeda em que você vai vender o produto',
@@ -171,6 +178,12 @@ export const translations = {
     'calc.clear': 'Clear',
     'calc.save': 'Save Calculation',
     'calc.netProfit': 'Net Profit',
+    'calc.productName': 'Product Name',
+    'calc.calculationHistory': 'Calculation History',
+    'calc.noHistory': 'No calculations saved yet',
+    'calc.savedAt': 'Saved at',
+    'calc.deleteCalculation': 'Delete',
+    'calc.saveCalculation': 'Save Calculation',
     'calc.welcome': 'Welcome',
     'calc.user': 'User',
     'calc.fillFieldsMessage': 'Fill in the supplier cost and markup to see the automatic calculation',
@@ -194,6 +207,7 @@ export const translations = {
     'calc.extra': 'Extra',
     
     // Tooltips
+    'tooltip.productName': 'Identification name for the product to facilitate calculation history',
     'tooltip.productCost': 'The cost you pay to the supplier for the product',
     'tooltip.originCurrency': 'The currency in which you pay the supplier',
     'tooltip.saleCurrency': 'The currency in which you will sell the product',
@@ -314,8 +328,15 @@ export const translations = {
     'calc.units': 'Unidades',
     'calc.profitLabel': 'GANANCIA',
     'calc.extra': 'Extra',
+    'calc.productName': 'Nombre del Producto',
+    'calc.calculationHistory': 'Historial de Cálculos',
+    'calc.noHistory': 'Ningún cálculo guardado aún',
+    'calc.savedAt': 'Guardado en',
+    'calc.deleteCalculation': 'Eliminar',
+    'calc.saveCalculation': 'Guardar Cálculo',
     
     // Tooltips
+    'tooltip.productName': 'Nombre identificativo del producto para facilitar el historial de cálculos',
     'tooltip.productCost': 'El costo que pagas al proveedor por el producto',
     'tooltip.originCurrency': 'La moneda en que pagas al proveedor',
     'tooltip.saleCurrency': 'La moneda en que vas a vender el producto',

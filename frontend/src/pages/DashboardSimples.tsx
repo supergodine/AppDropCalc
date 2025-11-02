@@ -38,8 +38,8 @@ interface CalculationResult {
   lucroLiquido: number;
   breakeven: number;
   taxas: {
-    stripe: { percentual: number; valor: number };
-    shopify: { percentual: number; valor: number };
+    gateway: { percentual: number; valor: number };
+    plataforma: { percentual: number; valor: number };
     marketing: { percentual: number; valor: number };
     extra: { percentual: number; valor: number };
     total: number;
@@ -72,6 +72,28 @@ const DashboardSimples: React.FC = () => {
   }, []);
   
   // Estados da calculadora expandidos
+  const [nomeProduto, setNomeProduto] = useState('');
+  
+  // Interface para histórico de cálculos
+  interface HistoricoCalculo {
+    id: string;
+    nomeProduto: string;
+    precoVenda: number;
+    moedaDestino: string;
+    plataforma: string;
+    gateway: string;
+    dataCalculo: string;
+    detalhes: CalculationResult;
+  }
+  
+  const [historicoCalculos, setHistoricoCalculos] = useState<HistoricoCalculo[]>(() => {
+    try {
+      const saved = localStorage.getItem('calculadora-historico');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [custoProdutoUSD, setCustoProdutoUSD] = useState('5.00'); // Exato da planilha
   const [frete, setFrete] = useState('4.70'); // Para chegar no custo médio $9.70
   const [marketing, setMarketing] = useState('25'); // Igual planilha
@@ -87,6 +109,29 @@ const DashboardSimples: React.FC = () => {
 
   // Status premium simulado
   const [isPremium, setIsPremium] = useState(false);
+
+  // Função para salvar cálculo no histórico
+  const salvarCalculo = () => {
+    if (!resultado) return;
+    
+    const novoCalculo: HistoricoCalculo = {
+      id: Date.now().toString(),
+      nomeProduto: nomeProduto || 'Produto sem nome',
+      precoVenda: resultado.precoVenda,
+      moedaDestino,
+      plataforma,
+      gateway,
+      dataCalculo: new Date().toLocaleString('pt-BR'),
+      detalhes: resultado
+    };
+    
+    const novoHistorico = [novoCalculo, ...historicoCalculos].slice(0, 50); // Limita a 50 cálculos
+    setHistoricoCalculos(novoHistorico);
+    localStorage.setItem('calculadora-historico', JSON.stringify(novoHistorico));
+    
+    // Feedback visual (poderia ser um toast)
+    alert(t('calc.calculationSaved'));
+  };
 
   // Função para obter símbolo da moeda
   const getSymbolMoeda = (codigo: string) => {
@@ -346,8 +391,8 @@ const DashboardSimples: React.FC = () => {
         lucroLiquido: margemContrib,
         breakeven: breakeven,
         taxas: {
-          stripe: { percentual: taxaGateway, valor: valorStripe },
-          shopify: { percentual: taxaPlataforma, valor: valorShopify },
+          gateway: { percentual: taxaGateway, valor: valorStripe },
+          plataforma: { percentual: taxaPlataforma, valor: valorShopify },
           marketing: { percentual: marketingPercent, valor: valorMarketing },
           extra: { percentual: 0, valor: 0 }, // Zero como na planilha
           total: totalTaxas
@@ -477,6 +522,23 @@ const DashboardSimples: React.FC = () => {
             </h2>
 
             <div className="space-y-4">
+              {/* Campo Nome do Produto */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                  {t('calc.productName')}
+                  <Tooltip text={t('tooltip.productName')}>
+                    <Info className="w-4 h-4 ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                  </Tooltip>
+                </label>
+                <input
+                  type="text"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  placeholder={t('calc.productName')}
+                  value={nomeProduto}
+                  onChange={(e) => setNomeProduto(e.target.value)}
+                />
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
@@ -698,6 +760,24 @@ const DashboardSimples: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Informações da Plataforma e Gateway */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                  <div className="flex flex-wrap justify-center gap-4 text-sm">
+                    <div className="flex items-center">
+                      <span className="text-blue-600 dark:text-blue-400 font-medium">Plataforma:</span>
+                      <span className="ml-1 text-blue-800 dark:text-blue-300 font-semibold">
+                        {plataformas.find(p => p.id === plataforma)?.nome || plataforma}
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-blue-600 dark:text-blue-400 font-medium">Gateway:</span>
+                      <span className="ml-1 text-blue-800 dark:text-blue-300 font-semibold">
+                        {gateways.find(g => g.id === gateway)?.nome || gateway}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Duas Colunas Principais */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   
@@ -746,15 +826,15 @@ const DashboardSimples: React.FC = () => {
                     
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between items-center">
-                        <span className="text-blue-400">Stripe</span>
-                        <span className="text-gray-900 dark:text-white">{resultado.taxas.stripe.percentual.toFixed(2)}%</span>
-                        <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.taxas.stripe.valor.toFixed(2)}</span>
+                        <span className="text-blue-400">{gateways.find(g => g.id === gateway)?.nome || gateway}</span>
+                        <span className="text-gray-900 dark:text-white">{resultado.taxas.gateway.percentual.toFixed(2)}%</span>
+                        <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.taxas.gateway.valor.toFixed(2)}</span>
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <span className="text-blue-400">Shopify</span>
-                        <span className="text-gray-900 dark:text-white">{resultado.taxas.shopify.percentual.toFixed(2)}%</span>
-                        <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.taxas.shopify.valor.toFixed(2)}</span>
+                        <span className="text-blue-400">{plataformas.find(p => p.id === plataforma)?.nome || plataforma}</span>
+                        <span className="text-gray-900 dark:text-white">{resultado.taxas.plataforma.percentual.toFixed(2)}%</span>
+                        <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.taxas.plataforma.valor.toFixed(2)}</span>
                       </div>
                       
                       <div className="flex justify-between items-center">
@@ -868,6 +948,19 @@ const DashboardSimples: React.FC = () => {
                       ))}
                     </div>
                   </div>
+                </div>
+                
+                {/* Botão Salvar Cálculo */}
+                <div className="text-center">
+                  <button
+                    onClick={salvarCalculo}
+                    className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 flex items-center mx-auto"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    {t('calc.saveCalculation')}
+                  </button>
                 </div>
               </div>
             ) : loading ? (
