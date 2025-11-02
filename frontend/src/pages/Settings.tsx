@@ -11,12 +11,108 @@ import {
   Bell,
   Shield,
   ArrowLeft,
-  Check
+  Check,
+  Trash2,
+  Calendar
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '../contexts/LanguageContext';
+
+// Interface para histórico de cálculos
+interface HistoricoCalculo {
+  id: string;
+  nomeProduto: string;
+  precoVenda: number;
+  moedaDestino: string;
+  plataforma: string;
+  gateway: string;
+  dataCalculo: string;
+  detalhes: any;
+}
+
+// Componente para exibir histórico de cálculos
+const CalculationHistory: React.FC = () => {
+  const { t } = useLanguage();
+  const [historico, setHistorico] = useState<HistoricoCalculo[]>([]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('calculadora-historico');
+      if (saved) {
+        setHistorico(JSON.parse(saved));
+      }
+    } catch {
+      setHistorico([]);
+    }
+  }, []);
+
+  const excluirCalculo = (id: string) => {
+    const novoHistorico = historico.filter(calc => calc.id !== id);
+    setHistorico(novoHistorico);
+    localStorage.setItem('calculadora-historico', JSON.stringify(novoHistorico));
+    toast.success('Cálculo excluído');
+  };
+
+  const getSymbolMoeda = (codigo: string) => {
+    const simbolos: { [key: string]: string } = {
+      'USD': '$', 'EUR': '€', 'GBP': '£', 'BRL': 'R$', 'JPY': '¥', 'CNY': '¥',
+      'CAD': 'C$', 'AUD': 'A$', 'CHF': 'CHF', 'SEK': 'kr', 'NOK': 'kr',
+      'MXN': '$', 'ARS': '$', 'CLP': '$', 'COP': '$', 'PEN': 'S/', 
+      'INR': '₹', 'KRW': '₩', 'THB': '฿', 'SGD': 'S$', 'HKD': 'HK$'
+    };
+    return simbolos[codigo] || codigo;
+  };
+
+  if (historico.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
+        <p>{t('calc.noHistory')}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3 max-h-96 overflow-y-auto">
+      {historico.map((calculo) => (
+        <motion.div
+          key={calculo.id}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white/80 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-all"
+        >
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <h4 className="font-semibold text-gray-800 mb-1">
+                {calculo.nomeProduto}
+              </h4>
+              <div className="text-sm text-gray-600 space-y-1">
+                <p>
+                  <span className="font-medium">Preço:</span> {getSymbolMoeda(calculo.moedaDestino)} {calculo.precoVenda.toFixed(2)}
+                </p>
+                <p>
+                  <span className="font-medium">Plataforma:</span> {calculo.plataforma} | <span className="font-medium">Gateway:</span> {calculo.gateway}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {t('calc.savedAt')}: {calculo.dataCalculo}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => excluirCalculo(calculo.id)}
+              className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
+              title={t('calc.deleteCalculation')}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  );
+};
 
 interface SettingsState {
   language: 'pt' | 'en' | 'es';
@@ -296,6 +392,21 @@ const Settings: React.FC = () => {
               </motion.button>
             </motion.div>
           )}
+
+          {/* Histórico de Cálculos */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55 }}
+            className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg"
+          >
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <SettingsIcon className="w-5 h-5" />
+              {t('calc.calculationHistory')}
+            </h3>
+            
+            <CalculationHistory />
+          </motion.div>
 
           {/* Security & Logout */}
           <motion.div
