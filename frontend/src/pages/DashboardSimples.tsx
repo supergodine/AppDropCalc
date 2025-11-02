@@ -1,10 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calculator, DollarSign, TrendingUp, Settings, HelpCircle, User, Crown, Menu, X } from 'lucide-react';
+import { Calculator, DollarSign, TrendingUp, Settings, HelpCircle, User, Crown, Menu, X, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_BASE = 'http://localhost:3002';
+
+// Componente de Tooltip
+const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => {
+  const [isVisible, setIsVisible] = React.useState(false);
+
+  return (
+    <div className="relative inline-block">
+      <div
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+        className="cursor-help"
+      >
+        {children}
+      </div>
+      {isVisible && (
+        <div className="absolute z-50 px-3 py-2 text-sm text-white bg-gray-900 dark:bg-gray-700 rounded-lg shadow-lg whitespace-nowrap -top-12 left-1/2 transform -translate-x-1/2 max-w-xs">
+          {text}
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-gray-700 rotate-45"></div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 interface CalculationResult {
   precoVenda: number;
@@ -456,8 +479,11 @@ const DashboardSimples: React.FC = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                     {t('calc.productCost')} ({moedaOrigem})
+                    <Tooltip text={t('tooltip.productCost')}>
+                      <Info className="w-4 h-4 ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    </Tooltip>
                   </label>
                   <input
                     type="number"
@@ -470,8 +496,11 @@ const DashboardSimples: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                     {t('calc.originCurrency')}
+                    <Tooltip text={t('tooltip.originCurrency')}>
+                      <Info className="w-4 h-4 ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    </Tooltip>
                   </label>
                   <select
                     value={moedaOrigem}
@@ -491,8 +520,11 @@ const DashboardSimples: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                     {t('calc.saleCurrency')}
+                    <Tooltip text={t('tooltip.saleCurrency')}>
+                      <Info className="w-4 h-4 ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    </Tooltip>
                   </label>
                   <select
                     value={moedaDestino}
@@ -514,8 +546,11 @@ const DashboardSimples: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                     {t('calc.additionalCosts')} ({moedaOrigem})
+                    <Tooltip text={t('tooltip.additionalCosts')}>
+                      <Info className="w-4 h-4 ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    </Tooltip>
                   </label>
                   <input
                     type="number"
@@ -528,8 +563,11 @@ const DashboardSimples: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                     {t('calc.profitMargin')}
+                    <Tooltip text={t('tooltip.profitMargin')}>
+                      <Info className="w-4 h-4 ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    </Tooltip>
                   </label>
                   <input
                     type="number"
@@ -545,8 +583,11 @@ const DashboardSimples: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                     Marketing (%)
+                    <Tooltip text={t('tooltip.marketing')}>
+                      <Info className="w-4 h-4 ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    </Tooltip>
                   </label>
                   <input
                     type="number"
@@ -561,8 +602,11 @@ const DashboardSimples: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                     Custo Extra ({moedaOrigem})
+                    <Tooltip text={t('tooltip.extraCost')}>
+                      <Info className="w-4 h-4 ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    </Tooltip>
                   </label>
                   <input
                     type="number"
@@ -577,8 +621,11 @@ const DashboardSimples: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                     {t('calc.platform')}
+                    <Tooltip text={t('tooltip.platform')}>
+                      <Info className="w-4 h-4 ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    </Tooltip>
                   </label>
                   <select
                     value={plataforma}
@@ -598,8 +645,11 @@ const DashboardSimples: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                     {t('calc.paymentGateway')}
+                    <Tooltip text={t('tooltip.gateway')}>
+                      <Info className="w-4 h-4 ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    </Tooltip>
                   </label>
                   <select
                     value={gateway}
@@ -659,17 +709,32 @@ const DashboardSimples: React.FC = () => {
                     
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between items-center bg-green-600 text-white px-2 py-1 rounded">
-                        <span>{t('calc.sellingPrice')}:</span>
+                        <span className="flex items-center">
+                          {t('calc.sellingPrice')}:
+                          <Tooltip text={t('tooltip.resultSellingPrice')}>
+                            <Info className="w-3 h-3 ml-1" />
+                          </Tooltip>
+                        </span>
                         <span>{getSymbolMoeda(moedaDestino)} {resultado.precoVenda.toFixed(2)}</span>
                       </div>
                       
                       <div className="flex justify-between items-center bg-red-500 text-white px-2 py-1 rounded">
-                        <span>{t('calc.supplierCost')}:</span>
+                        <span className="flex items-center">
+                          {t('calc.supplierCost')}:
+                          <Tooltip text={t('tooltip.resultSupplierCost')}>
+                            <Info className="w-3 h-3 ml-1" />
+                          </Tooltip>
+                        </span>
                         <span>{getSymbolMoeda(moedaDestino)} {resultado.custoFornecedor.toFixed(2)}</span>
                       </div>
                       
                       <div className="flex justify-between items-center bg-gray-500 text-white px-2 py-1 rounded">
-                        <span>{t('calc.markupLabel')}:</span>
+                        <span className="flex items-center">
+                          {t('calc.markupLabel')}:
+                          <Tooltip text={t('tooltip.resultMarkup')}>
+                            <Info className="w-3 h-3 ml-1" />
+                          </Tooltip>
+                        </span>
                         <span>{resultado.markup.toFixed(8)}</span>
                       </div>
                     </div>
@@ -718,31 +783,56 @@ const DashboardSimples: React.FC = () => {
                     
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-300">{t('calc.saleValue')}</span>
+                        <span className="text-gray-600 dark:text-gray-300 flex items-center">
+                          {t('calc.saleValue')}
+                          <Tooltip text={t('tooltip.resultSaleValue')}>
+                            <Info className="w-3 h-3 ml-1" />
+                          </Tooltip>
+                        </span>
                         <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.precoVenda.toFixed(2)}</span>
                         <span className="text-green-600 dark:text-green-400">100,00%</span>
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-300">{t('calc.averageCost')}</span>
+                        <span className="text-gray-600 dark:text-gray-300 flex items-center">
+                          {t('calc.averageCost')}
+                          <Tooltip text={t('tooltip.resultAverageCost')}>
+                            <Info className="w-3 h-3 ml-1" />
+                          </Tooltip>
+                        </span>
                         <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.custoTotal.toFixed(2)}</span>
                         <span className="text-red-400">{resultado.percentuais.custoMedio.toFixed(2)}%</span>
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-300">{t('calc.marketing')}</span>
+                        <span className="text-gray-600 dark:text-gray-300 flex items-center">
+                          {t('calc.marketing')}
+                          <Tooltip text={t('tooltip.resultMarketing')}>
+                            <Info className="w-3 h-3 ml-1" />
+                          </Tooltip>
+                        </span>
                         <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.taxas.marketing.valor.toFixed(2)}</span>
                         <span className="text-yellow-400">{resultado.percentuais.marketing.toFixed(2)}%</span>
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-300">{t('calc.contributionMargin')}</span>
+                        <span className="text-gray-600 dark:text-gray-300 flex items-center">
+                          {t('calc.contributionMargin')}
+                          <Tooltip text={t('tooltip.resultContributionMargin')}>
+                            <Info className="w-3 h-3 ml-1" />
+                          </Tooltip>
+                        </span>
                         <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.lucroLiquido.toFixed(2)}</span>
                         <span className="text-green-600 dark:text-green-400">{resultado.percentuais.margemContrib.toFixed(2)}%</span>
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-300">{t('calc.breakeven')}</span>
+                        <span className="text-gray-600 dark:text-gray-300 flex items-center">
+                          {t('calc.breakeven')}
+                          <Tooltip text={t('tooltip.resultBreakeven')}>
+                            <Info className="w-3 h-3 ml-1" />
+                          </Tooltip>
+                        </span>
                         <span className="text-gray-900 dark:text-white">{getSymbolMoeda(moedaDestino)} {resultado.breakeven.toFixed(2)}</span>
                         <span className="text-orange-400">{resultado.percentuais.breakeven.toFixed(2)}%</span>
                       </div>
@@ -754,8 +844,18 @@ const DashboardSimples: React.FC = () => {
                     </h4>
                     
                     <div className="flex justify-between text-sm font-bold text-green-600 dark:text-green-400 mb-2">
-                      <span>{t('calc.units')}:</span>
-                      <span>{t('calc.profitLabel')}</span>
+                      <span className="flex items-center">
+                        {t('calc.units')}:
+                        <Tooltip text={t('tooltip.resultUnits')}>
+                          <Info className="w-3 h-3 ml-1" />
+                        </Tooltip>
+                      </span>
+                      <span className="flex items-center">
+                        {t('calc.profitLabel')}
+                        <Tooltip text={t('tooltip.resultProfit')}>
+                          <Info className="w-3 h-3 ml-1" />
+                        </Tooltip>
+                      </span>
                     </div>
                     
                     <div className="space-y-1 text-sm">
