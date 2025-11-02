@@ -118,3 +118,15 @@ yarn.lock
 # PWA service worker
 sw.js
 workbox-*.js
+
+# Android
+*.apk
+*.aab
+android/app/build/
+android/app/release/
+android/.gradle/
+android/gradle/
+*.zip
+
+# Large files
+DropCalcApp/gradle*.zip
