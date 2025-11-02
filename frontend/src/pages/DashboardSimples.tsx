@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Calculator, DollarSign, TrendingUp, Settings, HelpCircle, User, Crown, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const API_BASE = 'http://localhost:3001';
+const API_BASE = 'http://localhost:3002';
 
 interface CalculationResult {
   precoVenda: number;
@@ -475,10 +475,13 @@ const DashboardSimples: React.FC = () => {
                     value={moedaOrigem}
                     onChange={(e) => setMoedaOrigem(e.target.value)}
                     className="w-full p-3 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-lg text-gray-900 dark:text-white max-h-40 overflow-y-auto"
-                    style={{ fontSize: '14px' }}
+                    style={{ 
+                      fontSize: '14px',
+                      colorScheme: 'light dark'
+                    }}
                   >
                     {moedas.map((moeda) => (
-                      <option key={moeda.codigo} value={moeda.codigo} className="bg-gray-800">
+                      <option key={moeda.codigo} value={moeda.codigo}>
                         {moeda.codigo} - {moeda.nome}
                       </option>
                     ))}
@@ -493,10 +496,13 @@ const DashboardSimples: React.FC = () => {
                     value={moedaDestino}
                     onChange={(e) => setMoedaDestino(e.target.value)}
                     className="w-full p-3 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-lg text-gray-900 dark:text-white max-h-40 overflow-y-auto"
-                    style={{ fontSize: '14px' }}
+                    style={{ 
+                      fontSize: '14px',
+                      colorScheme: 'light dark'
+                    }}
                   >
                     {moedas.map((moeda) => (
-                      <option key={moeda.codigo} value={moeda.codigo} className="bg-gray-800">
+                      <option key={moeda.codigo} value={moeda.codigo}>
                         {moeda.codigo} - {moeda.nome}
                       </option>
                     ))}
@@ -576,10 +582,13 @@ const DashboardSimples: React.FC = () => {
                     value={plataforma}
                     onChange={(e) => setPlataforma(e.target.value)}
                     className="w-full p-3 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-lg text-gray-900 dark:text-white max-h-40 overflow-y-auto"
-                    style={{ fontSize: '14px' }}
+                    style={{ 
+                      fontSize: '14px',
+                      colorScheme: 'light dark'
+                    }}
                   >
                     {plataformas.map((plat) => (
-                      <option key={plat.id} value={plat.id} className="bg-gray-800">
+                      <option key={plat.id} value={plat.id}>
                         {plat.nome} ({plat.taxa}%)
                       </option>
                     ))}
@@ -594,10 +603,13 @@ const DashboardSimples: React.FC = () => {
                     value={gateway}
                     onChange={(e) => setGateway(e.target.value)}
                     className="w-full p-3 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-lg text-gray-900 dark:text-white max-h-40 overflow-y-auto"
-                    style={{ fontSize: '14px' }}
+                    style={{ 
+                      fontSize: '14px',
+                      colorScheme: 'light dark'
+                    }}
                   >
                     {gateways.map((gw) => (
-                      <option key={gw.id} value={gw.id} className="bg-gray-800">
+                      <option key={gw.id} value={gw.id}>
                         {gw.nome} ({gw.taxa}%)
                       </option>
                     ))}

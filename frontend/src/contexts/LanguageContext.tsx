@@ -52,11 +52,11 @@ export const translations = {
     
     // Configurações
     'settings.title': 'Configurações',
-    'settings.theme': 'Tema',
+    'settings.theme': 'Tema do Aplicativo',
     'settings.language': 'Idioma',
     'settings.notifications': 'Notificações',
     'settings.account': 'Conta',
-    'settings.logout': 'Sair',
+    'settings.logout': 'Sair da Conta',
     'settings.light': 'Claro',
     'settings.dark': 'Escuro',
     
@@ -132,11 +132,11 @@ export const translations = {
     
     // Settings
     'settings.title': 'Settings',
-    'settings.theme': 'Theme',
+    'settings.theme': 'App Theme',
     'settings.language': 'Language',
     'settings.notifications': 'Notifications',
     'settings.account': 'Account',
-    'settings.logout': 'Logout',
+    'settings.logout': 'Logout Account',
     'settings.light': 'Light',
     'settings.dark': 'Dark',
     
@@ -212,11 +212,11 @@ export const translations = {
     
     // Configuración
     'settings.title': 'Configuración',
-    'settings.theme': 'Tema',
+    'settings.theme': 'Tema de la Aplicación',
     'settings.language': 'Idioma',
     'settings.notifications': 'Notificaciones',
     'settings.account': 'Cuenta',
-    'settings.logout': 'Cerrar Sesión',
+    'settings.logout': 'Cerrar Cuenta',
     'settings.light': 'Claro',
     'settings.dark': 'Oscuro',
     

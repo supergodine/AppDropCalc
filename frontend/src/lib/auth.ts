@@ -21,13 +21,13 @@ class AuthService {
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
       // Para emulador Android, usar 10.0.2.2
       if (window.location.hostname === '10.0.2.2') {
-        return 'http://10.0.2.2:3001';
+        return 'http://10.0.2.2:3002';
       }
       // Para acesso via rede local, usar o IP da rede
-      return `http://${window.location.hostname.replace(':3000', '')}:3001`;
+      return `http://${window.location.hostname.replace(':3001', '')}:3002`;
     }
     // Para localhost normal
-    return 'http://localhost:3001';
+    return 'http://localhost:3002';
   }
 
   async login(email: string, password: string): Promise<AuthUser> {

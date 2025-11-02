@@ -164,7 +164,7 @@ const Settings: React.FC = () => {
           >
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
               {theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-              Tema do Aplicativo
+              {t('settings.theme')}
             </h3>
             
             <div className="grid grid-cols-2 gap-3">
@@ -179,7 +179,7 @@ const Settings: React.FC = () => {
                 }`}
               >
                 <Sun className="w-6 h-6 mx-auto mb-2 text-yellow-500" />
-                <p className="font-medium text-gray-800 dark:text-white">Claro</p>
+                <p className="font-medium text-gray-800 dark:text-white">{t('settings.light')}</p>
                 {theme === 'light' && (
                   <Check className="w-4 h-4 text-blue-500 mx-auto mt-1" />
                 )}
@@ -196,7 +196,7 @@ const Settings: React.FC = () => {
                 }`}
               >
                 <Moon className="w-6 h-6 mx-auto mb-2 text-blue-500" />
-                <p className="font-medium text-gray-800 dark:text-white">Escuro</p>
+                <p className="font-medium text-gray-800 dark:text-white">{t('settings.dark')}</p>
                 {theme === 'dark' && (
                   <Check className="w-4 h-4 text-blue-500 mx-auto mt-1" />
                 )}
@@ -213,7 +213,7 @@ const Settings: React.FC = () => {
           >
             <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Globe className="w-5 h-5" />
-              Idioma
+              {t('settings.language')}
             </h3>
             
             <div className="space-y-2">
@@ -250,7 +250,7 @@ const Settings: React.FC = () => {
               <div className="flex items-center gap-3">
                 <Bell className="w-5 h-5 text-gray-600" />
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800">Notificações</h3>
+                  <h3 className="text-lg font-semibold text-gray-800">{t('settings.notifications')}</h3>
                   <p className="text-gray-600 text-sm">Receber alertas e atualizações</p>
                 </div>
               </div>
@@ -316,7 +316,7 @@ const Settings: React.FC = () => {
               className="w-full p-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-200 transition-colors flex items-center justify-center gap-2 font-medium"
             >
               <LogOut className="w-5 h-5" />
-              Sair da Conta
+              {t('settings.logout')}
             </motion.button>
           </motion.div>
         </div>
