@@ -111,8 +111,8 @@ export class AuthController {
   }
 
   private getFrontendURL(req?: any): string {
-    // Para Google OAuth, sempre usar localhost para evitar problemas de IP privado
-    return 'http://localhost:3000';
+    // Usar a URL do frontend no Vercel
+    return 'https://app-drop-calc-matcqzw7v.vercel.app';
   }
 
   @Get('profile')

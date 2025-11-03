@@ -4,8 +4,8 @@ import { Calculator, DollarSign, TrendingUp, Settings, User, Crown, Menu, X, Inf
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 
-// API offline - fallback para dados locais
-const API_BASE = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3002';
+// API usando Railway - mesma URL da API principal
+const API_BASE = import.meta.env.VITE_API_URL || 'https://appdropcalc-production.up.railway.app';
 
 // Componente de Tooltip
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => {
