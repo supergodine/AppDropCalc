@@ -18,11 +18,15 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
     const databaseType = this.configService.get('DATABASE_TYPE', 'sqlite');
 
     if (databaseType === 'sqlite') {
+      const database = isDevelopment ? 
+        this.configService.get('DATABASE_URL', 'database.sqlite') : 
+        ':memory:'; // Em produção, usa banco em memória
+        
       return {
         type: 'sqlite',
-        database: this.configService.get('DATABASE_URL', 'database.sqlite'),
+        database: database,
         entities: [User],
-        synchronize: isDevelopment, // Apenas em desenvolvimento
+        synchronize: true, // Sempre true para SQLite
         logging: isDevelopment,
       };
     }
