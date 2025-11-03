@@ -53,11 +53,14 @@ self.addEventListener('fetch', (event) => {
 
             return response;
           })
-          .catch(() => {
+          .catch((error) => {
+            console.log('Fetch failed silently:', error);
             // Fallback para página offline
             if (event.request.destination === 'document') {
               return caches.match('/');
             }
+            // Para outros recursos, retorna uma resposta vazia
+            return new Response('', { status: 200 });
           });
       })
   );

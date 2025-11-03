@@ -41,9 +41,9 @@ const AppHybrid: React.FC = () => {
             <Route path="/settings" element={<Settings />} />
             <Route path="/help" element={<Help />} />
             
-            {/* Default redirect */}
-            <Route path="/" element={<Navigate to="/welcome" replace />} />
-            <Route path="*" element={<Navigate to="/welcome" replace />} />
+            {/* Default redirect para dashboard direto */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
           
           {/* Toast notifications */}
