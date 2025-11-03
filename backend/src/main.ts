@@ -21,23 +21,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
   
-  // Enable CORS for frontend connection
+  // Enable CORS for frontend connection - PERMISSIVO PARA DEBUG
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://127.0.0.1:3000', 
-      'http://127.0.0.1:3001', 
-      'http://192.168.0.14:3000',
-      'http://192.168.0.14:3001',
-      'http://10.0.2.2:3000',
-      'http://10.0.2.2:3001',
-      /^https:\/\/.*\.vercel\.app$/,
-      /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:300[01]$/,
-      /^http:\/\/10\.0\.2\.\d{1,3}:300[01]$/
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: true, // Aceita qualquer origem
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
 
   const port = 3002;
