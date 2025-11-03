@@ -22,7 +22,7 @@ function isPWAInstalled() {
 }
 
 // Evento para instalar PWA
-let deferredPrompt;
+let deferredPrompt: any;
 window.addEventListener('beforeinstallprompt', (e) => {
   // Previne o prompt automático
   e.preventDefault();

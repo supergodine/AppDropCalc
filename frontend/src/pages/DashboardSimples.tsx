@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calculator, DollarSign, TrendingUp, Settings, HelpCircle, User, Crown, Menu, X, Info } from 'lucide-react';
+import { Calculator, DollarSign, TrendingUp, Settings, User, Crown, Menu, X, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 
