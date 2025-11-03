@@ -14,6 +14,10 @@ import type {
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
 
+console.log('🔧 API_BASE_URL configurada:', API_BASE_URL);
+console.log('🔧 VITE_API_URL env:', import.meta.env.VITE_API_URL);
+console.log('🔧 MODE:', import.meta.env.MODE);
+
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
