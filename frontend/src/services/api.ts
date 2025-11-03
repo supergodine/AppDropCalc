@@ -12,11 +12,15 @@ import type {
   CalculationResult,
 } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+// PRODUÇÃO: URL hardcoded para garantir funcionamento
+const API_BASE_URL = import.meta.env.PROD || import.meta.env.MODE === 'production'
+  ? 'https://appdropcalc-production.up.railway.app'
+  : 'http://localhost:3002';
 
 console.log('🔧 API_BASE_URL configurada:', API_BASE_URL);
-console.log('🔧 VITE_API_URL env:', import.meta.env.VITE_API_URL);
+console.log('🔧 PROD:', import.meta.env.PROD);
 console.log('🔧 MODE:', import.meta.env.MODE);
+console.log('🔧 DEV:', import.meta.env.DEV);
 
 // Create axios instance
 const api = axios.create({
