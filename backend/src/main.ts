@@ -29,10 +29,14 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const port = 3002;
+  // Port configuration - Railway provides PORT dynamically
+  const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0'); // Listen on all network interfaces
   console.log(`🚀 Backend rodando na porta ${port}`);
   console.log(`📚 Swagger documentação disponível em: http://localhost:${port}/api/docs`);
-  console.log(`🌐 Acesso via rede: http://192.168.0.14:${port}/api/docs`);
+  
+  // Log environment info
+  console.log(`� Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔗 Backend URL: ${process.env.BACKEND_URL || 'http://localhost:' + port}`);
 }
 bootstrap();
