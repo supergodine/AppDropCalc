@@ -12,12 +12,13 @@ import type {
   CalculationResult,
 } from '../types';
 
-// SOLUÇÃO DEFINITIVA - RAILWAY SEMPRE
-const API_BASE_URL = 'https://appdropcalc-production.up.railway.app';
+// SOLUÇÃO DEFINITIVA - USA VARIÁVEL DE AMBIENTE
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://appdropcalc-production.up.railway.app';
 
 // Debug SEMPRE ativo
 console.clear();
 console.log('🔥 VERSÃO FINAL - API_BASE_URL:', API_BASE_URL);
+console.log('🔥 ENV VITE_API_URL:', import.meta.env.VITE_API_URL);
 console.log('🔥 Timestamp:', new Date().toISOString());
 console.log('🔥 URL atual:', window.location.href);
 
@@ -136,15 +137,15 @@ export const calculationsApi = {
   },
 };
 
-// Presets API
+// Presets API (usando endpoints corretos do backend)
 export const presetsApi = {
   async getPlatforms(): Promise<PresetPlatform[]> {
-    const response: AxiosResponse<PresetPlatform[]> = await api.get('/presets/platforms');
+    const response: AxiosResponse<PresetPlatform[]> = await api.get('/calc/platforms');
     return response.data;
   },
 
   async getGateways(): Promise<Gateway[]> {
-    const response: AxiosResponse<Gateway[]> = await api.get('/presets/gateways');
+    const response: AxiosResponse<Gateway[]> = await api.get('/calc/gateways');
     return response.data;
   },
 };
