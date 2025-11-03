@@ -12,12 +12,14 @@ import type {
   CalculationResult,
 } from '../types';
 
-// PRODUÇÃO: FORÇA Railway - VERSÃO 2.0
+// SOLUÇÃO DEFINITIVA - RAILWAY SEMPRE
 const API_BASE_URL = 'https://appdropcalc-production.up.railway.app';
 
-console.log('� SEMPRE RAILWAY - API_BASE_URL:', API_BASE_URL);
-console.log('� MODE:', import.meta.env.MODE);
-console.log('� TIMESTAMP:', new Date().toISOString());
+// Debug SEMPRE ativo
+console.clear();
+console.log('🔥 VERSÃO FINAL - API_BASE_URL:', API_BASE_URL);
+console.log('🔥 Timestamp:', new Date().toISOString());
+console.log('🔥 URL atual:', window.location.href);
 
 // Create axios instance
 const api = axios.create({
