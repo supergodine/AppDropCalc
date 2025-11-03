@@ -17,8 +17,11 @@ class AuthService {
   private baseURL = this.getBaseURL();
 
   public getBaseURL(): string {
-    // Usar a mesma URL da API principal
-    return import.meta.env.VITE_API_URL || 'https://appdropcalc-production.up.railway.app';
+    // FORÇAR URL DO RAILWAY - SOLUÇÃO DEFINITIVA
+    const url = 'https://appdropcalc-production.up.railway.app';
+    console.log('🔥 AUTH getBaseURL - FORÇADO:', url);
+    console.log('🔥 VITE_API_URL original:', import.meta.env.VITE_API_URL);
+    return url;
   }
 
   async login(email: string, password: string): Promise<AuthUser> {

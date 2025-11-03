@@ -12,13 +12,13 @@ import type {
   CalculationResult,
 } from '../types';
 
-// SOLUÇÃO DEFINITIVA - USA VARIÁVEL DE AMBIENTE
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://appdropcalc-production.up.railway.app';
+// SOLUÇÃO DEFINITIVA - FORÇA URL DO RAILWAY
+const API_BASE_URL = 'https://appdropcalc-production.up.railway.app';
 
 // Debug SEMPRE ativo
 console.clear();
-console.log('🔥 VERSÃO FINAL - API_BASE_URL:', API_BASE_URL);
-console.log('🔥 ENV VITE_API_URL:', import.meta.env.VITE_API_URL);
+console.log('🔥 API.TS - VERSÃO FORÇADA - API_BASE_URL:', API_BASE_URL);
+console.log('🔥 ENV VITE_API_URL (ignorado):', import.meta.env.VITE_API_URL);
 console.log('🔥 Timestamp:', new Date().toISOString());
 console.log('🔥 URL atual:', window.location.href);
 
