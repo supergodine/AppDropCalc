@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Login DropCalc</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #45a049; }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.3);
+        }
+        .success { background: rgba(76, 175, 80, 0.3); }
+        .error { background: rgba(244, 67, 54, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Teste Login DropCalc</h1>
+        <p>API: <strong>https://appdropcalc-production.up.railway.app</strong></p>
+        
+        <form id="loginForm">
+            <input type="email" id="email" placeholder="Email" value="test@test.com" required>
+            <input type="password" id="password" placeholder="Senha" value="123456" required>
+            <button type="submit">🚀 Testar Login</button>
+        </form>
+        
+        <div class="result" id="result" style="display: none;"></div>
+        
+        <hr style="margin: 30px 0; border: 1px solid rgba(255,255,255,0.3);">
+        
+        <button onclick="testBackend()">✅ Testar Conectividade Backend</button>
+        <button onclick="createUser()">👤 Criar Usuário Teste</button>
+        <button onclick="testPlatforms()">🏢 Testar API Plataformas</button>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://appdropcalc-production.up.railway.app';
+        
+        function showResult(message, isSuccess = true) {
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            result.className = 'result ' + (isSuccess ? 'success' : 'error');
+            result.innerHTML = message;
+        }
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                showResult('🔄 Fazendo login...', true);
+                
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`
+                        ✅ <strong>LOGIN SUCESSO!</strong><br>
+                        📧 Email: ${data.user.email}<br>
+                        👤 Nome: ${data.user.name}<br>
+                        🔑 Token: ${data.accessToken.substring(0, 50)}...<br>
+                        📊 Status: ${response.status} ${response.statusText}
+                    `, true);
+                } else {
+                    showResult(`
+                        ❌ <strong>ERRO NO LOGIN</strong><br>
+                        📊 Status: ${response.status} ${response.statusText}<br>
+                        💬 Mensagem: ${data.message || 'Erro desconhecido'}
+                    `, false);
+                }
+            } catch (error) {
+                showResult(`
+                    ❌ <strong>ERRO DE CONEXÃO</strong><br>
+                    💬 Erro: ${error.message}<br>
+                    🔗 Verificar CORS e conectividade
+                `, false);
+            }
+        });
+        
+        async function testBackend() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/`);
+                const text = await response.text();
+                showResult(`✅ <strong>BACKEND CONECTADO</strong><br>💬 ${text}`, true);
+            } catch (error) {
+                showResult(`❌ <strong>ERRO DE CONEXÃO</strong><br>💬 ${error.message}`, false);
+            }
+        }
+        
+        async function createUser() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: 'Usuario Teste ' + Math.floor(Math.random() * 1000),
+                        email: 'test' + Math.floor(Math.random() * 1000) + '@test.com',
+                        password: '123456'
+                    }),
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`✅ <strong>USUÁRIO CRIADO</strong><br>📧 ${data.user.email}`, true);
+                } else {
+                    showResult(`❌ Erro: ${data.message}`, false);
+                }
+            } catch (error) {
+                showResult(`❌ Erro: ${error.message}`, false);
+            }
+        }
+        
+        async function testPlatforms() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/calc/platforms`);
+                const data = await response.json();
+                showResult(`✅ <strong>API FUNCIONANDO</strong><br>🏢 ${data.length} plataformas carregadas`, true);
+            } catch (error) {
+                showResult(`❌ Erro: ${error.message}`, false);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -108,8 +108,9 @@ const Login: React.FC = () => {
     setLoading(true);
     
     try {
-      // Usar a mesma URL base da API para Google OAuth
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://appdropcalc-production.up.railway.app';
+      // FORÇAR URL DO RAILWAY - SOLUÇÃO DEFINITIVA
+      const API_BASE_URL = 'https://appdropcalc-production.up.railway.app';
+      console.log('🔥 LOGIN GOOGLE - URL FORÇADA:', API_BASE_URL);
       window.location.href = `${API_BASE_URL}/auth/google`;
     } catch (error: any) {
       console.error('Google login error:', error);
