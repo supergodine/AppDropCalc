@@ -6,12 +6,14 @@ import TestPage from '@/pages/TestPage';
 import Welcome from '@/pages/Welcome';
 import Login from '@/pages/Login';
 import LoginSimple from '@/pages/LoginSimple';
+import LoginAlternativo from '@/pages/LoginAlternativo';
 import AuthCallback from '@/pages/AuthCallback';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import Payment from '@/pages/Payment';
 import Settings from '@/pages/Settings';
 import Help from '@/pages/Help';
+import Debug from '@/pages/Debug';
 import DashboardSimples from '@/pages/DashboardSimples';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
@@ -26,8 +28,10 @@ const AppHybrid: React.FC = () => {
             {/* Public Routes que sabemos que funcionam */}
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/test" element={<TestPage />} />
+            <Route path="/debug" element={<Debug />} />
             <Route path="/login" element={<Login />} />
             <Route path="/login-simple" element={<LoginSimple />} />
+            <Route path="/login-alt" element={<LoginAlternativo />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
