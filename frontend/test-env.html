@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste ENV</title>
+</head>
+<body>
+    <h1>Teste de Variáveis de Ambiente</h1>
+    <div id="result"></div>
+    
+    <script type="module">
+        console.log('🔥 Testando variáveis de ambiente...');
+        console.log('🔥 VITE_API_URL:', import.meta.env.VITE_API_URL);
+        console.log('🔥 Todas as env:', import.meta.env);
+        
+        document.getElementById('result').innerHTML = `
+            <p><strong>VITE_API_URL:</strong> ${import.meta.env.VITE_API_URL || 'NÃO DEFINIDA'}</p>
+            <p><strong>MODE:</strong> ${import.meta.env.MODE}</p>
+            <p><strong>DEV:</strong> ${import.meta.env.DEV}</p>
+        `;
+    </script>
+</body>
+</html>
