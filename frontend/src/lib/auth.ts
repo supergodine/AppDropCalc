@@ -19,8 +19,8 @@ class AuthService {
   public getBaseURL(): string {
     // FORÇAR URL DO RAILWAY - SOLUÇÃO DEFINITIVA
     const url = 'https://appdropcalc-production.up.railway.app';
-    console.log('🔥 AUTH getBaseURL - FORÇADO:', url);
-    console.log('🔥 VITE_API_URL original:', import.meta.env.VITE_API_URL);
+    console.log(' AUTH getBaseURL - FORÇADO:', url);
+    console.log(' VITE_API_URL original:', import.meta.env.VITE_API_URL);
     return url;
   }
 
