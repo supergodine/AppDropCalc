@@ -30,7 +30,7 @@ const Welcome: React.FC = () => {
               <Calculator className="w-10 h-10 text-white" />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              DropCalc
+              DropCalc v2.0 - TESTE DEPLOY
             </h1>
           </motion.div>
 
