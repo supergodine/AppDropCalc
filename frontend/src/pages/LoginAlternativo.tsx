@@ -8,6 +8,8 @@ const LoginAlternativo: React.FC = () => {
 
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://appdropcalc-production.up.railway.app';
 
+  console.log('🔥 LOGIN ALTERNATIVO - API_BASE_URL:', API_BASE_URL);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
