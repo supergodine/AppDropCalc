@@ -2,6 +2,63 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/app.controller.ts":
+/*!*******************************!*\
+  !*** ./src/app.controller.ts ***!
+  \*******************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AppController = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
+const app_service_1 = __webpack_require__(/*! ./app.service */ "./src/app.service.ts");
+let AppController = class AppController {
+    constructor(appService) {
+        this.appService = appService;
+    }
+    getHello() {
+        return this.appService.getHello();
+    }
+    getHealth() {
+        return this.appService.getHealth();
+    }
+};
+exports.AppController = AppController;
+__decorate([
+    (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Health check da API' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", String)
+], AppController.prototype, "getHello", null);
+__decorate([
+    (0, common_1.Get)('health'),
+    (0, swagger_1.ApiOperation)({ summary: 'Status da aplicação' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "getHealth", null);
+exports.AppController = AppController = __decorate([
+    (0, swagger_1.ApiTags)('app'),
+    (0, common_1.Controller)(),
+    __metadata("design:paramtypes", [typeof (_a = typeof app_service_1.AppService !== "undefined" && app_service_1.AppService) === "function" ? _a : Object])
+], AppController);
+
+
+/***/ }),
+
 /***/ "./src/app.module.ts":
 /*!***************************!*\
   !*** ./src/app.module.ts ***!
@@ -20,6 +77,8 @@ exports.AppModule = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const config_1 = __webpack_require__(/*! @nestjs/config */ "@nestjs/config");
 const typeorm_1 = __webpack_require__(/*! @nestjs/typeorm */ "@nestjs/typeorm");
+const app_controller_1 = __webpack_require__(/*! ./app.controller */ "./src/app.controller.ts");
+const app_service_1 = __webpack_require__(/*! ./app.service */ "./src/app.service.ts");
 const calc_module_1 = __webpack_require__(/*! ./calc/calc.module */ "./src/calc/calc.module.ts");
 const auth_module_1 = __webpack_require__(/*! ./modules/auth/auth.module */ "./src/modules/auth/auth.module.ts");
 const users_module_1 = __webpack_require__(/*! ./modules/users/users.module */ "./src/modules/users/users.module.ts");
@@ -43,10 +102,49 @@ exports.AppModule = AppModule = __decorate([
             users_module_1.UsersModule,
             exchange_module_1.ExchangeModule,
         ],
-        controllers: [],
-        providers: [],
+        controllers: [app_controller_1.AppController],
+        providers: [app_service_1.AppService],
     })
 ], AppModule);
+
+
+/***/ }),
+
+/***/ "./src/app.service.ts":
+/*!****************************!*\
+  !*** ./src/app.service.ts ***!
+  \****************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AppService = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+let AppService = class AppService {
+    getHello() {
+        return 'DropCalc API - Calculadora de Precificação para Dropshipping 🚀';
+    }
+    getHealth() {
+        return {
+            status: 'ok',
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            environment: process.env.NODE_ENV || 'development',
+            version: '1.0.0',
+            message: 'DropCalc API está funcionando perfeitamente!',
+        };
+    }
+};
+exports.AppService = AppService;
+exports.AppService = AppService = __decorate([
+    (0, common_1.Injectable)()
+], AppService);
 
 
 /***/ }),
@@ -396,11 +494,14 @@ let DatabaseConfig = class DatabaseConfig {
         const isDevelopment = this.configService.get('NODE_ENV') !== 'production';
         const databaseType = this.configService.get('DATABASE_TYPE', 'sqlite');
         if (databaseType === 'sqlite') {
+            const database = isDevelopment ?
+                this.configService.get('DATABASE_URL', 'database.sqlite') :
+                ':memory:';
             return {
                 type: 'sqlite',
-                database: this.configService.get('DATABASE_URL', 'database.sqlite'),
+                database: database,
                 entities: [user_entity_1.User],
-                synchronize: isDevelopment,
+                synchronize: true,
                 logging: isDevelopment,
             };
         }
@@ -620,7 +721,7 @@ let AuthController = class AuthController {
         }
     }
     getFrontendURL(req) {
-        return 'http://localhost:3000';
+        return 'https://app-drop-calc-matcqzw7v.vercel.app';
     }
     async getProfile(req) {
         return {
@@ -1426,7 +1527,7 @@ let GoogleStrategy = class GoogleStrategy extends (0, passport_1.PassportStrateg
         super({
             clientID: configService.get('GOOGLE_CLIENT_ID'),
             clientSecret: configService.get('GOOGLE_CLIENT_SECRET'),
-            callbackURL: 'http://localhost:3001/auth/google/callback',
+            callbackURL: `${configService.get('BACKEND_URL', 'https://appdropcalc-production.up.railway.app')}/auth/google/callback`,
             scope: ['email', 'profile'],
         });
         this.configService = configService;
@@ -2393,26 +2494,17 @@ async function bootstrap() {
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     swagger_1.SwaggerModule.setup('api/docs', app, document);
     app.enableCors({
-        origin: [
-            'http://localhost:3000',
-            'http://localhost:3001',
-            'http://127.0.0.1:3000',
-            'http://127.0.0.1:3001',
-            'http://192.168.0.14:3000',
-            'http://192.168.0.14:3001',
-            'http://10.0.2.2:3000',
-            'http://10.0.2.2:3001',
-            /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:300[01]$/,
-            /^http:\/\/10\.0\.2\.\d{1,3}:300[01]$/
-        ],
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        origin: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: true,
     });
-    const port = 3002;
+    const port = process.env.PORT || 3000;
     await app.listen(port, '0.0.0.0');
     console.log(`🚀 Backend rodando na porta ${port}`);
     console.log(`📚 Swagger documentação disponível em: http://localhost:${port}/api/docs`);
-    console.log(`🌐 Acesso via rede: http://192.168.0.14:${port}/api/docs`);
+    console.log(`� Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔗 Backend URL: ${process.env.BACKEND_URL || 'http://localhost:' + port}`);
 }
 bootstrap();
 
