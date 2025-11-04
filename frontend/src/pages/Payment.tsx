@@ -128,7 +128,6 @@ const Payment: React.FC = () => {
     // 2. O billing status está ativo
     // 3. Existe um usuário logado (para evitar herdar planos de usuários anteriores)
     if (userPlan && billingStatus === 'active' && currentUser) {
-      const user = JSON.parse(currentUser);
       // Verificar se o plano não é muito antigo (mais de 1 dia sem usuário)
       const subscriptionDate = localStorage.getItem('subscriptionDate');
       if (subscriptionDate) {
