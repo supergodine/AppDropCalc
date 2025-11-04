@@ -4,9 +4,6 @@ import { Calculator, DollarSign, TrendingUp, Settings, User, Crown, Menu, X, Inf
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 
-// API usando Railway - mesma URL da API principal
-const API_BASE = import.meta.env.VITE_API_URL || 'https://appdropcalc-production.up.railway.app';
-
 // Componente de Tooltip
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => {
   const [isVisible, setIsVisible] = React.useState(false);
@@ -358,7 +355,6 @@ const DashboardSimples: React.FC = () => {
       const valorStripe = precoVenda * (taxaGateway / 100);
       const valorShopify = precoVenda * (taxaPlataforma / 100);
       const valorMarketing = precoVenda * (marketingPercent / 100);
-      const valorExtra = custoExtraConvertido; // Extra já está no custo médio
       
       const totalTaxas = valorStripe + valorShopify + valorMarketing;
       
