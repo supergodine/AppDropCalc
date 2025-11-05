@@ -58,7 +58,40 @@ interface CalculationResult {
 const DashboardSimples: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { user, plan, logout: authLogout } = useAuth();
+  const { user, plan, logout: authLogout, refreshAuth } = useAuth();
+
+  // Debug info
+  console.log('🎯 DashboardSimples - Estado atual:', {
+    user: !!user,
+    userEmail: user?.email,
+    userName: user?.name,
+    plan: !!plan,
+    planType: plan?.type,
+    planName: plan?.name
+  });
+
+  // Verificar se o usuário está logado, senão redirecionar
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    const userData = localStorage.getItem('currentUser');
+    
+    console.log('🔍 DashboardSimples - Verificação de auth:', {
+      hasToken: !!token,
+      hasUserData: !!userData
+    });
+    
+    if (!token || !userData) {
+      console.log('❌ Não autenticado, redirecionando para login');
+      navigate('/login');
+      return;
+    }
+    
+    // Forçar refresh do auth se necessário
+    if (!user && userData) {
+      console.log('🔄 Fazendo refresh do auth...');
+      refreshAuth();
+    }
+  }, [user, navigate, refreshAuth]);
   
   // Estados da calculadora expandidos
   const [nomeProduto, setNomeProduto] = useState('');
@@ -443,7 +476,13 @@ const DashboardSimples: React.FC = () => {
 
             <div className="hidden md:flex items-center space-x-4">
               <span className="text-sm text-gray-600 dark:text-gray-300">
-                {t('calc.welcome')}, {user?.name || t('calc.user')}!
+                {t('calc.welcome')}, {user?.name || 'Usuário'}!
+                {/* Debug: mostrar dados do usuário */}
+                {process.env.NODE_ENV === 'development' && (
+                  <small style={{fontSize: '10px', color: 'red', marginLeft: '5px'}}>
+                    (Debug: {user ? `User: ${user.name || user.email}` : 'No user'})
+                  </small>
+                )}
               </span>
               
               {/* Badge do Plano Atual */}
