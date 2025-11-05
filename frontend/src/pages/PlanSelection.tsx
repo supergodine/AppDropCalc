@@ -17,22 +17,34 @@ const PlanSelection: React.FC = () => {
   console.log('  - User:', user);
   console.log('  - Plan:', plan);
 
-  // Verificar se usuário está logado
+  // Verificar autenticação de forma mais robusta
   React.useEffect(() => {
-    console.log('🔄 PlanSelection useEffect - Auth check');
-    console.log('  - Loading:', loading, 'IsAuthenticated:', isAuthenticated);
+    const token = localStorage.getItem('accessToken');
+    const userData = localStorage.getItem('currentUser');
     
-    if (!loading && !isAuthenticated) {
-      console.log('❌ Not authenticated, redirecting to login');
+    console.log('🔍 PlanSelection - Verificação de auth:', {
+      hasToken: !!token,
+      hasUserData: !!userData,
+      loading,
+      isAuthenticated
+    });
+    
+    // Se não tem token nem dados do usuário, redirecionar
+    if (!token || !userData) {
+      console.log('❌ Sem token ou dados do usuário, redirecionando para login');
       toast.error('Você precisa estar logado para escolher um plano');
       navigate('/login');
       return;
     }
     
-    if (!loading && isAuthenticated) {
-      console.log('✅ User is authenticated, can choose plan');
+    // Se tem dados mas hook não carregou ainda, aguardar
+    if (token && userData && loading) {
+      console.log('⏳ Dados existem mas hook ainda carregando...');
+      return;
     }
-  }, [isAuthenticated, loading, navigate]);
+    
+    console.log('✅ Autenticação verificada, usuário pode escolher plano');
+  }, [loading, isAuthenticated, navigate]);
 
   // Se usuário já tem plano ativo, redirecionar para dashboard
   React.useEffect(() => {
