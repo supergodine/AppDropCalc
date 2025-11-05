@@ -16,6 +16,7 @@ import Settings from '@/pages/Settings';
 import Help from '@/pages/Help';
 import Debug from '@/pages/Debug';
 import DashboardSimples from '@/pages/DashboardSimples';
+import UsersList from '@/pages/UsersList';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 const AppHybrid: React.FC = () => {
@@ -46,6 +47,7 @@ const AppHybrid: React.FC = () => {
             } />
             <Route path="/settings" element={<Settings />} />
             <Route path="/help" element={<Help />} />
+            <Route path="/users" element={<UsersList />} />
             
             {/* Default redirect para dashboard direto */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />

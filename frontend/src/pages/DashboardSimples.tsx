@@ -511,6 +511,13 @@ const DashboardSimples: React.FC = () => {
               </button>
               
               <button
+                onClick={() => navigate('/users')}
+                className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                title="Ver Usuários"
+              >
+                <User className="w-5 h-5" />
+              </button>
+              <button
                 onClick={() => navigate('/settings')}
                 className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
@@ -574,6 +581,16 @@ const DashboardSimples: React.FC = () => {
                 {plan ? 'Alterar Plano' : 'Escolher Plano'}
               </button>
               
+              <button
+                onClick={() => {
+                  navigate('/users');
+                  setMenuAberto(false);
+                }}
+                className="flex items-center w-full p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
+                <User className="w-4 h-4 mr-2" />
+                Ver Usuários
+              </button>
               <button
                 onClick={() => {
                   navigate('/settings');
