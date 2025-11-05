@@ -409,8 +409,25 @@ const DashboardSimples: React.FC = () => {
   }, [custoProdutoUSD, frete, marketing, custoExtra, markup, plataforma, gateway, moedaOrigem, moedaDestino]);
 
   const logout = async () => {
-    await authLogout();
-    navigate('/welcome');
+    try {
+      console.log('🚪 Iniciando logout...');
+      
+      // Limpar localStorage completamente
+      localStorage.clear();
+      
+      // Chamar logout do authService
+      await authLogout();
+      
+      console.log('✅ Logout concluído, redirecionando...');
+      
+      // Forçar redirecionamento
+      window.location.href = '/welcome';
+    } catch (error) {
+      console.error('❌ Erro no logout:', error);
+      // Mesmo com erro, limpar e redirecionar
+      localStorage.clear();
+      window.location.href = '/welcome';
+    }
   };
 
   return (
