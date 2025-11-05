@@ -462,7 +462,10 @@ const DashboardSimples: React.FC = () => {
               
               {/* Botão para Escolher/Alterar Plano */}
               <button
-                onClick={() => navigate('/plans')}
+                onClick={() => {
+                  console.log('🎯 Clicou em Alterar Plano, navegando para /plans');
+                  navigate('/plans');
+                }}
                 className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition-colors"
               >
                 {plan ? 'Alterar Plano' : 'Escolher Plano'}
@@ -522,6 +525,7 @@ const DashboardSimples: React.FC = () => {
               
               <button
                 onClick={() => {
+                  console.log('🎯 Clicou em Alterar Plano (mobile), navegando para /plans');
                   navigate('/plans');
                   setMenuAberto(false);
                 }}
