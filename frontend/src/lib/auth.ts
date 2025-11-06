@@ -100,7 +100,18 @@ class AuthService {
   getCurrentUser(): AuthUser | null {
     const userStr = localStorage.getItem('currentUser');
     if (userStr) {
-      return JSON.parse(userStr);
+      try {
+        const parsed = JSON.parse(userStr);
+        // Verificar se tem a estrutura básica de usuário
+        if (parsed && typeof parsed === 'object' && parsed.id && parsed.email) {
+          return parsed;
+        }
+      } catch (error) {
+        console.warn('🚨 currentUser inválido no localStorage:', userStr);
+        console.warn('Erro:', error);
+        // Limpar o localStorage inválido
+        localStorage.removeItem('currentUser');
+      }
     }
     return null;
   }
@@ -125,7 +136,19 @@ class AuthService {
   getUserPlan(): UserPlan {
     const storedPlan = localStorage.getItem('userPlan');
     if (storedPlan) {
-      return JSON.parse(storedPlan);
+      try {
+        // Verificar se é JSON válido
+        const parsed = JSON.parse(storedPlan);
+        // Verificar se tem a estrutura correta
+        if (parsed && typeof parsed === 'object' && parsed.type && parsed.name) {
+          return parsed;
+        }
+      } catch (error) {
+        console.warn('🚨 userPlan inválido no localStorage:', storedPlan);
+        console.warn('Erro:', error);
+        // Limpar o localStorage inválido
+        localStorage.removeItem('userPlan');
+      }
     }
     
     // Default to basic plan

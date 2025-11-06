@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Erro ao Abrir</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5;
+        }
+        .debug-section { 
+            background: white; 
+            padding: 20px; 
+            margin: 10px 0; 
+            border-radius: 8px; 
+            border-left: 4px solid #007acc;
+        }
+        .error { border-left-color: #dc3545; }
+        .success { border-left-color: #28a745; }
+        .warning { border-left-color: #ffc107; }
+        pre { 
+            background: #f8f9fa; 
+            padding: 10px; 
+            border-radius: 4px; 
+            overflow-x: auto;
+        }
+        .console-log {
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🐛 Debug - Verificação de Erros</h1>
+    
+    <div class="debug-section">
+        <h2>📊 Informações do Ambiente</h2>
+        <pre id="env-info"></pre>
+    </div>
+    
+    <div class="debug-section">
+        <h2>🔧 Configuração da API</h2>
+        <pre id="api-config"></pre>
+    </div>
+    
+    <div class="debug-section error">
+        <h2>❌ Erros Capturados</h2>
+        <div class="console-log" id="error-log">Aguardando erros...</div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>🧪 Teste de Conectividade</h2>
+        <button onclick="testAPI()">Testar API</button>
+        <button onclick="testAuth()">Testar Auth</button>
+        <pre id="test-results"></pre>
+    </div>
+
+    <script>
+        // Capturar todos os erros
+        const errorLog = document.getElementById('error-log');
+        let errorCount = 0;
+        
+        function logError(type, message, source) {
+            errorCount++;
+            const timestamp = new Date().toLocaleTimeString();
+            errorLog.innerHTML += `[${timestamp}] ${type}: ${message}\n`;
+            if (source) errorLog.innerHTML += `Source: ${source}\n`;
+            errorLog.innerHTML += '---\n';
+            errorLog.scrollTop = errorLog.scrollHeight;
+        }
+        
+        // Capturar erros JavaScript
+        window.onerror = function(message, source, lineno, colno, error) {
+            logError('JavaScript Error', message, `${source}:${lineno}:${colno}`);
+            return false;
+        };
+        
+        // Capturar promessas rejeitadas
+        window.addEventListener('unhandledrejection', function(event) {
+            logError('Unhandled Promise Rejection', event.reason, 'Promise');
+        });
+        
+        // Capturar erros de recursos
+        window.addEventListener('error', function(event) {
+            if (event.target !== window) {
+                logError('Resource Error', `Failed to load: ${event.target.src || event.target.href}`, event.target.tagName);
+            }
+        }, true);
+        
+        // Informações do ambiente
+        document.getElementById('env-info').textContent = `
+URL: ${window.location.href}
+User Agent: ${navigator.userAgent}
+Protocolo: ${window.location.protocol}
+Host: ${window.location.host}
+Porta: ${window.location.port}
+Desenvolvimento: ${window.location.hostname === 'localhost'}
+        `;
+        
+        // Simular configuração da API
+        const API_CONFIG = {
+            getBaseURL() {
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    return 'http://localhost:3001';
+                }
+                return 'https://appdropcalc-production.up.railway.app';
+            },
+            get auth() {
+                const base = this.getBaseURL();
+                return {
+                    login: `${base}/auth/login`,
+                    signup: `${base}/auth/signup`,
+                };
+            }
+        };
+        
+        document.getElementById('api-config').textContent = `
+Base URL: ${API_CONFIG.getBaseURL()}
+Login URL: ${API_CONFIG.auth.login}
+Signup URL: ${API_CONFIG.auth.signup}
+        `;
+        
+        // Testes
+        window.testAPI = async function() {
+            const results = document.getElementById('test-results');
+            results.textContent = 'Testando...';
+            
+            try {
+                const response = await fetch(API_CONFIG.getBaseURL());
+                results.textContent = `✅ API respondeu: ${response.status} ${response.statusText}`;
+            } catch (error) {
+                results.textContent = `❌ Erro na API: ${error.message}`;
+            }
+        };
+        
+        window.testAuth = async function() {
+            const results = document.getElementById('test-results');
+            results.textContent = 'Testando autenticação...';
+            
+            try {
+                const response = await fetch(API_CONFIG.auth.login, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'test', password: 'test' })
+                });
+                results.textContent = `✅ Auth respondeu: ${response.status} ${response.statusText}`;
+            } catch (error) {
+                results.textContent = `❌ Erro na Auth: ${error.message}`;
+            }
+        };
+        
+        // Verificar se nenhum erro foi capturado após 3 segundos
+        setTimeout(() => {
+            if (errorCount === 0) {
+                errorLog.innerHTML = '✅ Nenhum erro capturado até agora!';
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
