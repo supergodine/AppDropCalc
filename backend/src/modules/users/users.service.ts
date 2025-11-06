@@ -22,6 +22,13 @@ export class UsersService {
     });
   }
 
+  async findAll(): Promise<User[]> {
+    return this.userRepository.find({
+      select: ['id', 'email', 'name', 'createdAt', 'updatedAt'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async updateProfile(id: string, updateData: Partial<User>): Promise<User> {
     await this.userRepository.update(id, updateData);
     return this.findById(id);

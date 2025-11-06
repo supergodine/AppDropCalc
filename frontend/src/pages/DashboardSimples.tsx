@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Calculator, DollarSign, TrendingUp, Settings, User, Crown, Menu, X, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../hooks/useAuth';
 
 // Componente de Tooltip
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => {
@@ -57,17 +58,40 @@ interface CalculationResult {
 const DashboardSimples: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  
-  // Simulação de dados do usuário via localStorage
-  const [user, setUser] = useState<any>(null);
-  
+  const { user, plan, logout: authLogout, refreshAuth } = useAuth();
+
+  // Debug info
+  console.log('🎯 DashboardSimples - Estado atual:', {
+    user: !!user,
+    userEmail: user?.email,
+    userName: user?.name,
+    plan: !!plan,
+    planType: plan?.type,
+    planName: plan?.name
+  });
+
+  // Verificar se o usuário está logado, senão redirecionar
   useEffect(() => {
-    // Buscar dados do usuário do localStorage
+    const token = localStorage.getItem('accessToken');
     const userData = localStorage.getItem('currentUser');
-    if (userData) {
-      setUser(JSON.parse(userData));
+    
+    console.log('🔍 DashboardSimples - Verificação de auth:', {
+      hasToken: !!token,
+      hasUserData: !!userData
+    });
+    
+    if (!token || !userData) {
+      console.log('❌ Não autenticado, redirecionando para login');
+      navigate('/login');
+      return;
     }
-  }, []);
+    
+    // Forçar refresh do auth se necessário
+    if (!user && userData) {
+      console.log('🔄 Fazendo refresh do auth...');
+      refreshAuth();
+    }
+  }, [user, navigate, refreshAuth]);
   
   // Estados da calculadora expandidos
   const [nomeProduto, setNomeProduto] = useState('');
@@ -105,8 +129,9 @@ const DashboardSimples: React.FC = () => {
   const [menuAberto, setMenuAberto] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Status premium simulado
-  const [isPremium, setIsPremium] = useState(false);
+  // Determinar planos baseado no plano real do usuário
+  const isPremium = plan?.type === 'premium';
+  const isGold = plan?.type === 'professional';
 
   // Função para salvar cálculo no histórico
   const salvarCalculo = () => {
@@ -167,8 +192,7 @@ const DashboardSimples: React.FC = () => {
   };
 
   useEffect(() => {
-    const premiumStatus = localStorage.getItem('premiumActive');
-    setIsPremium(premiumStatus === 'true');
+    // Premium status agora é determinado pelo plano real do usuário
   }, []);
 
   // Plataformas e gateways expandidos (ajustado para planilha)
@@ -417,9 +441,26 @@ const DashboardSimples: React.FC = () => {
     return () => clearTimeout(timeoutId);
   }, [custoProdutoUSD, frete, marketing, custoExtra, markup, plataforma, gateway, moedaOrigem, moedaDestino]);
 
-  const logout = () => {
-    localStorage.clear();
-    navigate('/');
+  const logout = async () => {
+    try {
+      console.log('🚪 Iniciando logout...');
+      
+      // Limpar localStorage completamente
+      localStorage.clear();
+      
+      // Chamar logout do authService
+      await authLogout();
+      
+      console.log('✅ Logout concluído, redirecionando...');
+      
+      // Forçar redirecionamento
+      window.location.href = '/welcome';
+    } catch (error) {
+      console.error('❌ Erro no logout:', error);
+      // Mesmo com erro, limpar e redirecionar
+      localStorage.clear();
+      window.location.href = '/welcome';
+    }
   };
 
   return (
@@ -435,14 +476,47 @@ const DashboardSimples: React.FC = () => {
 
             <div className="hidden md:flex items-center space-x-4">
               <span className="text-sm text-gray-600 dark:text-gray-300">
-                {t('calc.welcome')}, {user?.name || t('calc.user')}!
+                {t('calc.welcome')}, {user?.name || 'Usuário'}!
+                {/* Debug: mostrar dados do usuário */}
+                {process.env.NODE_ENV === 'development' && (
+                  <small style={{fontSize: '10px', color: 'red', marginLeft: '5px'}}>
+                    (Debug: {user ? `User: ${user.name || user.email}` : 'No user'})
+                  </small>
+                )}
               </span>
-              {isPremium && (
-                <span className="px-2 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold rounded-full flex items-center">
+              
+              {/* Badge do Plano Atual */}
+              {plan && (
+                <span className={`px-2 py-1 text-xs font-bold rounded-full flex items-center ${
+                  isPremium 
+                    ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-black'
+                    : isGold 
+                    ? 'bg-gradient-to-r from-yellow-300 to-yellow-500 text-black'
+                    : 'bg-gradient-to-r from-gray-400 to-gray-600 text-white'
+                }`}>
                   <Crown className="w-3 h-3 mr-1" />
-                  PREMIUM
+                  {plan.name.toUpperCase()}
                 </span>
               )}
+              
+              {/* Botão para Escolher/Alterar Plano */}
+              <button
+                onClick={() => {
+                  console.log('🎯 Clicou em Alterar Plano, navegando para /plans');
+                  navigate('/plans');
+                }}
+                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition-colors"
+              >
+                {plan ? 'Alterar Plano' : 'Escolher Plano'}
+              </button>
+              
+              <button
+                onClick={() => navigate('/users')}
+                className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                title="Ver Usuários"
+              >
+                <User className="w-5 h-5" />
+              </button>
               <button
                 onClick={() => navigate('/settings')}
                 className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
@@ -480,8 +554,48 @@ const DashboardSimples: React.FC = () => {
               <div className="text-sm text-gray-600 dark:text-gray-300 mb-2">
                 {t('calc.welcome')}, {user?.name || t('calc.user')}!
               </div>
+              
+              {/* Badge do Plano no Mobile */}
+              {plan && (
+                <div className={`inline-flex px-2 py-1 text-xs font-bold rounded-full items-center mb-2 ${
+                  isPremium 
+                    ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-black'
+                    : isGold 
+                    ? 'bg-gradient-to-r from-yellow-300 to-yellow-500 text-black'
+                    : 'bg-gradient-to-r from-gray-400 to-gray-600 text-white'
+                }`}>
+                  <Crown className="w-3 h-3 mr-1" />
+                  {plan.name.toUpperCase()}
+                </div>
+              )}
+              
               <button
-                onClick={() => navigate('/settings')}
+                onClick={() => {
+                  console.log('🎯 Clicou em Alterar Plano (mobile), navegando para /plans');
+                  navigate('/plans');
+                  setMenuAberto(false);
+                }}
+                className="flex items-center w-full p-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+              >
+                <Crown className="w-4 h-4 mr-2" />
+                {plan ? 'Alterar Plano' : 'Escolher Plano'}
+              </button>
+              
+              <button
+                onClick={() => {
+                  navigate('/users');
+                  setMenuAberto(false);
+                }}
+                className="flex items-center w-full p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
+                <User className="w-4 h-4 mr-2" />
+                Ver Usuários
+              </button>
+              <button
+                onClick={() => {
+                  navigate('/settings');
+                  setMenuAberto(false);
+                }}
                 className="flex items-center w-full p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <Settings className="w-4 h-4 mr-2" />

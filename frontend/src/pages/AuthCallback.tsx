@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { authService } from '@/lib/auth';
 
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
