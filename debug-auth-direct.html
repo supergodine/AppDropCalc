@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Auth URLs</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>Debug URLs - DropCalc</h1>
+    
+    <div class="debug">
+        <h3>URLs Detectadas:</h3>
+        <div id="urls"></div>
+    </div>
+
+    <h2>Teste Manual de Registro</h2>
+    <input type="text" id="name" placeholder="Nome" value="Debug User">
+    <input type="email" id="email" placeholder="Email" value="debug@test.com">
+    <input type="password" id="password" placeholder="Senha" value="123456">
+    <button onclick="testRegister()">Registrar</button>
+
+    <div class="debug">
+        <h3>Resposta:</h3>
+        <pre id="response"></pre>
+    </div>
+
+    <script>
+        // URLs possíveis
+        const urls = {
+            'Railway HTTPS': 'https://appdropcalc-production.up.railway.app',
+            'Railway HTTP': 'http://appdropcalc-production.up.railway.app', 
+            'Localhost 3001': 'http://localhost:3001',
+            'Localhost 3002': 'http://localhost:3002',
+            'Vercel com 3002': 'http://app-drop-calc-matcqzw7v.vercel.app:3002'
+        };
+
+        // Exibir URLs
+        document.getElementById('urls').innerHTML = Object.entries(urls)
+            .map(([name, url]) => `<strong>${name}:</strong> ${url}`)
+            .join('<br>');
+
+        async function testRegister() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const correctUrl = 'https://appdropcalc-production.up.railway.app';
+            
+            console.log('🔍 Testando registro com URL:', correctUrl);
+
+            try {
+                const response = await fetch(`${correctUrl}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, password }),
+                });
+
+                console.log('📤 Response status:', response.status);
+                console.log('📤 Response headers:', [...response.headers.entries()]);
+
+                const data = await response.json();
+                
+                document.getElementById('response').textContent = JSON.stringify({
+                    status: response.status,
+                    ok: response.ok,
+                    data: data
+                }, null, 2);
+
+                if (response.ok) {
+                    console.log('✅ Registro bem-sucedido!', data);
+                } else {
+                    console.log('❌ Erro no registro:', data);
+                }
+
+            } catch (error) {
+                console.error('🚨 Erro de conexão:', error);
+                document.getElementById('response').textContent = `ERRO: ${error.message}`;
+            }
+        }
+
+        // Teste de conectividade
+        async function testConnectivity() {
+            for (const [name, url] of Object.entries(urls)) {
+                try {
+                    console.log(`🔄 Testando ${name}...`);
+                    const response = await fetch(`${url}/health`, { method: 'GET' });
+                    console.log(`✅ ${name}: Status ${response.status}`);
+                } catch (error) {
+                    console.log(`❌ ${name}: ${error.message}`);
+                }
+            }
+        }
+
+        // Executar teste automático
+        testConnectivity();
+    </script>
+</body>
+</html>
