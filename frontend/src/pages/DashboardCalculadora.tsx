@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Calculator, DollarSign, TrendingUp, Settings, HelpCircle, Crown, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const API_BASE = 'http://localhost:3001';
+const API_BASE = 'https://appdropcalc-production.up.railway.app';
 
 interface CalculationResult {
   precoVenda: number;
