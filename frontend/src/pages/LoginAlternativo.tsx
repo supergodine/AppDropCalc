@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { API_CONFIG } from '../config/api';
 
 const LoginAlternativo: React.FC = () => {
   const [email, setEmail] = useState('test@teste.com');
   const [password, setPassword] = useState('123456');
   const [loading, setLoading] = useState(false);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://appdropcalc-production.up.railway.app';
-
-  console.log('🔥 LOGIN ALTERNATIVO - API_BASE_URL:', API_BASE_URL);
+  console.log('🔥 LOGIN ALTERNATIVO - baseURL:', API_CONFIG.getBaseURL());
+  console.log('🔥 LOGIN ALTERNATIVO - loginURL:', API_CONFIG.auth.login);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +17,10 @@ const LoginAlternativo: React.FC = () => {
     try {
       toast.loading('Tentando login...');
       
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const loginUrl = API_CONFIG.auth.login;
+      console.log('🔐 Fazendo login em:', loginUrl);
+      
+      const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,9 +50,11 @@ const LoginAlternativo: React.FC = () => {
 
   const testBackendConnection = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/`);
-      const text = await response.text();
-      toast.success(`Backend conectado: ${text}`);
+      const response = await fetch(API_CONFIG.getBaseURL());
+      if (response.ok) {
+        const text = await response.text();
+        toast.success(`Backend conectado: ${text}`);
+      }
     } catch (error: any) {
       toast.error(`Erro de conexão: ${error.message}`);
     }
@@ -57,7 +62,10 @@ const LoginAlternativo: React.FC = () => {
 
   const createTestUser = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+      const signupUrl = API_CONFIG.auth.signup;
+      console.log('📝 Criando usuário em:', signupUrl);
+      
+      const response = await fetch(signupUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +95,7 @@ const LoginAlternativo: React.FC = () => {
         <h1 className="text-3xl font-bold text-white mb-6 text-center">🔧 Login Alternativo</h1>
         
         <div className="mb-6">
-          <p className="text-white/80 text-sm mb-4">API: <code className="bg-black/30 px-2 py-1 rounded text-green-300">{API_BASE_URL}</code></p>
+          <p className="text-white/80 text-sm mb-4">API: <code className="bg-black/30 px-2 py-1 rounded text-green-300">{API_CONFIG.getBaseURL()}</code></p>
           
           <div className="flex gap-2 mb-4">
             <button
