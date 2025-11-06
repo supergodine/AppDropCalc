@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Login</title>
+</head>
+<body>
+    <h1>Debug Login</h1>
+    
+    <div>
+        <h2>Teste de Cadastro</h2>
+        <form id="registerForm">
+            <input type="text" id="regName" placeholder="Nome" value="Usuario Teste">
+            <input type="email" id="regEmail" placeholder="Email" value="teste@exemplo.com">
+            <input type="password" id="regPassword" placeholder="Senha" value="123456">
+            <button type="submit">Cadastrar</button>
+        </form>
+    </div>
+
+    <div>
+        <h2>Teste de Login</h2>
+        <form id="loginForm">
+            <input type="email" id="loginEmail" placeholder="Email" value="teste@exemplo.com">
+            <input type="password" id="loginPassword" placeholder="Senha" value="123456">
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <div>
+        <h2>Status da Autenticação</h2>
+        <button id="checkAuth">Verificar Auth</button>
+        <div id="authStatus"></div>
+    </div>
+
+    <div>
+        <h2>Logs</h2>
+        <div id="logs" style="background: #f0f0f0; padding: 10px; margin: 10px 0; height: 300px; overflow-y: scroll;"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://appdropcalc-production.up.railway.app';
+        const logs = document.getElementById('logs');
+
+        function log(message) {
+            console.log(message);
+            const timestamp = new Date().toLocaleTimeString();
+            logs.innerHTML += `[${timestamp}] ${message}\n`;
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        // Teste de cadastro
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+
+            log(`🔄 Tentando cadastrar: ${email}`);
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, password }),
+                });
+
+                log(`📡 Response status: ${response.status}`);
+                log(`📡 Response headers: ${JSON.stringify([...response.headers])}`);
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    log(`❌ Erro no cadastro: ${JSON.stringify(error)}`);
+                    return;
+                }
+
+                const data = await response.json();
+                log(`✅ Cadastro bem-sucedido: ${JSON.stringify(data)}`);
+
+                // Salvar dados
+                if (data.accessToken) {
+                    localStorage.setItem('accessToken', data.accessToken);
+                    log(`💾 Token salvo: ${data.accessToken.substring(0, 20)}...`);
+                }
+                if (data.user) {
+                    localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    log(`👤 Usuário salvo: ${JSON.stringify(data.user)}`);
+                }
+
+            } catch (error) {
+                log(`💥 Erro na requisição: ${error.message}`);
+            }
+        });
+
+        // Teste de login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            log(`🔄 Tentando login: ${email}`);
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                log(`📡 Response status: ${response.status}`);
+                log(`📡 Response headers: ${JSON.stringify([...response.headers])}`);
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    log(`❌ Erro no login: ${JSON.stringify(error)}`);
+                    return;
+                }
+
+                const data = await response.json();
+                log(`✅ Login bem-sucedido: ${JSON.stringify(data)}`);
+
+                // Salvar dados
+                if (data.accessToken) {
+                    localStorage.setItem('accessToken', data.accessToken);
+                    log(`💾 Token salvo: ${data.accessToken.substring(0, 20)}...`);
+                }
+                if (data.user) {
+                    localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    log(`👤 Usuário salvo: ${JSON.stringify(data.user)}`);
+                }
+
+            } catch (error) {
+                log(`💥 Erro na requisição: ${error.message}`);
+            }
+        });
+
+        // Verificar autenticação
+        document.getElementById('checkAuth').addEventListener('click', () => {
+            const token = localStorage.getItem('accessToken');
+            const user = localStorage.getItem('currentUser');
+            const plan = localStorage.getItem('userPlan');
+
+            log(`🔍 Status da autenticação:`);
+            log(`  Token: ${token ? 'Existe (' + token.substring(0, 20) + '...)' : 'Não existe'}`);
+            log(`  User: ${user || 'Não existe'}`);
+            log(`  Plan: ${plan || 'Não existe'}`);
+
+            const authStatus = document.getElementById('authStatus');
+            authStatus.innerHTML = `
+                <p><strong>Token:</strong> ${token ? 'Sim' : 'Não'}</p>
+                <p><strong>Usuário:</strong> ${user ? JSON.parse(user).email : 'Não logado'}</p>
+                <p><strong>Plano:</strong> ${plan ? JSON.parse(plan).name : 'Não selecionado'}</p>
+            `;
+        });
+
+        // Log inicial
+        log('🚀 Sistema de debug carregado');
+        log(`🌐 API Base URL: ${API_BASE}`);
+    </script>
+</body>
+</html>
