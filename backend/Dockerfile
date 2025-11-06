@@ -29,12 +29,16 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 nestjs
 RUN adduser --system --uid 1001 nestjs
 
+# Criar diretório para banco de dados
+RUN mkdir -p /app/data && chown -R nestjs:nestjs /app/data
+
 # Copiar arquivos necessários
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 
 # Definir permissões
+RUN chown -R nestjs:nestjs /app
 USER nestjs
 
 # Expor porta
