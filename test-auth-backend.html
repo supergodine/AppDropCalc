@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de Autenticação</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin: 10px 0; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .response { margin: 10px 0; padding: 10px; background: #f0f0f0; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Teste de Autenticação DropCalc</h1>
+    
+    <h2>Criar Conta</h2>
+    <div class="form-group">
+        <input type="text" id="registerName" placeholder="Nome" value="Teste User">
+        <input type="email" id="registerEmail" placeholder="Email" value="teste@teste.com">
+        <input type="password" id="registerPassword" placeholder="Senha" value="123456">
+        <button onclick="register()">Criar Conta</button>
+    </div>
+
+    <h2>Login</h2>
+    <div class="form-group">
+        <input type="email" id="loginEmail" placeholder="Email" value="teste@teste.com">
+        <input type="password" id="loginPassword" placeholder="Senha" value="123456">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <h2>Testar Perfil (depois do login)</h2>
+    <button onclick="getProfile()">Buscar Perfil</button>
+    <button onclick="listUsers()">Listar Usuários</button>
+
+    <div id="response" class="response"></div>
+
+    <script>
+        const API_BASE = 'https://appdropcalc-production.up.railway.app/api';
+        // const API_BASE = 'http://localhost:3001/api'; // Para teste local
+        let authToken = localStorage.getItem('token');
+
+        function log(data) {
+            document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function register() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const data = await response.json();
+                log({ status: response.status, data });
+
+                if (response.ok && data.access_token) {
+                    authToken = data.access_token;
+                    localStorage.setItem('token', authToken);
+                    log({ ...data, message: 'Conta criada e token salvo!' });
+                }
+            } catch (error) {
+                log({ error: error.message });
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                log({ status: response.status, data });
+
+                if (response.ok && data.access_token) {
+                    authToken = data.access_token;
+                    localStorage.setItem('token', authToken);
+                    log({ ...data, message: 'Login realizado e token salvo!' });
+                }
+            } catch (error) {
+                log({ error: error.message });
+            }
+        }
+
+        async function getProfile() {
+            if (!authToken) {
+                log({ error: 'Token não encontrado. Faça login primeiro.' });
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/users/profile`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+                log({ status: response.status, data });
+            } catch (error) {
+                log({ error: error.message });
+            }
+        }
+
+        async function listUsers() {
+            if (!authToken) {
+                log({ error: 'Token não encontrado. Faça login primeiro.' });
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/users/list`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+                log({ status: response.status, data });
+            } catch (error) {
+                log({ error: error.message });
+            }
+        }
+
+        // Mostrar token atual se existir
+        if (authToken) {
+            log({ message: 'Token encontrado no localStorage', token: authToken.substring(0, 50) + '...' });
+        }
+    </script>
+</body>
+</html>
