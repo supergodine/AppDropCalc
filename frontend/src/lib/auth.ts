@@ -14,14 +14,12 @@ export interface AuthUser {
 }
 
 class AuthService {
-  private baseURL = this.getBaseURL();
+  private baseURL = 'https://appdropcalc-production.up.railway.app';
 
   public getBaseURL(): string {
-    // FORÇAR URL DO RAILWAY - SOLUÇÃO DEFINITIVA
-    const url = 'https://appdropcalc-production.up.railway.app';
-    console.log(' AUTH getBaseURL - FORÇADO:', url);
-    console.log(' VITE_API_URL original:', import.meta.env.VITE_API_URL);
-    return url;
+    // FORÇAR URL RAILWAY - NÃO USAR VARIÁVEIS DE AMBIENTE
+    console.log('🔒 AUTH baseURL FORÇADO:', this.baseURL);
+    return this.baseURL;
   }
 
   async login(email: string, password: string): Promise<AuthUser> {

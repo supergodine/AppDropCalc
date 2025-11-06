@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = 'https://appdropcalc-production.up.railway.app/api';
 
 interface Platform {
   nome: string;
