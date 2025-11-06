@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_CONFIG } from '../config/api';
 
 interface User {
   id: string;
@@ -26,7 +27,10 @@ const UsersList: React.FC = () => {
         throw new Error('Token não encontrado');
       }
 
-      const response = await fetch('https://appdropcalc-production.up.railway.app/api/users/list', {
+      const usersUrl = API_CONFIG.users.list;
+      console.log('🔍 Buscando usuários em:', usersUrl);
+
+      const response = await fetch(usersUrl, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

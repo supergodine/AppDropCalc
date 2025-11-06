@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
-const API_BASE = (import.meta.env.VITE_API_URL || 'https://appdropcalc-production.up.railway.app');
+import { API_CONFIG } from './config/api';
 
 interface Platform {
   nome: string;
@@ -13,6 +12,7 @@ interface Gateway {
 }
 
 function App() {
+  const API_BASE = API_CONFIG.getBaseURL();
   
   const [formData, setFormData] = useState({
     custoProduto: 100,
