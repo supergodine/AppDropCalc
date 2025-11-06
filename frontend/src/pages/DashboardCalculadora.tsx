@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { Calculator, DollarSign, TrendingUp, Settings, HelpCircle, Crown, Menu, X } from 'lucide-react';
+import { Calculator, DollarSign, TrendingUp, Settings, HelpCircle, User, Crown, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://appdropcalc-production.up.railway.app';
+const API_BASE = 'http://localhost:3001';
 
 interface CalculationResult {
   precoVenda: number;

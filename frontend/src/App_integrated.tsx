@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API_BASE = (import.meta.env.VITE_API_URL || 'https://appdropcalc-production.up.railway.app') + '/api';
-
-interface Platform {
-  nome: string;
-  taxa: number;
-}
-
-interface Gateway {
-  nome: string;
-  taxa: number;
-}
+const API_BASE = 'http://localhost:3001/api';
 
 function App() {
   const [formData, setFormData] = useState({
@@ -141,7 +131,7 @@ function App() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -325,7 +315,7 @@ function App() {
                 borderRadius: '4px'
               }
             }, Object.entries(platforms).map(([key, platform]) =>
-              React.createElement('option', { key: key, value: key }, `${(platform as Platform).nome} (${(platform as Platform).taxa}%)`)
+              React.createElement('option', { key: key, value: key }, `${platform.nome} (${platform.taxa}%)`)
             ))
           ]),
 
@@ -344,7 +334,7 @@ function App() {
                 borderRadius: '4px'
               }
             }, Object.entries(gateways).map(([key, gateway]) =>
-              React.createElement('option', { key: key, value: key }, `${(gateway as Gateway).nome} (${(gateway as Gateway).taxa}%)`)
+              React.createElement('option', { key: key, value: key }, `${gateway.nome} (${gateway.taxa}%)`)
             ))
           ]),
 

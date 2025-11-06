@@ -11,10 +11,12 @@ import AuthCallback from '@/pages/AuthCallback';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import Payment from '@/pages/Payment';
+import PlanSelection from '@/pages/PlanSelection';
 import Settings from '@/pages/Settings';
 import Help from '@/pages/Help';
 import Debug from '@/pages/Debug';
 import DashboardSimples from '@/pages/DashboardSimples';
+import UsersList from '@/pages/UsersList';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 const AppHybrid: React.FC = () => {
@@ -37,6 +39,7 @@ const AppHybrid: React.FC = () => {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/signup" element={<Login />} />
             <Route path="/payment" element={<Payment />} />
+            <Route path="/plans" element={<PlanSelection />} />
             <Route path="/dashboard" element={
               <ErrorBoundary>
                 <DashboardSimples />
@@ -44,6 +47,7 @@ const AppHybrid: React.FC = () => {
             } />
             <Route path="/settings" element={<Settings />} />
             <Route path="/help" element={<Help />} />
+            <Route path="/users" element={<UsersList />} />
             
             {/* Default redirect para dashboard direto */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
