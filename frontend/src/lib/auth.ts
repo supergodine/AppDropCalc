@@ -1,3 +1,5 @@
+import { API_CONFIG } from '../config/api';
+
 export interface UserPlan {
   type: 'basic' | 'professional' | 'premium';
   name: string;
@@ -14,17 +16,18 @@ export interface AuthUser {
 }
 
 class AuthService {
-  private baseURL = 'https://appdropcalc-production.up.railway.app';
-
   public getBaseURL(): string {
-    // FORÇAR URL RAILWAY - NÃO USAR VARIÁVEIS DE AMBIENTE
-    console.log('🔒 AUTH baseURL FORÇADO:', this.baseURL);
-    return this.baseURL;
+    const url = API_CONFIG.getBaseURL();
+    console.log('🔒 AUTH baseURL configurado:', url);
+    return url;
   }
 
   async login(email: string, password: string): Promise<AuthUser> {
     try {
-      const response = await fetch(`${this.baseURL}/auth/login`, {
+      const loginUrl = API_CONFIG.auth.login;
+      console.log('🔐 Login attempt:', { email, url: loginUrl });
+      
+      const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +58,10 @@ class AuthService {
       // Limpar todos os dados de planos anteriores
       this.clearPlanData();
       
-      const response = await fetch(`${this.baseURL}/auth/signup`, {
+      const signupUrl = API_CONFIG.auth.signup;
+      console.log('📝 Signup attempt:', { name, email, url: signupUrl });
+      
+      const response = await fetch(signupUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Configuração de URLs</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-item { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Teste de Configuração de URLs</h1>
+    
+    <div id="results"></div>
+    
+    <button onclick="testConfiguration()">🧪 Testar Configuração</button>
+    <button onclick="testLogin()">🔐 Testar Login</button>
+    
+    <script type="module">
+        // Simular import da configuração
+        const API_CONFIG = {
+            getBaseURL() {
+                // Em desenvolvimento: localhost
+                if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                    return 'http://localhost:3001';
+                }
+                
+                // Em produção: Railway
+                return 'https://appdropcalc-production.up.railway.app';
+            },
+
+            get auth() {
+                const base = this.getBaseURL();
+                return {
+                    login: `${base}/auth/login`,
+                    signup: `${base}/auth/signup`,
+                    refresh: `${base}/auth/refresh`,
+                    logout: `${base}/auth/logout`,
+                    profile: `${base}/auth/profile`,
+                };
+            }
+        };
+
+        function addResult(type, title, content) {
+            const div = document.createElement('div');
+            div.className = `test-item ${type}`;
+            div.innerHTML = `<strong>${title}</strong><br>${content}`;
+            document.getElementById('results').appendChild(div);
+        }
+
+        window.testConfiguration = function() {
+            document.getElementById('results').innerHTML = '';
+            
+            addResult('info', '🌍 Ambiente Detectado', 
+                `Hostname: ${location.hostname}<br>
+                 Protocol: ${location.protocol}<br>
+                 IsDev: ${location.hostname === 'localhost' || location.hostname === '127.0.0.1'}`);
+            
+            const baseURL = API_CONFIG.getBaseURL();
+            addResult('info', '🔗 URL Base Configurada', baseURL);
+            
+            addResult('info', '🔐 URLs de Autenticação', 
+                `Login: ${API_CONFIG.auth.login}<br>
+                 Signup: ${API_CONFIG.auth.signup}<br>
+                 Profile: ${API_CONFIG.auth.profile}`);
+            
+            // Verificar se há URLs problemáticas
+            const problematicPatterns = [
+                'localhost:3002',
+                'vercel.app:3002',
+                'http://app-drop-calc',
+                'https://app-drop-calc-matcqzw7v.vercel.app:3002'
+            ];
+            
+            let foundProblems = false;
+            problematicPatterns.forEach(pattern => {
+                if (baseURL.includes(pattern) || 
+                    API_CONFIG.auth.login.includes(pattern) ||
+                    API_CONFIG.auth.signup.includes(pattern)) {
+                    addResult('error', '🚨 URL Problemática Detectada', 
+                        `Padrão problemático encontrado: ${pattern}`);
+                    foundProblems = true;
+                }
+            });
+            
+            if (!foundProblems) {
+                addResult('success', '✅ Configuração OK', 
+                    'Nenhuma URL problemática detectada!');
+            }
+        };
+
+        window.testLogin = async function() {
+            try {
+                const loginUrl = API_CONFIG.auth.login;
+                addResult('info', '🧪 Testando Conectividade', `Tentando conectar com: ${loginUrl}`);
+                
+                const response = await fetch(loginUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        email: 'test@test.com', 
+                        password: 'wrongpassword' 
+                    })
+                });
+                
+                addResult('success', '✅ Conectividade OK', 
+                    `Status: ${response.status}<br>
+                     URL usada: ${loginUrl}<br>
+                     Resposta recebida (esperado 401 para credenciais inválidas)`);
+                
+            } catch (error) {
+                addResult('error', '❌ Erro de Conectividade', 
+                    `Erro: ${error.message}<br>
+                     URL tentativa: ${API_CONFIG.auth.login}<br>
+                     Verifique se o backend está rodando`);
+            }
+        };
+
+        // Testar automaticamente ao carregar
+        testConfiguration();
+    </script>
+</body>
+</html>
