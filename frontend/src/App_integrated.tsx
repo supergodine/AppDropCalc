@@ -131,7 +131,7 @@ function App() {
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -315,7 +315,7 @@ function App() {
                 borderRadius: '4px'
               }
             }, Object.entries(platforms).map(([key, platform]) =>
-              React.createElement('option', { key: key, value: key }, `${platform.nome} (${platform.taxa}%)`)
+              React.createElement('option', { key: key, value: key }, `${(platform as any).nome} (${(platform as any).taxa}%)`)
             ))
           ]),
 
@@ -334,7 +334,7 @@ function App() {
                 borderRadius: '4px'
               }
             }, Object.entries(gateways).map(([key, gateway]) =>
-              React.createElement('option', { key: key, value: key }, `${gateway.nome} (${gateway.taxa}%)`)
+              React.createElement('option', { key: key, value: key }, `${(gateway as any).nome} (${(gateway as any).taxa}%)`)
             ))
           ]),
 
