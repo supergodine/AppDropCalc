@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interceptador de Fetch</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a1a; color: white; }
+        .log { background: #333; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #d32f2f; }
+        .success { background: #388e3c; }
+        .warning { background: #f57c00; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Interceptador de Fetch URLs</h1>
+    <div id="logs"></div>
+    
+    <script>
+        // Interceptar TODOS os fetch calls
+        const originalFetch = window.fetch;
+        const logs = [];
+        
+        function addLog(message, type = 'log') {
+            console.log(message);
+            logs.push({ message, type, time: new Date().toLocaleTimeString() });
+            updateLogs();
+        }
+        
+        function updateLogs() {
+            const logDiv = document.getElementById('logs');
+            logDiv.innerHTML = logs.map(log => 
+                `<div class="log ${log.type}">[${log.time}] ${log.message}</div>`
+            ).reverse().join('');
+        }
+        
+        window.fetch = function(url, options) {
+            const fullUrl = typeof url === 'string' ? url : url.toString();
+            
+            // Log TODA tentativa de fetch
+            addLog(`📤 FETCH: ${fullUrl}`, 'log');
+            
+            // Detectar URLs problemáticas
+            if (fullUrl.includes('3002')) {
+                addLog(`🚨 PROBLEMA DETECTADO: URL com 3002 - ${fullUrl}`, 'error');
+                
+                // Mostrar stack trace para identificar origem
+                console.trace('🔍 Stack trace da URL problemática:');
+                
+                // Substituir URL problemática
+                const fixedUrl = fullUrl.replace(/vercel\.app:3002/, 'appdropcalc-production.up.railway.app');
+                addLog(`🔧 URL CORRIGIDA: ${fixedUrl}`, 'warning');
+                
+                return originalFetch(fixedUrl, options);
+            }
+            
+            if (fullUrl.includes('localhost')) {
+                addLog(`⚠️ LOCALHOST DETECTADO: ${fullUrl}`, 'warning');
+            }
+            
+            if (fullUrl.includes('railway.app')) {
+                addLog(`✅ RAILWAY OK: ${fullUrl}`, 'success');
+            }
+            
+            return originalFetch(url, options);
+        };
+        
+        addLog('🎯 Interceptador de fetch ativado!', 'success');
+        addLog('Agora vá para: https://app-drop-calc-matcqzw7v.vercel.app/login', 'log');
+        addLog('E tente criar uma conta. Todas as URLs serão logadas aqui.', 'log');
+    </script>
+</body>
+</html>
