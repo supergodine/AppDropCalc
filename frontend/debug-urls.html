@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug URLs - DropCalc</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        .warning { background-color: #fff3cd; }
+    </style>
+</head>
+<body>
+    <h1>Debug URLs - DropCalc</h1>
+    <div id="results"></div>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        function addResult(title, status, message, data = {}) {
+            const div = document.createElement('div');
+            div.className = `result ${status}`;
+            div.innerHTML = `
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            results.appendChild(div);
+        }
+        
+        // 1. Verificar variáveis de ambiente
+        addResult('Environment Variables', 'warning', 'Verificando variáveis...', {
+            hostname: window.location.hostname,
+            href: window.location.href,
+            origin: window.location.origin
+        });
+        
+        // 2. Verificar Firebase Config
+        if (typeof firebase !== 'undefined') {
+            addResult('Firebase', 'success', 'Firebase carregado');
+        } else {
+            addResult('Firebase', 'error', 'Firebase NÃO carregado');
+        }
+        
+        // 3. Simular getBaseURL
+        function getBaseURL() {
+            console.log('🔴 FORÇANDO SEMPRE RAILWAY HTTPS - NUNCA LOCALHOST');
+            return 'https://appdropcalc-production.up.railway.app';
+        }
+        
+        const baseURL = getBaseURL();
+        addResult('Base URL', 'success', `URL base: ${baseURL}`);
+        
+        // 4. Verificar URLs de Auth
+        const authURLs = {
+            login: `${baseURL}/auth/login`,
+            signup: `${baseURL}/auth/signup`,
+            google: `${baseURL}/auth/google`,  // ESTA NÃO DEVERIA EXISTIR!
+            googleCallback: `${baseURL}/auth/google/callback`  // ESTA NÃO DEVERIA EXISTIR!
+        };
+        
+        addResult('Auth URLs', 'warning', 'URLs de autenticação:', authURLs);
+        
+        // 5. Testar URLs
+        async function testURL(url, name) {
+            try {
+                const response = await fetch(url, { method: 'GET', mode: 'no-cors' });
+                addResult(`Test ${name}`, 'success', `URL acessível: ${url}`);
+            } catch (error) {
+                addResult(`Test ${name}`, 'error', `URL inacessível: ${url}`, { error: error.message });
+            }
+        }
+        
+        // Testar URLs problemáticas
+        testURL(authURLs.google, 'Google Auth Route');
+        testURL(authURLs.googleCallback, 'Google Callback Route');
+        
+        // 6. Verificar localStorage
+        const storage = {
+            token: localStorage.getItem('auth_token'),
+            user: localStorage.getItem('auth_user'),
+            keys: Object.keys(localStorage)
+        };
+        
+        addResult('LocalStorage', 'warning', 'Estado do armazenamento:', storage);
+    </script>
+</body>
+</html>
