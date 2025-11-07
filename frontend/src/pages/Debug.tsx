@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { authService } from '../lib/auth';
 
 interface TestResult {
   test: string;
@@ -90,9 +91,18 @@ const Debug: React.FC = () => {
     toast.success('Diagnóstico concluído!');
   };
 
-  const testGoogleLogin = () => {
-    toast.loading('Redirecionando para Google...');
-    window.location.href = `${API_BASE_URL}/auth/google`;
+  const testGoogleLogin = async () => {
+    try {
+      const loadingToast = toast.loading('Testando login Google Firebase...');
+      
+      const user = await authService.loginWithGoogle();
+      
+      toast.dismiss(loadingToast);
+      toast.success(`Login Google funcionando! Usuário: ${user.name}`);
+      
+    } catch (error: any) {
+      toast.error(`Erro no teste Google: ${error.message}`);
+    }
   };
 
   return (
