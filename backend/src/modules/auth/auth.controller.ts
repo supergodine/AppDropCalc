@@ -19,7 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { GoogleAuthGuard } from './guards/google-auth.guard';
+// import { GoogleAuthGuard } from './guards/google-auth.guard'; // DESATIVADO - USANDO FIREBASE
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { SignUpDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
@@ -75,6 +75,8 @@ export class AuthController {
     }
   }
 
+  // ROTAS OAUTH DESATIVADAS - USANDO FIREBASE AUTH NO FRONTEND
+  /*
   @Get('google')
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Iniciar login com Google' })
@@ -114,6 +116,7 @@ export class AuthController {
     // Usar a URL do frontend no Vercel
     return 'https://app-drop-calc-matcqzw7v.vercel.app';
   }
+  */
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
