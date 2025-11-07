@@ -2,7 +2,12 @@
 export const API_CONFIG = {
   // URL base da API
   getBaseURL(): string {
-    // FORÇAR detecção de ambiente mais robusta
+    // SEMPRE FORÇAR RAILWAY HTTPS - NUNCA LOCALHOST
+    console.log('🔴 FORÇANDO SEMPRE RAILWAY HTTPS - NUNCA LOCALHOST');
+    return 'https://appdropcalc-production.up.railway.app';
+    
+    // CÓDIGO COMENTADO - NÃO USAR LOCALHOST
+    /*
     const isProduction = window.location.hostname !== 'localhost' && 
                         window.location.hostname !== '127.0.0.1' &&
                         !window.location.hostname.includes('localhost');
@@ -16,6 +21,7 @@ export const API_CONFIG = {
     // EM PRODUÇÃO: SEMPRE RAILWAY HTTPS - NUNCA VERCEL COM PORTA
     console.log('🟢 AMBIENTE: PRODUÇÃO - forçando Railway HTTPS');
     return 'https://appdropcalc-production.up.railway.app';
+    */
   },
 
   // URLs específicas da API
@@ -61,18 +67,16 @@ export const API_CONFIG = {
 };
 
 // Log da configuração para debug
-console.log('🔧 API_CONFIG INICIALIZADO:', {
+console.log('🔧 API_CONFIG INICIALIZADO (SEMPRE RAILWAY):', {
   hostname: window.location.hostname,
-  isProduction: window.location.hostname !== 'localhost' && 
-                window.location.hostname !== '127.0.0.1' &&
-                !window.location.hostname.includes('localhost'),
+  forceProduction: true,
   baseURL: API_CONFIG.getBaseURL(),
   authSignup: API_CONFIG.auth.signup
 });
 
 // VALIDAÇÃO EXTRA: Verificar se há URLs problemáticas
 const validateUrls = () => {
-  const problematicPatterns = [':3002', 'vercel.app:3002', 'localhost:3002'];
+  const problematicPatterns = [':3002', 'vercel.app:3002', 'localhost:', ':3001', ':3000'];
   const urls = [API_CONFIG.auth.signup, API_CONFIG.auth.login];
   
   urls.forEach(url => {
@@ -80,6 +84,7 @@ const validateUrls = () => {
       if (url.includes(pattern)) {
         console.error('🚨 URL PROBLEMÁTICA DETECTADA:', url);
         console.error('🚨 PADRÃO PROBLEMÁTICO:', pattern);
+        console.error('🚨 DEVE SER SEMPRE RAILWAY HTTPS!');
       }
     });
   });

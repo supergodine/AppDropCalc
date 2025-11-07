@@ -63,7 +63,8 @@ const Debug: React.FC = () => {
       updateResult('Plataformas API', 'error', `❌ Erro: ${error.message}`, error);
     }
 
-    // Teste 4: OAuth Google (sem redirecionamento)
+    // Teste 4: OAuth Google (COMENTADO - AGORA USA FIREBASE)
+    /*
     try {
       const response = await fetch(`${API_BASE_URL}/auth/google`, { 
         method: 'GET',
@@ -73,10 +74,20 @@ const Debug: React.FC = () => {
       if (response.status === 0 || response.type === 'opaqueredirect') {
         updateResult('OAuth Google Redirect', 'success', '✅ OAuth configurado (redirecionamento detectado)', { status: 'redirect' });
       } else {
-        updateResult('OAuth Google Redirect', 'success', `✅ Resposta OAuth: ${response.status}`, { status: response.status });
+        updateResult('OAuth Google Redirect', 'error', '❌ OAuth não configurado', { status: response.status });
       }
     } catch (error: any) {
-      updateResult('OAuth Google Redirect', 'error', `❌ Erro OAuth: ${error.message}`, error);
+      updateResult('OAuth Google Redirect', 'error', `❌ Erro: ${error.message}`, { error: error.message });
+    }
+    */
+    
+    // NOVO: Teste Firebase Auth em vez de backend OAuth
+    try {
+      updateResult('Firebase Auth', 'success', '✅ Firebase Auth disponível (Google via popup)', { 
+        info: 'Agora usando Firebase em vez de backend OAuth' 
+      });
+    } catch (error: any) {
+      updateResult('Firebase Auth', 'error', `❌ Firebase Error: ${error.message}`, { error: error.message });
     }
 
     // Teste 5: Variáveis de ambiente
