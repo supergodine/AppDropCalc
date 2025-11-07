@@ -23,6 +23,24 @@ const Login: React.FC = () => {
   useEffect(() => {
     console.log('useEffect Login executando...');
     
+    // Verificar resultado de redirecionamento Google
+    const checkGoogleRedirect = async () => {
+      try {
+        const user = await authService.handleGoogleRedirectResult();
+        if (user) {
+          console.log('✅ Login Google por redirect:', user);
+          toast.success(`Bem-vindo, ${user.name}! 🎉`);
+          navigate('/dashboard');
+          return;
+        }
+      } catch (error) {
+        console.error('❌ Erro no redirect Google:', error);
+        toast.error('Erro ao processar login Google');
+      }
+    };
+    
+    checkGoogleRedirect();
+    
     // Check if came from "Create account" button first
     const mode = searchParams.get('mode');
     console.log('Mode detectado:', mode);
@@ -105,16 +123,41 @@ const Login: React.FC = () => {
   };
 
   const handleGoogleLogin = async () => {
+    if (loading) return;
+    
     setLoading(true);
+    const loadingToast = toast.loading('Conectando com Google...');
     
     try {
-      // FORÇAR URL DO RAILWAY - SOLUÇÃO DEFINITIVA
-      const API_BASE_URL = 'https://appdropcalc-production.up.railway.app';
-      console.log('🔥 LOGIN GOOGLE - URL FORÇADA:', API_BASE_URL);
-      window.location.href = `${API_BASE_URL}/auth/google`;
+      console.log('🚀 Iniciando login Google Firebase...');
+      
+      const user = await authService.loginWithGoogle();
+      
+      toast.dismiss(loadingToast);
+      toast.success(`Bem-vindo, ${user.name}! 🎉`);
+      
+      console.log('✅ Login Google realizado:', user);
+      
+      // Redirecionar para dashboard
+      navigate('/dashboard');
+      
     } catch (error: any) {
-      console.error('Google login error:', error);
-      toast.error('Erro ao conectar com Google. Tente novamente.');
+      console.error('❌ Erro no login Google:', error);
+      
+      toast.dismiss(loadingToast);
+      
+      let errorMessage = 'Erro ao fazer login com Google';
+      
+      if (error.message?.includes('popup-closed-by-user')) {
+        errorMessage = 'Login cancelado pelo usuário';
+      } else if (error.message?.includes('popup-blocked')) {
+        errorMessage = 'Popup bloqueado. Permita popups para este site';
+      } else if (error.message?.includes('network')) {
+        errorMessage = 'Erro de conexão. Verifique sua internet';
+      }
+      
+      toast.error(errorMessage);
+    } finally {
       setLoading(false);
     }
   };
