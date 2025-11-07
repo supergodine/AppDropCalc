@@ -1,4 +1,5 @@
 import { API_CONFIG } from '../config/api';
+import { googleAuthService } from '../services/googleAuth';
 
 export interface UserPlan {
   type: 'basic' | 'professional' | 'premium';
@@ -13,6 +14,8 @@ export interface AuthUser {
   email: string;
   name: string;
   plan?: UserPlan;
+  photoURL?: string;
+  provider?: 'email' | 'google';
 }
 
 class AuthService {
@@ -22,6 +25,7 @@ class AuthService {
     return url;
   }
 
+  // Login tradicional com email/senha
   async login(email: string, password: string): Promise<AuthUser> {
     try {
       const loginUrl = API_CONFIG.auth.login;
@@ -82,10 +86,102 @@ class AuthService {
     }
   }
 
+  // ===== GOOGLE AUTH METHODS =====
+  
+  async loginWithGoogle(): Promise<AuthUser> {
+    try {
+      console.log('🚀 Iniciando login com Google...');
+      
+      // Fazer login com Google
+      const googleUser = await googleAuthService.loginWithPopup();
+      
+      // Sincronizar com backend
+      const backendUser = await googleAuthService.syncWithBackend(googleUser);
+      
+      // Criar AuthUser do nosso sistema
+      const authUser: AuthUser = {
+        id: googleUser.id,
+        email: googleUser.email,
+        name: googleUser.name,
+        photoURL: googleUser.photoURL,
+        provider: 'google',
+        plan: backendUser.plan || this.getUserPlan()
+      };
+      
+      // Salvar no localStorage
+      localStorage.setItem('currentUser', JSON.stringify(authUser));
+      if (backendUser.accessToken) {
+        localStorage.setItem('accessToken', backendUser.accessToken);
+      }
+      
+      console.log('✅ Login Google completo:', authUser);
+      return authUser;
+      
+    } catch (error) {
+      console.error('❌ Erro no login Google:', error);
+      throw error;
+    }
+  }
+
+  async loginWithGoogleRedirect(): Promise<void> {
+    try {
+      await googleAuthService.loginWithRedirect();
+    } catch (error) {
+      console.error('❌ Erro no redirect Google:', error);
+      throw error;
+    }
+  }
+
+  async handleGoogleRedirectResult(): Promise<AuthUser | null> {
+    try {
+      const googleUser = await googleAuthService.handleRedirectResult();
+      if (!googleUser) return null;
+      
+      // Processar igual ao popup
+      const backendUser = await googleAuthService.syncWithBackend(googleUser);
+      
+      const authUser: AuthUser = {
+        id: googleUser.id,
+        email: googleUser.email,
+        name: googleUser.name,
+        photoURL: googleUser.photoURL,
+        provider: 'google',
+        plan: backendUser.plan || this.getUserPlan()
+      };
+      
+      localStorage.setItem('currentUser', JSON.stringify(authUser));
+      if (backendUser.accessToken) {
+        localStorage.setItem('accessToken', backendUser.accessToken);
+      }
+      
+      return authUser;
+    } catch (error) {
+      console.error('❌ Erro no resultado redirect:', error);
+      throw error;
+    }
+  }
+
   async logout(): Promise<void> {
-    this.clearPlanData();
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('currentUser');
+    try {
+      // Logout do Google se estiver logado
+      const currentUser = this.getCurrentUser();
+      if (currentUser?.provider === 'google') {
+        await googleAuthService.logout();
+      }
+      
+      // Limpar dados locais
+      this.clearPlanData();
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('currentUser');
+      
+      console.log('✅ Logout completo realizado');
+    } catch (error) {
+      console.error('❌ Erro no logout:', error);
+      // Limpar mesmo com erro
+      this.clearPlanData();
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('currentUser');
+    }
   }
 
   clearPlanData(): void {
