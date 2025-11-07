@@ -11,7 +11,7 @@ import { User } from '../users/entities/user.entity';
 
 // Strategies
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { GoogleStrategy } from './strategies/google.strategy';
+// import { GoogleStrategy } from './strategies/google.strategy'; // DESATIVADO - FIREBASE AUTH
 import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
@@ -30,7 +30,7 @@ import { LocalStrategy } from './strategies/local.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, GoogleStrategy, LocalStrategy],
+  providers: [AuthService, JwtStrategy, LocalStrategy], // GoogleStrategy removido
   exports: [AuthService],
 })
 export class AuthModule {}
