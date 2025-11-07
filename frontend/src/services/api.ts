@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import type {
-  LoginResponse,
+  // LoginResponse, // COMENTADO - não mais usado (Firebase Auth)
   User,
   Calculation,
   CreateCalculationDto,
@@ -74,14 +74,17 @@ api.interceptors.response.use(
   }
 );
 
-// Auth API
+// Auth API (COMENTADO - AGORA USA FIREBASE AUTH)
 export const authApi = {
+  // COMENTADO: Agora usa Firebase Auth direto, não backend OAuth
+  /*
   async googleLogin(code: string): Promise<LoginResponse> {
     const response: AxiosResponse<LoginResponse> = await api.post('/auth/google', {
       code,
     });
     return response.data;
   },
+  */
 
   async logout(): Promise<void> {
     await api.post('/auth/logout');
