@@ -33,9 +33,9 @@ const app_controller_1 = __webpack_require__(7);
 const app_service_1 = __webpack_require__(8);
 const calc_module_1 = __webpack_require__(9);
 const auth_module_1 = __webpack_require__(14);
-const users_module_1 = __webpack_require__(31);
-const exchange_module_1 = __webpack_require__(40);
-const database_config_1 = __webpack_require__(45);
+const users_module_1 = __webpack_require__(29);
+const exchange_module_1 = __webpack_require__(36);
+const database_config_1 = __webpack_require__(41);
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -595,12 +595,11 @@ const passport_1 = __webpack_require__(16);
 const config_1 = __webpack_require__(5);
 const typeorm_1 = __webpack_require__(6);
 const auth_controller_1 = __webpack_require__(17);
-const auth_service_1 = __webpack_require__(19);
-const users_module_1 = __webpack_require__(31);
-const user_entity_1 = __webpack_require__(22);
-const jwt_strategy_1 = __webpack_require__(34);
-const google_strategy_1 = __webpack_require__(36);
-const local_strategy_1 = __webpack_require__(38);
+const auth_service_1 = __webpack_require__(18);
+const users_module_1 = __webpack_require__(29);
+const user_entity_1 = __webpack_require__(21);
+const jwt_strategy_1 = __webpack_require__(32);
+const local_strategy_1 = __webpack_require__(34);
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -621,7 +620,7 @@ exports.AuthModule = AuthModule = __decorate([
             }),
         ],
         controllers: [auth_controller_1.AuthController],
-        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, google_strategy_1.GoogleStrategy, local_strategy_1.LocalStrategy],
+        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, local_strategy_1.LocalStrategy],
         exports: [auth_service_1.AuthService],
     })
 ], AuthModule);
@@ -656,19 +655,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f;
+var _a, _b, _c, _d, _e;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthController = void 0;
 const common_1 = __webpack_require__(4);
-const express_1 = __webpack_require__(18);
 const swagger_1 = __webpack_require__(2);
-const auth_service_1 = __webpack_require__(19);
-const jwt_auth_guard_1 = __webpack_require__(25);
-const google_auth_guard_1 = __webpack_require__(26);
-const local_auth_guard_1 = __webpack_require__(27);
-const signup_dto_1 = __webpack_require__(28);
-const login_dto_1 = __webpack_require__(30);
-const auth_response_dto_1 = __webpack_require__(24);
+const auth_service_1 = __webpack_require__(18);
+const jwt_auth_guard_1 = __webpack_require__(24);
+const local_auth_guard_1 = __webpack_require__(25);
+const signup_dto_1 = __webpack_require__(26);
+const login_dto_1 = __webpack_require__(28);
+const auth_response_dto_1 = __webpack_require__(23);
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -689,24 +686,6 @@ let AuthController = class AuthController {
             throw error;
         }
     }
-    async googleAuth() {
-    }
-    async googleAuthCallback(req, res) {
-        try {
-            const authResult = await this.authService.login(req.user);
-            const frontendURL = this.getFrontendURL(req);
-            const redirectUrl = `${frontendURL}/auth/callback?token=${authResult.accessToken}&user=${encodeURIComponent(JSON.stringify(authResult.user))}`;
-            res.redirect(redirectUrl);
-        }
-        catch (error) {
-            const frontendURL = this.getFrontendURL(req);
-            const redirectUrl = `${frontendURL}/login?error=google_login_failed`;
-            res.redirect(redirectUrl);
-        }
-    }
-    getFrontendURL(req) {
-        return 'https://app-drop-calc-matcqzw7v.vercel.app';
-    }
     async getProfile(req) {
         return {
             user: req.user,
@@ -721,6 +700,9 @@ let AuthController = class AuthController {
             message: 'Logout realizado com sucesso',
             timestamp: new Date().toISOString(),
         };
+    }
+    async createAdmin() {
+        return this.authService.createAdminUser();
     }
 };
 exports.AuthController = AuthController;
@@ -764,32 +746,6 @@ __decorate([
     __metadata("design:returntype", typeof (_d = typeof Promise !== "undefined" && Promise) === "function" ? _d : Object)
 ], AuthController.prototype, "login", null);
 __decorate([
-    (0, common_1.Get)('google'),
-    (0, common_1.UseGuards)(google_auth_guard_1.GoogleAuthGuard),
-    (0, swagger_1.ApiOperation)({ summary: 'Iniciar login com Google' }),
-    (0, swagger_1.ApiResponse)({
-        status: 302,
-        description: 'Redirecionamento para Google OAuth',
-    }),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "googleAuth", null);
-__decorate([
-    (0, common_1.Get)('google/callback'),
-    (0, common_1.UseGuards)(google_auth_guard_1.GoogleAuthGuard),
-    (0, swagger_1.ApiOperation)({ summary: 'Callback do Google OAuth' }),
-    (0, swagger_1.ApiResponse)({
-        status: 302,
-        description: 'Redirecionamento para frontend com token',
-    }),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Res)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, typeof (_e = typeof express_1.Response !== "undefined" && express_1.Response) === "function" ? _e : Object]),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "googleAuthCallback", null);
-__decorate([
     (0, common_1.Get)('profile'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
@@ -820,7 +776,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
+    __metadata("design:returntype", typeof (_e = typeof Promise !== "undefined" && Promise) === "function" ? _e : Object)
 ], AuthController.prototype, "refresh", null);
 __decorate([
     (0, common_1.Post)('logout'),
@@ -837,6 +793,18 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "logout", null);
+__decorate([
+    (0, common_1.Post)('create-admin'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Criar usuário administrador (apenas primeira vez)' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Administrador criado com sucesso',
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "createAdmin", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('auth'),
     (0, common_1.Controller)('auth'),
@@ -846,12 +814,6 @@ exports.AuthController = AuthController = __decorate([
 
 /***/ }),
 /* 18 */
-/***/ ((module) => {
-
-module.exports = require("express");
-
-/***/ }),
-/* 19 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -873,10 +835,10 @@ exports.AuthService = void 0;
 const common_1 = __webpack_require__(4);
 const jwt_1 = __webpack_require__(15);
 const typeorm_1 = __webpack_require__(6);
-const typeorm_2 = __webpack_require__(20);
-const bcrypt = __webpack_require__(21);
-const user_entity_1 = __webpack_require__(22);
-const auth_response_dto_1 = __webpack_require__(24);
+const typeorm_2 = __webpack_require__(19);
+const bcrypt = __webpack_require__(20);
+const user_entity_1 = __webpack_require__(21);
+const auth_response_dto_1 = __webpack_require__(23);
 let AuthService = class AuthService {
     constructor(userRepository, jwtService) {
         this.userRepository = userRepository;
@@ -986,6 +948,7 @@ let AuthService = class AuthService {
                 country: user.country,
                 plan: user.plan,
                 status: user.status,
+                role: user.role,
                 createdAt: user.createdAt,
                 calculationsCount: 0
             },
@@ -1032,6 +995,43 @@ let AuthService = class AuthService {
             where: { id },
         });
     }
+    async createAdminUser() {
+        const existingAdmin = await this.userRepository.findOne({
+            where: { email: 'comercial@calientabeauty.com' }
+        });
+        if (existingAdmin) {
+            if (existingAdmin.role !== user_entity_1.UserRole.ADMIN) {
+                existingAdmin.role = user_entity_1.UserRole.ADMIN;
+                await this.userRepository.save(existingAdmin);
+                return {
+                    message: 'Usuário existente promovido a administrador',
+                    created: false
+                };
+            }
+            return {
+                message: 'Usuário administrador já existe',
+                created: false
+            };
+        }
+        const saltRounds = 12;
+        const passwordHash = await bcrypt.hash('001266', saltRounds);
+        const adminUser = this.userRepository.create({
+            name: 'Administrador',
+            email: 'comercial@calientabeauty.com',
+            passwordHash,
+            role: user_entity_1.UserRole.ADMIN,
+            plan: user_entity_1.UserPlan.PREMIUM,
+            status: user_entity_1.UserStatus.ACTIVE,
+            currencyDefault: 'BRL',
+            country: 'BR',
+            calculationsCount: 0,
+        });
+        await this.userRepository.save(adminUser);
+        return {
+            message: 'Usuário administrador criado com sucesso! Email: comercial@calientabeauty.com, Senha: 001266',
+            created: true
+        };
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
@@ -1042,19 +1042,19 @@ exports.AuthService = AuthService = __decorate([
 
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ ((module) => {
 
 module.exports = require("typeorm");
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ ((module) => {
 
 module.exports = require("bcrypt");
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1069,9 +1069,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.User = exports.UserStatus = exports.UserPlan = void 0;
-const typeorm_1 = __webpack_require__(20);
-const class_transformer_1 = __webpack_require__(23);
+exports.User = exports.UserRole = exports.UserStatus = exports.UserPlan = void 0;
+const typeorm_1 = __webpack_require__(19);
+const class_transformer_1 = __webpack_require__(22);
 var UserPlan;
 (function (UserPlan) {
     UserPlan["FREE"] = "free";
@@ -1084,6 +1084,11 @@ var UserStatus;
     UserStatus["INACTIVE"] = "inactive";
     UserStatus["SUSPENDED"] = "suspended";
 })(UserStatus || (exports.UserStatus = UserStatus = {}));
+var UserRole;
+(function (UserRole) {
+    UserRole["USER"] = "user";
+    UserRole["ADMIN"] = "admin";
+})(UserRole || (exports.UserRole = UserRole = {}));
 let User = class User {
     canCreateCalculation() {
         if (this.plan === UserPlan.FREE) {
@@ -1097,6 +1102,9 @@ let User = class User {
         if (!this.planExpiresAt)
             return false;
         return new Date() < this.planExpiresAt;
+    }
+    isAdmin() {
+        return this.role === UserRole.ADMIN;
     }
     getDisplayName() {
         return this.name || this.email.split('@')[0];
@@ -1136,6 +1144,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 50, default: 'active' }),
     __metadata("design:type", String)
 ], User.prototype, "status", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 20, default: 'user' }),
+    __metadata("design:type", String)
+], User.prototype, "role", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: true }),
     __metadata("design:type", String)
@@ -1182,13 +1194,13 @@ exports.User = User = __decorate([
 
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ ((module) => {
 
 module.exports = require("class-transformer");
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1214,6 +1226,7 @@ class UserResponseDto {
         this.country = user.country;
         this.plan = user.plan;
         this.status = user.status;
+        this.role = user.role;
         this.avatar = user.avatar;
         this.calculationsCount = user.calculationsCount;
         this.createdAt = user.createdAt;
@@ -1271,6 +1284,14 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], UserResponseDto.prototype, "status", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Função do usuário',
+        example: 'user',
+        enum: ['user', 'admin'],
+    }),
+    __metadata("design:type", String)
+], UserResponseDto.prototype, "role", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'URL do avatar',
@@ -1338,7 +1359,7 @@ __decorate([
 
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1361,30 +1382,7 @@ exports.JwtAuthGuard = JwtAuthGuard = __decorate([
 
 
 /***/ }),
-/* 26 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.GoogleAuthGuard = void 0;
-const common_1 = __webpack_require__(4);
-const passport_1 = __webpack_require__(16);
-let GoogleAuthGuard = class GoogleAuthGuard extends (0, passport_1.AuthGuard)('google') {
-};
-exports.GoogleAuthGuard = GoogleAuthGuard;
-exports.GoogleAuthGuard = GoogleAuthGuard = __decorate([
-    (0, common_1.Injectable)()
-], GoogleAuthGuard);
-
-
-/***/ }),
-/* 27 */
+/* 25 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1407,7 +1405,7 @@ exports.LocalAuthGuard = LocalAuthGuard = __decorate([
 
 
 /***/ }),
-/* 28 */
+/* 26 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1423,7 +1421,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SignUpDto = void 0;
 const swagger_1 = __webpack_require__(2);
-const class_validator_1 = __webpack_require__(29);
+const class_validator_1 = __webpack_require__(27);
 class SignUpDto {
     constructor() {
         this.currencyDefault = 'BRL';
@@ -1508,13 +1506,13 @@ __decorate([
 
 
 /***/ }),
-/* 29 */
+/* 27 */
 /***/ ((module) => {
 
 module.exports = require("class-validator");
 
 /***/ }),
-/* 30 */
+/* 28 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1530,7 +1528,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LoginDto = void 0;
 const swagger_1 = __webpack_require__(2);
-const class_validator_1 = __webpack_require__(29);
+const class_validator_1 = __webpack_require__(27);
 class LoginDto {
 }
 exports.LoginDto = LoginDto;
@@ -1556,7 +1554,7 @@ __decorate([
 
 
 /***/ }),
-/* 31 */
+/* 29 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1570,9 +1568,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UsersModule = void 0;
 const common_1 = __webpack_require__(4);
 const typeorm_1 = __webpack_require__(6);
-const user_entity_1 = __webpack_require__(22);
-const users_service_1 = __webpack_require__(32);
-const users_controller_1 = __webpack_require__(33);
+const user_entity_1 = __webpack_require__(21);
+const users_service_1 = __webpack_require__(30);
+const users_controller_1 = __webpack_require__(31);
 let UsersModule = class UsersModule {
 };
 exports.UsersModule = UsersModule;
@@ -1587,7 +1585,7 @@ exports.UsersModule = UsersModule = __decorate([
 
 
 /***/ }),
-/* 32 */
+/* 30 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1608,8 +1606,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UsersService = void 0;
 const common_1 = __webpack_require__(4);
 const typeorm_1 = __webpack_require__(6);
-const typeorm_2 = __webpack_require__(20);
-const user_entity_1 = __webpack_require__(22);
+const typeorm_2 = __webpack_require__(19);
+const user_entity_1 = __webpack_require__(21);
 let UsersService = class UsersService {
     constructor(userRepository) {
         this.userRepository = userRepository;
@@ -1644,7 +1642,7 @@ exports.UsersService = UsersService = __decorate([
 
 
 /***/ }),
-/* 33 */
+/* 31 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1665,8 +1663,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UsersController = void 0;
 const common_1 = __webpack_require__(4);
 const swagger_1 = __webpack_require__(2);
-const jwt_auth_guard_1 = __webpack_require__(25);
-const users_service_1 = __webpack_require__(32);
+const jwt_auth_guard_1 = __webpack_require__(24);
+const users_service_1 = __webpack_require__(30);
 let UsersController = class UsersController {
     constructor(usersService) {
         this.usersService = usersService;
@@ -1712,7 +1710,7 @@ exports.UsersController = UsersController = __decorate([
 
 
 /***/ }),
-/* 34 */
+/* 32 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1730,9 +1728,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JwtStrategy = void 0;
 const common_1 = __webpack_require__(4);
 const passport_1 = __webpack_require__(16);
-const passport_jwt_1 = __webpack_require__(35);
+const passport_jwt_1 = __webpack_require__(33);
 const config_1 = __webpack_require__(5);
-const auth_service_1 = __webpack_require__(19);
+const auth_service_1 = __webpack_require__(18);
 let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy) {
     constructor(configService, authService) {
         super({
@@ -1762,69 +1760,13 @@ exports.JwtStrategy = JwtStrategy = __decorate([
 
 
 /***/ }),
-/* 35 */
+/* 33 */
 /***/ ((module) => {
 
 module.exports = require("passport-jwt");
 
 /***/ }),
-/* 36 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var _a, _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.GoogleStrategy = void 0;
-const common_1 = __webpack_require__(4);
-const passport_1 = __webpack_require__(16);
-const passport_google_oauth20_1 = __webpack_require__(37);
-const config_1 = __webpack_require__(5);
-const auth_service_1 = __webpack_require__(19);
-let GoogleStrategy = class GoogleStrategy extends (0, passport_1.PassportStrategy)(passport_google_oauth20_1.Strategy, 'google') {
-    constructor(configService, authService) {
-        super({
-            clientID: configService.get('GOOGLE_CLIENT_ID'),
-            clientSecret: configService.get('GOOGLE_CLIENT_SECRET'),
-            callbackURL: `${configService.get('BACKEND_URL', 'https://appdropcalc-production.up.railway.app')}/auth/google/callback`,
-            scope: ['email', 'profile'],
-        });
-        this.configService = configService;
-        this.authService = authService;
-    }
-    async validate(accessToken, refreshToken, profile, done) {
-        try {
-            const user = await this.authService.validateGoogleUser(profile);
-            done(null, user);
-        }
-        catch (error) {
-            done(error, false);
-        }
-    }
-};
-exports.GoogleStrategy = GoogleStrategy;
-exports.GoogleStrategy = GoogleStrategy = __decorate([
-    (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [typeof (_a = typeof config_1.ConfigService !== "undefined" && config_1.ConfigService) === "function" ? _a : Object, typeof (_b = typeof auth_service_1.AuthService !== "undefined" && auth_service_1.AuthService) === "function" ? _b : Object])
-], GoogleStrategy);
-
-
-/***/ }),
-/* 37 */
-/***/ ((module) => {
-
-module.exports = require("passport-google-oauth20");
-
-/***/ }),
-/* 38 */
+/* 34 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1842,8 +1784,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LocalStrategy = void 0;
 const common_1 = __webpack_require__(4);
 const passport_1 = __webpack_require__(16);
-const passport_local_1 = __webpack_require__(39);
-const auth_service_1 = __webpack_require__(19);
+const passport_local_1 = __webpack_require__(35);
+const auth_service_1 = __webpack_require__(18);
 let LocalStrategy = class LocalStrategy extends (0, passport_1.PassportStrategy)(passport_local_1.Strategy) {
     constructor(authService) {
         super({
@@ -1868,13 +1810,13 @@ exports.LocalStrategy = LocalStrategy = __decorate([
 
 
 /***/ }),
-/* 39 */
+/* 35 */
 /***/ ((module) => {
 
 module.exports = require("passport-local");
 
 /***/ }),
-/* 40 */
+/* 36 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1887,9 +1829,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ExchangeModule = void 0;
 const common_1 = __webpack_require__(4);
-const axios_1 = __webpack_require__(41);
-const exchange_controller_1 = __webpack_require__(42);
-const exchange_service_1 = __webpack_require__(43);
+const axios_1 = __webpack_require__(37);
+const exchange_controller_1 = __webpack_require__(38);
+const exchange_service_1 = __webpack_require__(39);
 let ExchangeModule = class ExchangeModule {
 };
 exports.ExchangeModule = ExchangeModule;
@@ -1904,13 +1846,13 @@ exports.ExchangeModule = ExchangeModule = __decorate([
 
 
 /***/ }),
-/* 41 */
+/* 37 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/axios");
 
 /***/ }),
-/* 42 */
+/* 38 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1931,7 +1873,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ExchangeController = void 0;
 const common_1 = __webpack_require__(4);
 const swagger_1 = __webpack_require__(2);
-const exchange_service_1 = __webpack_require__(43);
+const exchange_service_1 = __webpack_require__(39);
 let ExchangeController = class ExchangeController {
     constructor(exchangeService) {
         this.exchangeService = exchangeService;
@@ -1999,7 +1941,7 @@ exports.ExchangeController = ExchangeController = __decorate([
 
 
 /***/ }),
-/* 43 */
+/* 39 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2017,9 +1959,9 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ExchangeService = void 0;
 const common_1 = __webpack_require__(4);
-const axios_1 = __webpack_require__(41);
+const axios_1 = __webpack_require__(37);
 const config_1 = __webpack_require__(5);
-const rxjs_1 = __webpack_require__(44);
+const rxjs_1 = __webpack_require__(40);
 let ExchangeService = ExchangeService_1 = class ExchangeService {
     constructor(httpService, configService) {
         this.httpService = httpService;
@@ -2194,13 +2136,13 @@ exports.ExchangeService = ExchangeService = ExchangeService_1 = __decorate([
 
 
 /***/ }),
-/* 44 */
+/* 40 */
 /***/ ((module) => {
 
 module.exports = require("rxjs");
 
 /***/ }),
-/* 45 */
+/* 41 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2218,8 +2160,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DatabaseConfig = void 0;
 const common_1 = __webpack_require__(4);
 const config_1 = __webpack_require__(5);
-const typeorm_1 = __webpack_require__(20);
-const user_entity_1 = __webpack_require__(22);
+const typeorm_1 = __webpack_require__(19);
+const user_entity_1 = __webpack_require__(21);
 let DatabaseConfig = class DatabaseConfig {
     constructor(configService) {
         this.configService = configService;
@@ -2228,9 +2170,7 @@ let DatabaseConfig = class DatabaseConfig {
         const isDevelopment = this.configService.get('NODE_ENV') !== 'production';
         const databaseType = this.configService.get('DATABASE_TYPE', 'sqlite');
         if (databaseType === 'sqlite') {
-            const database = isDevelopment ?
-                this.configService.get('DATABASE_URL', 'database.sqlite') :
-                ':memory:';
+            const database = this.configService.get('DATABASE_URL', './data/database.sqlite');
             return {
                 type: 'sqlite',
                 database: database,

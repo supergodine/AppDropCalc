@@ -72,6 +72,7 @@ export const useAuth = () => {
     updatePlan,
     refreshAuth,
     isAuthenticated,
+    isAdmin: authService.isAdmin(),
     checkPlanAccess: (requiredPlan: 'basic' | 'professional' | 'premium') =>
       authService.checkPlanAccess(requiredPlan)
   };

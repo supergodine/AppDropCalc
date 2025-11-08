@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
-import { User } from '../users/entities/user.entity';
+import { User, UserRole, UserPlan, UserStatus } from '../users/entities/user.entity';
 import { SignUpDto } from './dto/signup.dto';
 import { AuthResponseDto, UserResponseDto } from './dto/auth-response.dto';
 
@@ -179,6 +179,7 @@ export class AuthService {
         country: user.country,
         plan: user.plan,
         status: user.status,
+        role: user.role,
         createdAt: user.createdAt,
         calculationsCount: 0
       },
@@ -255,5 +256,56 @@ export class AuthService {
     return this.userRepository.findOne({
       where: { id },
     });
+  }
+
+  /**
+   * Criar usuário administrador (apenas na primeira execução)
+   */
+  async createAdminUser(): Promise<{ message: string; created: boolean }> {
+    // Verificar se já existe um admin
+    const existingAdmin = await this.userRepository.findOne({
+      where: { email: 'comercial@calientabeauty.com' }
+    });
+
+    if (existingAdmin) {
+      // Garantir que tem role de admin
+      if (existingAdmin.role !== UserRole.ADMIN) {
+        existingAdmin.role = UserRole.ADMIN;
+        await this.userRepository.save(existingAdmin);
+        return {
+          message: 'Usuário existente promovido a administrador',
+          created: false
+        };
+      }
+      
+      return {
+        message: 'Usuário administrador já existe',
+        created: false
+      };
+    }
+
+    // Hash da senha
+    const saltRounds = 12;
+    const passwordHash = await bcrypt.hash('001266', saltRounds);
+
+    // Criar usuário administrador
+    const adminUser = this.userRepository.create({
+      name: 'Administrador',
+      email: 'comercial@calientabeauty.com',
+      passwordHash,
+      role: UserRole.ADMIN,
+      plan: UserPlan.PREMIUM, // Admin tem acesso premium
+      status: UserStatus.ACTIVE,
+      currencyDefault: 'BRL',
+      country: 'BR',
+      calculationsCount: 0,
+    });
+
+    await this.userRepository.save(adminUser);
+    
+    return {
+      message: 'Usuário administrador criado com sucesso! Email: comercial@calientabeauty.com, Senha: 001266',
+      created: true
+    };
   }
 }

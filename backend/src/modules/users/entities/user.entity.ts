@@ -21,6 +21,11 @@ export enum UserStatus {
   SUSPENDED = 'suspended',
 }
 
+export enum UserRole {
+  USER = 'user',
+  ADMIN = 'admin',
+}
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -47,6 +52,9 @@ export class User {
 
   @Column({ type: 'varchar', length: 50, default: 'active' })
   status: UserStatus;
+
+  @Column({ type: 'varchar', length: 20, default: 'user' })
+  role: UserRole;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   googleId?: string;
@@ -102,6 +110,10 @@ export class User {
     if (this.plan === UserPlan.FREE) return true;
     if (!this.planExpiresAt) return false;
     return new Date() < this.planExpiresAt;
+  }
+
+  isAdmin(): boolean {
+    return this.role === UserRole.ADMIN;
   }
 
   getDisplayName(): string {
