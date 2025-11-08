@@ -22,13 +22,14 @@ interface CalculationResult {
 }
 
 const DashboardCalculadora: React.FC = () => {
-  const { user } = useAuth();
+  const { user, plan, checkPlanAccess } = useAuth();
   const navigate = useNavigate();
   
   // Log para debug
   console.log('=== DashboardCalculadora INICIANDO ===');
   console.log('User:', user);
   console.log('User autenticado:', !!user);
+  console.log('Plan:', plan);
   console.log('localStorage userPlan:', localStorage.getItem('userPlan'));
   console.log('localStorage premiumActive:', localStorage.getItem('premiumActive'));
   
@@ -58,10 +59,16 @@ const DashboardCalculadora: React.FC = () => {
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [exchangeRate, setExchangeRate] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCalculating, setIsCalculating] = useState(false);
 
   // Check if user has premium access
   const hasPremiumAccess = () => {
     return localStorage.getItem('premiumActive') === 'true';
+  };
+
+  // Verificar se é plano básico
+  const isBasicPlan = () => {
+    return plan?.type === 'basic' || !checkPlanAccess('professional');
   };
 
   // Buscar taxa de câmbio
@@ -76,8 +83,9 @@ const DashboardCalculadora: React.FC = () => {
     }
   };
 
-  // Calcular preço automaticamente
+  // Calcular preço (manual para plano básico, automático para outros)
   const calculatePrice = async () => {
+    setIsCalculating(true);
     try {
       const response = await fetch(`${API_BASE}/calc/calcular`, {
         method: 'POST',
@@ -118,6 +126,8 @@ const DashboardCalculadora: React.FC = () => {
           valorMargemBRL: margemValor
         }
       });
+    } finally {
+      setIsCalculating(false);
     }
   };
 
@@ -142,12 +152,21 @@ const DashboardCalculadora: React.FC = () => {
     }
   }, [formData.moedaOrigem, formData.moedaVenda]);
 
-  // Calcular automaticamente quando qualquer campo mudar
+  // Calcular automaticamente quando qualquer campo mudar (APENAS para planos premium/professional)
+  // Para plano básico, limpar resultado quando campos mudarem
   useEffect(() => {
-    if (exchangeRate > 0 && formData.custoProduto > 0) {
-      calculatePrice();
+    if (isBasicPlan()) {
+      // Para plano básico, limpar resultado quando campos mudarem (exceto na primeira carga)
+      if (result !== null) {
+        setResult(null);
+      }
+    } else {
+      // Para planos premium/professional, calcular automaticamente
+      if (exchangeRate > 0 && formData.custoProduto > 0) {
+        calculatePrice();
+      }
     }
-  }, [formData, exchangeRate]);
+  }, [formData, exchangeRate, plan]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
@@ -636,6 +655,18 @@ const DashboardCalculadora: React.FC = () => {
                 </div>
               )}
 
+              {/* Botão Calcular - APENAS para plano básico */}
+              {isBasicPlan() && (
+                <button
+                  onClick={calculatePrice}
+                  disabled={isCalculating || formData.custoProduto <= 0 || exchangeRate <= 0}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center"
+                >
+                  <Calculator className="h-5 w-5 mr-2" />
+                  {isCalculating ? 'Calculando...' : 'Calcular Preço'}
+                </button>
+              )}
+
               {/* Botão Limpar */}
               <button
                 onClick={clearForm}
@@ -645,11 +676,14 @@ const DashboardCalculadora: React.FC = () => {
                 Limpar Formulário
               </button>
 
-              {/* Indicador de Cálculo Automático */}
-              <div className="bg-green-50 p-4 rounded-lg">
-                <p className="text-sm text-green-600 flex items-center">
+              {/* Indicador de Cálculo Automático ou Manual */}
+              <div className={`p-4 rounded-lg ${isBasicPlan() ? 'bg-orange-50' : 'bg-green-50'}`}>
+                <p className={`text-sm flex items-center ${isBasicPlan() ? 'text-orange-600' : 'text-green-600'}`}>
                   <TrendingUp className="h-4 w-4 mr-2" />
-                  Cálculo automático ativado - O preço é atualizado em tempo real
+                  {isBasicPlan() 
+                    ? 'Plano Básico - Clique no botão "Calcular Preço" para obter o resultado'
+                    : 'Cálculo automático ativado - O preço é atualizado em tempo real'
+                  }
                 </p>
               </div>
             </div>
