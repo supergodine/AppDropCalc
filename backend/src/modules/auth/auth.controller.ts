@@ -75,6 +75,53 @@ export class AuthController {
     }
   }
 
+  // Endpoint de teste para debug
+  @Post('test-login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Teste de login direto (sem guard)' })
+  @ApiBody({ type: LoginDto })
+  async testLogin(@Body() loginDto: LoginDto): Promise<any> {
+    console.log('🧪 Test login chamado com:', loginDto);
+    
+    try {
+      const user = await this.authService.validateUser(loginDto.email, loginDto.password);
+      
+      if (!user) {
+        return {
+          success: false,
+          message: 'Credenciais inválidas',
+          debug: {
+            email: loginDto.email,
+            found: false
+          }
+        };
+      }
+
+      const result = await this.authService.login(user);
+      return {
+        success: true,
+        message: 'Login realizado com sucesso',
+        data: result,
+        debug: {
+          email: loginDto.email,
+          found: true,
+          userId: user.id,
+          role: user.role
+        }
+      };
+    } catch (error) {
+      console.error('❌ Erro no test login:', error);
+      return {
+        success: false,
+        message: error.message,
+        debug: {
+          error: error.message,
+          stack: error.stack
+        }
+      };
+    }
+  }
+
   // ROTAS OAUTH DESATIVADAS - USANDO FIREBASE AUTH NO FRONTEND
   /*
   @Get('google')
