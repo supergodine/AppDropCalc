@@ -26,6 +26,65 @@ class AuthService {
     return url;
   }
 
+  // Método alternativo de login para resolver problemas de CORS/cache
+  async loginAlternative(email: string, password: string): Promise<AuthUser> {
+    try {
+      console.log('🔄 Tentando login alternativo...');
+      
+      // Usar XMLHttpRequest para contornar possíveis problemas de fetch
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        const loginUrl = API_CONFIG.auth.login;
+        
+        xhr.open('POST', loginUrl, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.setRequestHeader('Cache-Control', 'no-cache');
+        
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4) {
+            console.log('🔍 XHR Status:', xhr.status);
+            console.log('🔍 XHR Response:', xhr.responseText);
+            
+            if (xhr.status === 200) {
+              try {
+                const data = JSON.parse(xhr.responseText);
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('currentUser', JSON.stringify(data.user));
+                resolve(data.user);
+              } catch (parseError) {
+                reject(new Error('Resposta inválida do servidor'));
+              }
+            } else {
+              try {
+                const errorData = JSON.parse(xhr.responseText);
+                reject(new Error(errorData.message || 'Erro no login'));
+              } catch (parseError) {
+                reject(new Error('Credenciais inválidas'));
+              }
+            }
+          }
+        };
+        
+        xhr.onerror = function() {
+          reject(new Error('Erro de conexão'));
+        };
+        
+        xhr.ontimeout = function() {
+          reject(new Error('Timeout na conexão'));
+        };
+        
+        xhr.timeout = 10000; // 10s timeout
+        
+        const requestBody = JSON.stringify({ email, password });
+        xhr.send(requestBody);
+      });
+    } catch (error) {
+      console.error('❌ Erro no login alternativo:', error);
+      throw error;
+    }
+  }
+
   // Login tradicional com email/senha
   async login(email: string, password: string): Promise<AuthUser> {
     try {
@@ -35,30 +94,67 @@ class AuthService {
       const requestBody = JSON.stringify({ email, password });
       console.log('📤 Request body:', requestBody);
       
+      // Fazer a requisição com timeout e headers específicos
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
       const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
         },
         body: requestBody,
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       console.log('📡 Response status:', response.status);
       console.log('📡 Response ok:', response.ok);
+      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
         const errorText = await response.text();
         console.error('❌ Error response text:', errorText);
+        console.error('❌ Error response status:', response.status);
+        console.error('❌ Error response statusText:', response.statusText);
+        
+        let errorMessage = 'Falha no login';
         try {
           const errorJson = JSON.parse(errorText);
-          throw new Error(errorJson.message || 'Falha no login');
+          errorMessage = errorJson.message || errorMessage;
         } catch (parseError) {
-          throw new Error(errorText || 'Falha no login');
+          errorMessage = errorText || errorMessage;
         }
+        
+        // Tratamento específico para erro 401
+        if (response.status === 401) {
+          errorMessage = 'Credenciais inválidas. Verifique email e senha.';
+        }
+        
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      const responseText = await response.text();
+      console.log('📥 Raw response text:', responseText);
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('❌ Failed to parse response JSON:', parseError);
+        throw new Error('Resposta inválida do servidor');
+      }
+      
       console.log('✅ Login successful, data:', data);
+      
+      // Validar estrutura da resposta
+      if (!data.accessToken || !data.user) {
+        console.error('❌ Invalid response structure:', data);
+        throw new Error('Resposta do servidor incompleta');
+      }
       
       // Armazenar token e dados do usuário
       localStorage.setItem('accessToken', data.accessToken);
@@ -67,6 +163,16 @@ class AuthService {
       return data.user;
     } catch (error) {
       console.error('❌ Erro no login completo:', error);
+      
+      // Tratamento específico para diferentes tipos de erro
+      if (error.name === 'AbortError') {
+        throw new Error('Timeout na conexão. Tente novamente.');
+      }
+      
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Erro de conexão. Verifique sua internet.');
+      }
+      
       throw error;
     }
   }
