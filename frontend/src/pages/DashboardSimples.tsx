@@ -131,11 +131,64 @@ const DashboardSimples: React.FC = () => {
 
   // Determinar planos baseado no plano real do usuário
   const isPremium = plan?.type === 'premium';
-  const isGold = plan?.type === 'professional';
+  const isGold = plan?.type === 'professional' || plan?.type === 'gold';
+  const isBasic = plan?.type === 'basic' || !plan; // Se não tem plano, é básico
 
-  // Função para salvar cálculo no histórico
+  // Limitações por plano
+  const planLimitations = {
+    basic: {
+      maxCalculations: 10,
+      allowedPlatforms: ['shopify', 'nuvemshop'],
+      allowedCurrencies: ['USD', 'BRL'], // Apenas USD e BRL
+      hasHistory: false
+    },
+    gold: {
+      maxCalculations: 100,
+      allowedPlatforms: ['shopify', 'nuvemshop', 'woocommerce', 'magento', 'opencart', 'prestashop', 'mercadolivre', 'amazon'],
+      allowedCurrencies: ['USD', 'EUR', 'BRL', 'GBP'], // 4 moedas
+      hasHistory: false
+    },
+    premium: {
+      maxCalculations: Infinity,
+      allowedPlatforms: 'all',
+      allowedCurrencies: 'all',
+      hasHistory: true
+    }
+  };
+
+  // Determinar limitações do plano atual
+  const currentPlanType = isPremium ? 'premium' : isGold ? 'gold' : 'basic';
+  const currentLimitations = planLimitations[currentPlanType];
+
+  // Verificar cálculos restantes (simulado - em produção viria do backend)
+  const [calculationsUsed, setCalculationsUsed] = useState(() => {
+    try {
+      const used = localStorage.getItem('calculations-used-this-month');
+      return used ? parseInt(used) : 0;
+    } catch {
+      return 0;
+    }
+  });
+
+  // Filtrar plataformas baseado no plano
+  const plataformasDisponiveis = currentLimitations.allowedPlatforms === 'all' 
+    ? plataformas 
+    : plataformas.filter(p => currentLimitations.allowedPlatforms.includes(p.id));
+
+  // Filtrar moedas baseado no plano
+  const moedasDisponiveis = currentLimitations.allowedCurrencies === 'all'
+    ? moedas
+    : moedas.filter(m => currentLimitations.allowedCurrencies.includes(m.codigo));
+
+  // Função para salvar cálculo no histórico (apenas Premium)
   const salvarCalculo = () => {
     if (!resultado) return;
+    
+    // Verificar se o plano permite histórico
+    if (!currentLimitations.hasHistory) {
+      alert('Histórico disponível apenas no plano Premium. Faça upgrade para salvar seus cálculos!');
+      return;
+    }
     
     const novoCalculo: HistoricoCalculo = {
       id: Date.now().toString(),
@@ -344,6 +397,12 @@ const DashboardSimples: React.FC = () => {
       return;
     }
 
+    // Verificar limite de cálculos
+    if (calculationsUsed >= currentLimitations.maxCalculations) {
+      alert(`Limite de ${currentLimitations.maxCalculations} cálculos por mês atingido! Faça upgrade para continuar calculando.`);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -424,6 +483,11 @@ const DashboardSimples: React.FC = () => {
       
       setResultado(resultadoCompleto);
 
+      // Incrementar contador de cálculos
+      const newCount = calculationsUsed + 1;
+      setCalculationsUsed(newCount);
+      localStorage.setItem('calculations-used-this-month', newCount.toString());
+
     } catch (error) {
       console.error('Erro no cálculo:', error);
       setResultado(null);
@@ -431,6 +495,27 @@ const DashboardSimples: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // Verificar se as seleções atuais são válidas para o plano
+  useEffect(() => {
+    // Verificar moeda origem
+    if (currentLimitations.allowedCurrencies !== 'all' && 
+        !currentLimitations.allowedCurrencies.includes(moedaOrigem)) {
+      setMoedaOrigem(currentLimitations.allowedCurrencies[0]);
+    }
+    
+    // Verificar moeda destino
+    if (currentLimitations.allowedCurrencies !== 'all' && 
+        !currentLimitations.allowedCurrencies.includes(moedaDestino)) {
+      setMoedaDestino(currentLimitations.allowedCurrencies[0]);
+    }
+    
+    // Verificar plataforma
+    if (currentLimitations.allowedPlatforms !== 'all' && 
+        !currentLimitations.allowedPlatforms.includes(plataforma)) {
+      setPlataforma(currentLimitations.allowedPlatforms[0]);
+    }
+  }, [plan, currentLimitations]);
 
   // Cálculo automático sempre que algum campo mudar
   useEffect(() => {
@@ -502,8 +587,8 @@ const DashboardSimples: React.FC = () => {
               {/* Botão para Escolher/Alterar Plano */}
               <button
                 onClick={() => {
-                  console.log('🎯 Clicou em Alterar Plano, navegando para /plans');
-                  navigate('/plans');
+                  console.log('🎯 Clicou em Alterar Plano, navegando para /payment');
+                  navigate('/payment');
                 }}
                 className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition-colors"
               >
@@ -571,8 +656,8 @@ const DashboardSimples: React.FC = () => {
               
               <button
                 onClick={() => {
-                  console.log('🎯 Clicou em Alterar Plano (mobile), navegando para /plans');
-                  navigate('/plans');
+                  console.log('🎯 Clicou em Alterar Plano (mobile), navegando para /payment');
+                  navigate('/payment');
                   setMenuAberto(false);
                 }}
                 className="flex items-center w-full p-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
@@ -632,6 +717,29 @@ const DashboardSimples: React.FC = () => {
               )}
             </h2>
 
+            {/* Indicador de Cálculos Restantes */}
+            {currentLimitations.maxCalculations !== Infinity && (
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-blue-700 dark:text-blue-300 font-medium">
+                    Cálculos restantes este mês:
+                  </span>
+                  <span className={`font-bold ${
+                    (currentLimitations.maxCalculations - calculationsUsed) <= 2 
+                      ? 'text-red-600 dark:text-red-400' 
+                      : 'text-green-600 dark:text-green-400'
+                  }`}>
+                    {currentLimitations.maxCalculations - calculationsUsed} de {currentLimitations.maxCalculations}
+                  </span>
+                </div>
+                {(currentLimitations.maxCalculations - calculationsUsed) <= 2 && (
+                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                    Poucos cálculos restantes! Considere fazer upgrade para continuar usando.
+                  </p>
+                )}
+              </div>
+            )}
+
             <div className="space-y-4">
               {/* Campo Nome do Produto */}
               <div>
@@ -684,12 +792,17 @@ const DashboardSimples: React.FC = () => {
                       colorScheme: 'light dark'
                     }}
                   >
-                    {moedas.map((moeda) => (
+                    {moedasDisponiveis.map((moeda) => (
                       <option key={moeda.codigo} value={moeda.codigo}>
                         {moeda.codigo} - {moeda.nome}
                       </option>
                     ))}
                   </select>
+                  {currentPlanType !== 'premium' && (
+                    <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                      {currentPlanType === 'basic' ? 'Plano Básico: 2 moedas' : 'Plano Gold: 4 moedas'} - Upgrade para Premium para todas as moedas
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -708,12 +821,17 @@ const DashboardSimples: React.FC = () => {
                       colorScheme: 'light dark'
                     }}
                   >
-                    {moedas.map((moeda) => (
+                    {moedasDisponiveis.map((moeda) => (
                       <option key={moeda.codigo} value={moeda.codigo}>
                         {moeda.codigo} - {moeda.nome}
                       </option>
                     ))}
                   </select>
+                  {currentPlanType !== 'premium' && (
+                    <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                      {currentPlanType === 'basic' ? 'Plano Básico: 2 moedas' : 'Plano Gold: 4 moedas'} - Upgrade para Premium para todas as moedas
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -809,12 +927,19 @@ const DashboardSimples: React.FC = () => {
                       colorScheme: 'light dark'
                     }}
                   >
-                    {plataformas.map((plat) => (
+                    {plataformasDisponiveis.map((plat) => (
                       <option key={plat.id} value={plat.id}>
                         {plat.nome} ({plat.taxa}%)
                       </option>
                     ))}
                   </select>
+                  {currentPlanType !== 'premium' && (
+                    <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                      {currentPlanType === 'basic' 
+                        ? 'Plano Básico: Apenas Shopify e Nuvem Shop' 
+                        : 'Plano Gold: Plataformas limitadas'} - Upgrade para Premium para todas as plataformas
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -1061,18 +1186,35 @@ const DashboardSimples: React.FC = () => {
                   </div>
                 </div>
                 
-                {/* Botão Salvar Cálculo */}
-                <div className="text-center">
-                  <button
-                    onClick={salvarCalculo}
-                    className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 flex items-center mx-auto"
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"></path>
-                    </svg>
-                    {t('calc.saveCalculation')}
-                  </button>
-                </div>
+                {/* Botão Salvar Cálculo - Apenas Premium */}
+                {currentLimitations.hasHistory && (
+                  <div className="text-center">
+                    <button
+                      onClick={salvarCalculo}
+                      className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 flex items-center mx-auto"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"></path>
+                      </svg>
+                      {t('calc.saveCalculation')}
+                    </button>
+                  </div>
+                )}
+
+                {/* Aviso para upgrade se não tem histórico */}
+                {!currentLimitations.hasHistory && (
+                  <div className="text-center bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                    <p className="text-yellow-700 dark:text-yellow-300 text-sm mb-2">
+                      💾 Histórico de cálculos disponível apenas no plano Premium
+                    </p>
+                    <button
+                      onClick={() => navigate('/payment')}
+                      className="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 text-sm"
+                    >
+                      Fazer Upgrade Premium
+                    </button>
+                  </div>
+                )}
               </div>
             ) : loading ? (
               <div className="text-center py-12">
