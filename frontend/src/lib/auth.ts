@@ -32,20 +32,33 @@ class AuthService {
       const loginUrl = API_CONFIG.auth.login;
       console.log('🔐 Login attempt:', { email, url: loginUrl });
       
+      const requestBody = JSON.stringify({ email, password });
+      console.log('📤 Request body:', requestBody);
+      
       const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: requestBody,
       });
 
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response ok:', response.ok);
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Falha no login');
+        const errorText = await response.text();
+        console.error('❌ Error response text:', errorText);
+        try {
+          const errorJson = JSON.parse(errorText);
+          throw new Error(errorJson.message || 'Falha no login');
+        } catch (parseError) {
+          throw new Error(errorText || 'Falha no login');
+        }
       }
 
       const data = await response.json();
+      console.log('✅ Login successful, data:', data);
       
       // Armazenar token e dados do usuário
       localStorage.setItem('accessToken', data.accessToken);
@@ -53,7 +66,7 @@ class AuthService {
       
       return data.user;
     } catch (error) {
-      console.error('Erro no login:', error);
+      console.error('❌ Erro no login completo:', error);
       throw error;
     }
   }
