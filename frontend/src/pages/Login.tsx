@@ -4,6 +4,7 @@ import { Mail, Lock, LogIn, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { authService } from '@/lib/auth';
+import { useAuth } from '@/hooks/useAuth';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,6 +15,7 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { refreshAuth } = useAuth();
 
   console.log('=== LOGIN PAGE CARREGANDO ===');
   console.log('isLogin:', isLogin);
@@ -117,6 +119,9 @@ const Login: React.FC = () => {
           localStorage.setItem('userPlan', 'premium');
           localStorage.setItem('billingStatus', 'active');
           
+          // Atualizar estado de autenticação
+          refreshAuth();
+          
           toast.success('Login realizado com sucesso!');
           navigate('/dashboard');
         }
@@ -128,6 +133,9 @@ const Login: React.FC = () => {
         localStorage.setItem('premiumActive', 'true');
         localStorage.setItem('userPlan', 'premium');
         localStorage.setItem('billingStatus', 'active');
+        
+        // Atualizar estado de autenticação
+        refreshAuth();
         
         // Ir direto para dashboard para testes
         navigate('/dashboard');
