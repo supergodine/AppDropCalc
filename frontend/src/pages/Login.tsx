@@ -89,16 +89,37 @@ const Login: React.FC = () => {
 
     try {
       if (isLogin) {
-        // LOGIN: vai para dashboard
-        await authService.login(email, password);
+        // LOGIN: tentar método principal primeiro, depois alternativo
+        let loginSuccess = false;
+        let user = null;
         
-        // Definir premium como ativo para testes
-        localStorage.setItem('premiumActive', 'true');
-        localStorage.setItem('userPlan', 'premium');
-        localStorage.setItem('billingStatus', 'active');
+        try {
+          console.log('🔄 Tentando login principal...');
+          user = await authService.login(email, password);
+          loginSuccess = true;
+        } catch (primaryError) {
+          console.log('❌ Login principal falhou:', primaryError.message);
+          console.log('🔄 Tentando método alternativo...');
+          
+          try {
+            user = await authService.loginAlternative(email, password);
+            loginSuccess = true;
+            console.log('✅ Login alternativo funcionou!');
+          } catch (alternativeError) {
+            console.error('❌ Login alternativo também falhou:', alternativeError.message);
+            throw alternativeError;
+          }
+        }
         
-        toast.success('Login realizado com sucesso!');
-        navigate('/dashboard');
+        if (loginSuccess && user) {
+          // Definir premium como ativo para testes
+          localStorage.setItem('premiumActive', 'true');
+          localStorage.setItem('userPlan', 'premium');
+          localStorage.setItem('billingStatus', 'active');
+          
+          toast.success('Login realizado com sucesso!');
+          navigate('/dashboard');
+        }
       } else {
         await authService.register(name, email, password);
         toast.success('Conta criada com sucesso!');
