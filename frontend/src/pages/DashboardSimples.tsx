@@ -139,18 +139,21 @@ const DashboardSimples: React.FC = () => {
       maxCalculations: 10,
       allowedPlatforms: ['shopify', 'nuvemshop'],
       allowedCurrencies: ['USD', 'BRL'], // Apenas USD e BRL
+      allowedGateways: ['stripe', 'paypal'], // Apenas Stripe e PayPal
       hasHistory: false
     },
     gold: {
       maxCalculations: 100,
       allowedPlatforms: ['shopify', 'nuvemshop', 'woocommerce', 'magento', 'opencart', 'prestashop', 'mercadolivre', 'amazon'],
       allowedCurrencies: ['USD', 'EUR', 'BRL', 'GBP'], // 4 moedas
+      allowedGateways: ['stripe', 'paypal', 'pagseguro', 'mercadopago', 'cielo', 'rede', 'getnet', 'stone'], // 8 gateways principais
       hasHistory: false
     },
     premium: {
       maxCalculations: Infinity,
       allowedPlatforms: 'all' as const,
       allowedCurrencies: 'all' as const,
+      allowedGateways: 'all' as const,
       hasHistory: true
     }
   };
@@ -325,6 +328,11 @@ const DashboardSimples: React.FC = () => {
   const moedasDisponiveis = !currentLimitations || currentLimitations.allowedCurrencies === 'all'
     ? moedas
     : moedas.filter(m => currentLimitations.allowedCurrencies?.includes(m.codigo));
+
+  // Filtrar gateways baseado no plano (com verificação de segurança)
+  const gatewaysDisponiveis = !currentLimitations || currentLimitations.allowedGateways === 'all'
+    ? gateways
+    : gateways.filter(g => currentLimitations.allowedGateways?.includes(g.id));
 
   // Função para salvar cálculo no histórico (apenas Premium)
   const salvarCalculo = () => {
@@ -523,7 +531,14 @@ const DashboardSimples: React.FC = () => {
         !currentLimitations.allowedPlatforms.includes(plataforma)) {
       setPlataforma(currentLimitations.allowedPlatforms[0] || 'shopify');
     }
-  }, [plan, currentLimitations, moedaOrigem, moedaDestino, plataforma]);
+    
+    // Verificar gateway
+    if (currentLimitations.allowedGateways !== 'all' && 
+        currentLimitations.allowedGateways &&
+        !currentLimitations.allowedGateways.includes(gateway)) {
+      setGateway(currentLimitations.allowedGateways[0] || 'stripe');
+    }
+  }, [plan, currentLimitations, moedaOrigem, moedaDestino, plataforma, gateway]);
 
   // Cálculo automático sempre que algum campo mudar
   useEffect(() => {
@@ -966,12 +981,19 @@ const DashboardSimples: React.FC = () => {
                       colorScheme: 'light dark'
                     }}
                   >
-                    {gateways.map((gw) => (
+                    {gatewaysDisponiveis.map((gw) => (
                       <option key={gw.id} value={gw.id}>
                         {gw.nome} ({gw.taxa}%)
                       </option>
                     ))}
                   </select>
+                  {currentPlanType !== 'premium' && (
+                    <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                      {currentPlanType === 'basic' 
+                        ? 'Plano Básico: Apenas Stripe e PayPal' 
+                        : 'Plano Gold: 8 gateways principais'} - Upgrade para Premium para todos os gateways
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
