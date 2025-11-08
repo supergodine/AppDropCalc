@@ -165,4 +165,15 @@ export class AuthController {
       timestamp: new Date().toISOString(),
     };
   }
+
+  @Post('create-admin')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Criar usuário administrador (apenas primeira vez)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Administrador criado com sucesso',
+  })
+  async createAdmin() {
+    return this.authService.createAdminUser();
+  }
 }

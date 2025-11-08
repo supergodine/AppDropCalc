@@ -47,6 +47,13 @@ export class UserResponseDto {
   status: string;
 
   @ApiProperty({
+    description: 'Função do usuário',
+    example: 'user',
+    enum: ['user', 'admin'],
+  })
+  role: string;
+
+  @ApiProperty({
     description: 'URL do avatar',
     example: 'https://example.com/avatar.jpg',
     required: false,
@@ -73,6 +80,7 @@ export class UserResponseDto {
     this.country = user.country;
     this.plan = user.plan;
     this.status = user.status;
+    this.role = user.role;
     this.avatar = user.avatar;
     this.calculationsCount = user.calculationsCount;
     this.createdAt = user.createdAt;

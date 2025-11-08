@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { seedPresets } from './preset-seed';
+import { seedAdmin } from './admin-seed';
 
 // Configuração do banco para seed
 async function createDataSource() {
@@ -33,6 +34,7 @@ async function runSeed() {
     console.log('✅ Conexão com banco estabelecida');
 
     // Executar seeds
+    await seedAdmin(dataSource);
     await seedPresets(dataSource);
 
     console.log('🎉 Todos os seeds foram executados com sucesso!');

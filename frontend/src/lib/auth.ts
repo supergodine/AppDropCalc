@@ -13,6 +13,7 @@ export interface AuthUser {
   id: string;
   email: string;
   name: string;
+  role?: 'user' | 'admin';
   plan?: UserPlan;
   photoURL?: string;
   provider?: 'email' | 'google';
@@ -272,6 +273,11 @@ class AuthService {
     };
     
     return planHierarchy[userPlan.type] >= planHierarchy[requiredPlan];
+  }
+
+  isAdmin(): boolean {
+    const user = this.getCurrentUser();
+    return user?.role === 'admin';
   }
 }
 
