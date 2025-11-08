@@ -131,8 +131,7 @@ const DashboardSimples: React.FC = () => {
 
   // Determinar planos baseado no plano real do usuário
   const isPremium = plan?.type === 'premium';
-  const isGold = plan?.type === 'professional' || plan?.type === 'gold';
-  const isBasic = plan?.type === 'basic' || !plan; // Se não tem plano, é básico
+  const isGold = plan?.type === 'professional';
 
   // Limitações por plano
   const planLimitations = {
@@ -150,15 +149,15 @@ const DashboardSimples: React.FC = () => {
     },
     premium: {
       maxCalculations: Infinity,
-      allowedPlatforms: 'all',
-      allowedCurrencies: 'all',
+      allowedPlatforms: 'all' as const,
+      allowedCurrencies: 'all' as const,
       hasHistory: true
     }
   };
 
   // Determinar limitações do plano atual
   const currentPlanType = isPremium ? 'premium' : isGold ? 'gold' : 'basic';
-  const currentLimitations = planLimitations[currentPlanType];
+  const currentLimitations = planLimitations[currentPlanType] || planLimitations.basic;
 
   // Verificar cálculos restantes (simulado - em produção viria do backend)
   const [calculationsUsed, setCalculationsUsed] = useState(() => {
@@ -169,80 +168,6 @@ const DashboardSimples: React.FC = () => {
       return 0;
     }
   });
-
-  // Filtrar plataformas baseado no plano
-  const plataformasDisponiveis = currentLimitations.allowedPlatforms === 'all' 
-    ? plataformas 
-    : plataformas.filter(p => currentLimitations.allowedPlatforms.includes(p.id));
-
-  // Filtrar moedas baseado no plano
-  const moedasDisponiveis = currentLimitations.allowedCurrencies === 'all'
-    ? moedas
-    : moedas.filter(m => currentLimitations.allowedCurrencies.includes(m.codigo));
-
-  // Função para salvar cálculo no histórico (apenas Premium)
-  const salvarCalculo = () => {
-    if (!resultado) return;
-    
-    // Verificar se o plano permite histórico
-    if (!currentLimitations.hasHistory) {
-      alert('Histórico disponível apenas no plano Premium. Faça upgrade para salvar seus cálculos!');
-      return;
-    }
-    
-    const novoCalculo: HistoricoCalculo = {
-      id: Date.now().toString(),
-      nomeProduto: nomeProduto || 'Produto sem nome',
-      precoVenda: resultado.precoVenda,
-      moedaDestino,
-      plataforma,
-      gateway,
-      dataCalculo: new Date().toLocaleString('pt-BR'),
-      detalhes: resultado
-    };
-    
-    const novoHistorico = [novoCalculo, ...historicoCalculos].slice(0, 50); // Limita a 50 cálculos
-    setHistoricoCalculos(novoHistorico);
-    localStorage.setItem('calculadora-historico', JSON.stringify(novoHistorico));
-    
-    // Feedback visual (poderia ser um toast)
-    alert(t('calc.calculationSaved'));
-  };
-
-  // Função para obter símbolo da moeda
-  const getSymbolMoeda = (codigo: string) => {
-    const simbolos: { [key: string]: string } = {
-      'USD': '$', 'EUR': '€', 'GBP': '£', 'BRL': 'R$', 'JPY': '¥', 'CNY': '¥',
-      'CAD': 'C$', 'AUD': 'A$', 'CHF': 'CHF', 'SEK': 'kr', 'NOK': 'kr',
-      'MXN': '$', 'ARS': '$', 'CLP': '$', 'COP': '$', 'PEN': 'S/', 
-      'INR': '₹', 'KRW': '₩', 'THB': '฿', 'SGD': 'S$', 'HKD': 'HK$'
-    };
-    return simbolos[codigo] || codigo;
-  };
-
-  // Função para obter taxa de câmbio
-  const getTaxaCambio = (origem: string, destino: string) => {
-    if (origem === destino) return 1;
-    
-    // Taxas simuladas baseadas no USD
-    const taxasUSD: { [key: string]: number } = {
-      'BRL': 5.20, 'EUR': 0.92, 'GBP': 0.80, 'JPY': 150.0, 'CNY': 7.30,
-      'CAD': 1.35, 'AUD': 1.55, 'CHF': 0.90, 'SEK': 10.50, 'NOK': 10.80,
-      'MXN': 18.50, 'ARS': 365.0, 'CLP': 900.0, 'COP': 4100.0, 'PEN': 3.75,
-      'INR': 83.50, 'KRW': 1320.0, 'THB': 36.0, 'SGD': 1.35, 'HKD': 7.80
-    };
-    
-    if (origem === 'USD') {
-      return taxasUSD[destino] || 1;
-    } else if (destino === 'USD') {
-      return 1 / (taxasUSD[origem] || 1);
-    } else {
-      // Conversão via USD
-      const paraUSD = 1 / (taxasUSD[origem] || 1);
-      const deUSD = taxasUSD[destino] || 1;
-      return paraUSD * deUSD;
-    }
-  };
 
   useEffect(() => {
     // Premium status agora é determinado pelo plano real do usuário
@@ -391,6 +316,84 @@ const DashboardSimples: React.FC = () => {
     { codigo: 'BRL', nome: 'Real Brasileiro' },
   ];
 
+  // Filtrar plataformas baseado no plano (com verificação de segurança)
+  const plataformasDisponiveis = !currentLimitations || currentLimitations.allowedPlatforms === 'all' 
+    ? plataformas 
+    : plataformas.filter(p => currentLimitations.allowedPlatforms?.includes(p.id));
+
+  // Filtrar moedas baseado no plano (com verificação de segurança)
+  const moedasDisponiveis = !currentLimitations || currentLimitations.allowedCurrencies === 'all'
+    ? moedas
+    : moedas.filter(m => currentLimitations.allowedCurrencies?.includes(m.codigo));
+
+  // Função para salvar cálculo no histórico (apenas Premium)
+  const salvarCalculo = () => {
+    if (!resultado) return;
+    
+    // Verificar se o plano permite histórico
+    if (!currentLimitations?.hasHistory) {
+      alert('Histórico disponível apenas no plano Premium. Faça upgrade para salvar seus cálculos!');
+      return;
+    }
+    
+    const novoCalculo: HistoricoCalculo = {
+      id: Date.now().toString(),
+      nomeProduto: nomeProduto || 'Produto sem nome',
+      precoVenda: resultado.precoVenda,
+      moedaDestino,
+      plataforma,
+      gateway,
+      dataCalculo: new Date().toLocaleString('pt-BR'),
+      detalhes: resultado
+    };
+    
+    const novoHistorico = [novoCalculo, ...historicoCalculos].slice(0, 50); // Limita a 50 cálculos
+    setHistoricoCalculos(novoHistorico);
+    localStorage.setItem('calculadora-historico', JSON.stringify(novoHistorico));
+    
+    // Feedback visual (poderia ser um toast)
+    alert(t('calc.calculationSaved'));
+  };
+
+  // Função para obter símbolo da moeda
+  const getSymbolMoeda = (codigo: string) => {
+    const simbolos: { [key: string]: string } = {
+      'USD': '$', 'EUR': '€', 'GBP': '£', 'BRL': 'R$', 'JPY': '¥', 'CNY': '¥',
+      'CAD': 'C$', 'AUD': 'A$', 'CHF': 'CHF', 'SEK': 'kr', 'NOK': 'kr',
+      'MXN': '$', 'ARS': '$', 'CLP': '$', 'COP': '$', 'PEN': 'S/', 
+      'INR': '₹', 'KRW': '₩', 'THB': '฿', 'SGD': 'S$', 'HKD': 'HK$'
+    };
+    return simbolos[codigo] || codigo;
+  };
+
+  // Função para obter taxa de câmbio
+  const getTaxaCambio = (origem: string, destino: string) => {
+    if (origem === destino) return 1;
+    
+    // Taxas simuladas baseadas no USD
+    const taxasUSD: { [key: string]: number } = {
+      'BRL': 5.20, 'EUR': 0.92, 'GBP': 0.80, 'JPY': 150.0, 'CNY': 7.30,
+      'CAD': 1.35, 'AUD': 1.55, 'CHF': 0.90, 'SEK': 10.50, 'NOK': 10.80,
+      'MXN': 18.50, 'ARS': 365.0, 'CLP': 900.0, 'COP': 4100.0, 'PEN': 3.75,
+      'INR': 83.50, 'KRW': 1320.0, 'THB': 36.0, 'SGD': 1.35, 'HKD': 7.80
+    };
+    
+    if (origem === 'USD') {
+      return taxasUSD[destino] || 1;
+    } else if (destino === 'USD') {
+      return 1 / (taxasUSD[origem] || 1);
+    } else {
+      // Conversão via USD
+      const paraUSD = 1 / (taxasUSD[origem] || 1);
+      const deUSD = taxasUSD[destino] || 1;
+      return paraUSD * deUSD;
+    }
+  };
+
+  useEffect(() => {
+    // Premium status agora é determinado pelo plano real do usuário
+  }, []);
+
   const calcular = async () => {
     if (!custoProdutoUSD || !markup) {
       setResultado(null);
@@ -398,8 +401,8 @@ const DashboardSimples: React.FC = () => {
     }
 
     // Verificar limite de cálculos
-    if (calculationsUsed >= currentLimitations.maxCalculations) {
-      alert(`Limite de ${currentLimitations.maxCalculations} cálculos por mês atingido! Faça upgrade para continuar calculando.`);
+    if (calculationsUsed >= (currentLimitations?.maxCalculations || 10)) {
+      alert(`Limite de ${currentLimitations?.maxCalculations || 10} cálculos por mês atingido! Faça upgrade para continuar calculando.`);
       return;
     }
 
@@ -498,24 +501,29 @@ const DashboardSimples: React.FC = () => {
 
   // Verificar se as seleções atuais são válidas para o plano
   useEffect(() => {
+    if (!currentLimitations) return;
+    
     // Verificar moeda origem
     if (currentLimitations.allowedCurrencies !== 'all' && 
+        currentLimitations.allowedCurrencies && 
         !currentLimitations.allowedCurrencies.includes(moedaOrigem)) {
-      setMoedaOrigem(currentLimitations.allowedCurrencies[0]);
+      setMoedaOrigem(currentLimitations.allowedCurrencies[0] || 'USD');
     }
     
     // Verificar moeda destino
     if (currentLimitations.allowedCurrencies !== 'all' && 
+        currentLimitations.allowedCurrencies &&
         !currentLimitations.allowedCurrencies.includes(moedaDestino)) {
-      setMoedaDestino(currentLimitations.allowedCurrencies[0]);
+      setMoedaDestino(currentLimitations.allowedCurrencies[0] || 'USD');
     }
     
     // Verificar plataforma
     if (currentLimitations.allowedPlatforms !== 'all' && 
+        currentLimitations.allowedPlatforms &&
         !currentLimitations.allowedPlatforms.includes(plataforma)) {
-      setPlataforma(currentLimitations.allowedPlatforms[0]);
+      setPlataforma(currentLimitations.allowedPlatforms[0] || 'shopify');
     }
-  }, [plan, currentLimitations]);
+  }, [plan, currentLimitations, moedaOrigem, moedaDestino, plataforma]);
 
   // Cálculo automático sempre que algum campo mudar
   useEffect(() => {
@@ -718,21 +726,21 @@ const DashboardSimples: React.FC = () => {
             </h2>
 
             {/* Indicador de Cálculos Restantes */}
-            {currentLimitations.maxCalculations !== Infinity && (
+            {currentLimitations?.maxCalculations !== Infinity && (
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
                 <div className="flex justify-between items-center">
                   <span className="text-blue-700 dark:text-blue-300 font-medium">
                     Cálculos restantes este mês:
                   </span>
                   <span className={`font-bold ${
-                    (currentLimitations.maxCalculations - calculationsUsed) <= 2 
+                    ((currentLimitations?.maxCalculations || 10) - calculationsUsed) <= 2 
                       ? 'text-red-600 dark:text-red-400' 
                       : 'text-green-600 dark:text-green-400'
                   }`}>
-                    {currentLimitations.maxCalculations - calculationsUsed} de {currentLimitations.maxCalculations}
+                    {(currentLimitations?.maxCalculations || 10) - calculationsUsed} de {currentLimitations?.maxCalculations || 10}
                   </span>
                 </div>
-                {(currentLimitations.maxCalculations - calculationsUsed) <= 2 && (
+                {((currentLimitations?.maxCalculations || 10) - calculationsUsed) <= 2 && (
                   <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
                     Poucos cálculos restantes! Considere fazer upgrade para continuar usando.
                   </p>
@@ -1187,7 +1195,7 @@ const DashboardSimples: React.FC = () => {
                 </div>
                 
                 {/* Botão Salvar Cálculo - Apenas Premium */}
-                {currentLimitations.hasHistory && (
+                {currentLimitations?.hasHistory && (
                   <div className="text-center">
                     <button
                       onClick={salvarCalculo}
@@ -1202,7 +1210,7 @@ const DashboardSimples: React.FC = () => {
                 )}
 
                 {/* Aviso para upgrade se não tem histórico */}
-                {!currentLimitations.hasHistory && (
+                {!currentLimitations?.hasHistory && (
                   <div className="text-center bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
                     <p className="text-yellow-700 dark:text-yellow-300 text-sm mb-2">
                       💾 Histórico de cálculos disponível apenas no plano Premium
