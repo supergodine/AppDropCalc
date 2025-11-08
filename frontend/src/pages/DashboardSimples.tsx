@@ -162,6 +162,12 @@ const DashboardSimples: React.FC = () => {
   const currentPlanType = isPremium ? 'premium' : isGold ? 'gold' : 'basic';
   const currentLimitations = planLimitations[currentPlanType] || planLimitations.basic;
 
+  // Verificar se é plano básico
+  const isBasicPlan = currentPlanType === 'basic';
+
+  // Estado para loading do cálculo manual
+  const [isCalculating, setIsCalculating] = useState(false);
+
   // Verificar cálculos restantes (simulado - em produção viria do backend)
   const [calculationsUsed, setCalculationsUsed] = useState(() => {
     try {
@@ -403,14 +409,18 @@ const DashboardSimples: React.FC = () => {
   }, []);
 
   const calcular = async () => {
+    setIsCalculating(true);
+    
     if (!custoProdutoUSD || !markup) {
       setResultado(null);
+      setIsCalculating(false);
       return;
     }
 
     // Verificar limite de cálculos
     if (calculationsUsed >= (currentLimitations?.maxCalculations || 10)) {
       alert(`Limite de ${currentLimitations?.maxCalculations || 10} cálculos por mês atingido! Faça upgrade para continuar calculando.`);
+      setIsCalculating(false);
       return;
     }
 
@@ -504,6 +514,7 @@ const DashboardSimples: React.FC = () => {
       setResultado(null);
     } finally {
       setLoading(false);
+      setIsCalculating(false);
     }
   };
 
@@ -540,14 +551,23 @@ const DashboardSimples: React.FC = () => {
     }
   }, [plan, currentLimitations, moedaOrigem, moedaDestino, plataforma, gateway]);
 
-  // Cálculo automático sempre que algum campo mudar
+  // Cálculo automático apenas para planos premium/professional
+  // Para plano básico, limpar resultado quando campos mudarem
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      calcular();
-    }, 500);
+    if (isBasicPlan) {
+      // Para plano básico, limpar resultado quando campos mudarem
+      if (resultado !== null) {
+        setResultado(null);
+      }
+    } else {
+      // Para planos premium/professional, calcular automaticamente
+      const timeoutId = setTimeout(() => {
+        calcular();
+      }, 500);
 
-    return () => clearTimeout(timeoutId);
-  }, [custoProdutoUSD, frete, marketing, custoExtra, markup, plataforma, gateway, moedaOrigem, moedaDestino]);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [custoProdutoUSD, frete, marketing, custoExtra, markup, plataforma, gateway, moedaOrigem, moedaDestino, isBasicPlan]);
 
   const logout = async () => {
     try {
@@ -1001,6 +1021,31 @@ const DashboardSimples: React.FC = () => {
                     </p>
                   )}
                 </div>
+              </div>
+
+              {/* Botão Calcular - APENAS para plano básico */}
+              {isBasicPlan && (
+                <div className="mt-6">
+                  <button
+                    onClick={calcular}
+                    disabled={isCalculating || !custoProdutoUSD || !markup}
+                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4 px-6 rounded-lg font-medium transition-colors flex items-center justify-center text-lg"
+                  >
+                    <Calculator className="h-5 w-5 mr-2" />
+                    {isCalculating ? 'Calculando...' : 'Calcular Preço'}
+                  </button>
+                </div>
+              )}
+
+              {/* Indicador de Cálculo Automático ou Manual */}
+              <div className={`mt-4 p-4 rounded-lg ${isBasicPlan ? 'bg-orange-50 dark:bg-orange-900/20' : 'bg-green-50 dark:bg-green-900/20'}`}>
+                <p className={`text-sm flex items-center ${isBasicPlan ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'}`}>
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  {isBasicPlan 
+                    ? 'Plano Básico - Clique no botão "Calcular Preço" para obter o resultado'
+                    : 'Cálculo automático ativado - O preço é atualizado em tempo real'
+                  }
+                </p>
               </div>
             </div>
           </motion.div>
