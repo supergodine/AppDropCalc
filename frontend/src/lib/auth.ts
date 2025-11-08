@@ -79,7 +79,7 @@ class AuthService {
         const requestBody = JSON.stringify({ email, password });
         xhr.send(requestBody);
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Erro no login alternativo:', error);
       throw error;
     }
@@ -161,7 +161,7 @@ class AuthService {
       localStorage.setItem('currentUser', JSON.stringify(data.user));
       
       return data.user;
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Erro no login completo:', error);
       
       // Tratamento específico para diferentes tipos de erro

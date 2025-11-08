@@ -97,7 +97,7 @@ const Login: React.FC = () => {
           console.log('🔄 Tentando login principal...');
           user = await authService.login(email, password);
           loginSuccess = true;
-        } catch (primaryError) {
+        } catch (primaryError: any) {
           console.log('❌ Login principal falhou:', primaryError.message);
           console.log('🔄 Tentando método alternativo...');
           
@@ -105,7 +105,7 @@ const Login: React.FC = () => {
             user = await authService.loginAlternative(email, password);
             loginSuccess = true;
             console.log('✅ Login alternativo funcionou!');
-          } catch (alternativeError) {
+          } catch (alternativeError: any) {
             console.error('❌ Login alternativo também falhou:', alternativeError.message);
             throw alternativeError;
           }
