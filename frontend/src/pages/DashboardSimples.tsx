@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Calculator, DollarSign, TrendingUp, Settings, User, Crown, Menu, X, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useUserPlan } from '../hooks/useUserPlan';
 import { useAuth } from '../hooks/useAuth';
 
 // Componente de Tooltip
@@ -129,41 +130,10 @@ const DashboardSimples: React.FC = () => {
   const [menuAberto, setMenuAberto] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Determinar planos baseado no plano real do usuário
-  const isPremium = plan?.type === 'premium';
-  const isGold = plan?.type === 'professional';
-
-  // Limitações por plano
-  const planLimitations = {
-    basic: {
-      maxCalculations: 10,
-      allowedPlatforms: ['shopify', 'nuvemshop'],
-      allowedCurrencies: ['USD', 'BRL'], // Apenas USD e BRL
-      allowedGateways: ['stripe', 'paypal'], // Apenas Stripe e PayPal
-      hasHistory: false
-    },
-    gold: {
-      maxCalculations: 100,
-      allowedPlatforms: ['shopify', 'nuvemshop', 'woocommerce', 'magento', 'opencart', 'prestashop', 'mercadolivre', 'amazon'],
-      allowedCurrencies: ['USD', 'EUR', 'BRL', 'GBP'], // 4 moedas
-      allowedGateways: ['stripe', 'paypal', 'pagseguro', 'mercadopago', 'cielo', 'rede', 'getnet', 'stone'], // 8 gateways principais
-      hasHistory: false
-    },
-    premium: {
-      maxCalculations: Infinity,
-      allowedPlatforms: 'all' as const,
-      allowedCurrencies: 'all' as const,
-      allowedGateways: 'all' as const,
-      hasHistory: true
-    }
-  };
-
-  // Determinar limitações do plano atual
-  const currentPlanType = isPremium ? 'premium' : isGold ? 'gold' : 'basic';
-  const currentLimitations = planLimitations[currentPlanType] || planLimitations.basic;
-
-  // Verificar se é plano básico
-  const isBasicPlan = currentPlanType === 'basic';
+  // Hook centralizado para plano e limites
+  const { plan, limits, isBasic, isGold, isPremium } = useUserPlan();
+  const currentLimitations = limits;
+  const isBasicPlan = isBasic;
 
   // Estado para loading do cálculo manual
   const [isCalculating, setIsCalculating] = useState(false);
@@ -326,19 +296,19 @@ const DashboardSimples: React.FC = () => {
   ];
 
   // Filtrar plataformas baseado no plano (com verificação de segurança)
-  const plataformasDisponiveis = !currentLimitations || currentLimitations.allowedPlatforms === 'all' 
-    ? plataformas 
-    : plataformas.filter(p => currentLimitations.allowedPlatforms?.includes(p.id));
+  const plataformasDisponiveis = !currentLimitations || currentLimitations.maxPlatforms >= plataformas.length
+    ? plataformas
+    : plataformas.slice(0, currentLimitations.maxPlatforms);
 
   // Filtrar moedas baseado no plano (com verificação de segurança)
-  const moedasDisponiveis = !currentLimitations || currentLimitations.allowedCurrencies === 'all'
+  const moedasDisponiveis = !currentLimitations || currentLimitations.maxCurrencies >= moedas.length
     ? moedas
-    : moedas.filter(m => currentLimitations.allowedCurrencies?.includes(m.codigo));
+    : moedas.slice(0, currentLimitations.maxCurrencies);
 
   // Filtrar gateways baseado no plano (com verificação de segurança)
-  const gatewaysDisponiveis = !currentLimitations || currentLimitations.allowedGateways === 'all'
+  const gatewaysDisponiveis = !currentLimitations || currentLimitations.maxGateways >= gateways.length
     ? gateways
-    : gateways.filter(g => currentLimitations.allowedGateways?.includes(g.id));
+    : gateways.slice(0, currentLimitations.maxGateways);
 
   // Função para salvar cálculo no histórico (apenas Premium)
   const salvarCalculo = () => {
@@ -418,8 +388,8 @@ const DashboardSimples: React.FC = () => {
     }
 
     // Verificar limite de cálculos
-    if (calculationsUsed >= (currentLimitations?.maxCalculations || 10)) {
-      alert(`Limite de ${currentLimitations?.maxCalculations || 10} cálculos por mês atingido! Faça upgrade para continuar calculando.`);
+    if (currentLimitations.maxCalculationsPerMonth && calculationsUsed >= currentLimitations.maxCalculationsPerMonth) {
+      alert(`Limite de ${currentLimitations.maxCalculationsPerMonth} cálculos por mês atingido! Faça upgrade para continuar calculando.`);
       setIsCalculating(false);
       return;
     }
