@@ -39,6 +39,7 @@ const AppHybrid: React.FC = () => {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/signup" element={<Login />} />
             <Route path="/payment" element={<Payment />} />
+            <Route path="/payment-success" element={require('@/pages/PaymentSuccess').default ? React.createElement(require('@/pages/PaymentSuccess').default) : null} />
             <Route path="/plans" element={<PlanSelection />} />
             <Route path="/dashboard" element={
               <ErrorBoundary>
