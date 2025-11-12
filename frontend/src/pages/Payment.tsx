@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { createPaymentPreference } from '../services/mercadoPago';
 import { saveUserPlanToFirestore } from '../services/userPlan';
 import { useAuth } from '../hooks/useAuth';
 
@@ -426,66 +427,29 @@ const Payment: React.FC = () => {
                       : 'border-white/20 hover:shadow-2xl hover:scale-102'
                   } ${isCurrentPlan ? 'ring-2 ring-green-500' : ''}`}
                 >
-                  {/* Popular Badge */}
-                  {plan.popular && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                        Mais Popular
-                      </div>
-                    </div>
-                  )}
+                setIsPurchasing(`${planId}_${period}`);
+                try {
+                  toast.loading('Redirecionando para pagamento Mercado Pago...', { id: 'purchase' });
+                  const plan = plans.find(p => p.id === planId);
+                  if (!plan || !user?.id) throw new Error('Plano ou usuário não encontrado');
 
-                  {/* Current Plan Badge */}
-                  {isCurrentPlan && (
-                    <div className="absolute -top-3 right-4">
-                      <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
-                        <Check className="w-3 h-3" />
-                        Ativo
-                      </div>
-                    </div>
-                  )}
+                  // Cria preferência de pagamento Mercado Pago
+                  const preference = await createPaymentPreference({
+                    title: `Assinatura DropCalc - ${plan.name}`,
+                    description: `Plano ${plan.name} (${period})`,
+                    price: getPriceByPeriod(plan, period).value,
+                    planId,
+                    userId: user.id
+                  });
 
-                  {/* Plan Header */}
-                  <div className="text-center mb-6">
-                    <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r ${plan.gradient} rounded-2xl mb-4 text-white`}>
-                      {plan.icon}
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-800">{plan.name}</h3>
-                  </div>
-
-                  {/* Price */}
-                  <div className="text-center mb-6">
-                    <div className="text-3xl font-bold text-gray-800 mb-1">
-                      {priceInfo.label}
-                    </div>
-                    {priceInfo.savings && (
-                      <p className="text-green-600 text-sm font-medium">{priceInfo.savings}</p>
-                    )}
-                    {selectedPeriod !== 'monthly' && (
-                      <p className="text-gray-500 text-xs mt-1">
-                        Economize {getSavingsPercentage(plan, selectedPeriod)}% vs mensal
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Features */}
-                  <div className="space-y-3 mb-8">
-                    {plan.features.map((feature, featureIndex) => (
-                      <div key={featureIndex} className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center mt-0.5">
-                          <Check className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-gray-700 text-sm">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Purchase Button */}
-                  <motion.button
-                    whileHover={{ scale: isCurrentPlan ? 1 : 1.02 }}
-                    whileTap={{ scale: isCurrentPlan ? 1 : 0.98 }}
-                    onClick={() => !isCurrentPlan && handlePurchase(plan.id, selectedPeriod)}
-                    disabled={isPurchasingThis || isCurrentPlan}
+                  // Redireciona para o checkout
+                  window.location.href = preference.init_point;
+                } catch (error) {
+                  console.error('Erro ao criar pagamento Mercado Pago:', error);
+                  toast.error('Erro ao redirecionar para pagamento. Tente novamente.', { id: 'purchase' });
+                } finally {
+                  setIsPurchasing(null);
+                }
                     className={`w-full py-4 rounded-xl font-semibold text-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
                       isCurrentPlan
                         ? 'bg-green-100 text-green-700 cursor-default'
