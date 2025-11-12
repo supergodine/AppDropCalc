@@ -447,34 +447,59 @@ const Payment: React.FC = () => {
                 } catch (error) {
                   console.error('Erro ao criar pagamento Mercado Pago:', error);
                   toast.error('Erro ao redirecionar para pagamento. Tente novamente.', { id: 'purchase' });
-                } finally {
-                  setIsPurchasing(null);
                 }
-                    className={`w-full py-4 rounded-xl font-semibold text-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
-                      isCurrentPlan
-                        ? 'bg-green-100 text-green-700 cursor-default'
-                        : isPurchasingThis
-                        ? 'bg-gray-400 text-white cursor-not-allowed'
-                        : `bg-gradient-to-r ${plan.gradient} text-white hover:shadow-xl`
-                    }`}
-                  >
-                    {isPurchasingThis ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Processando...
-                      </>
-                    ) : isCurrentPlan ? (
-                      <>
-                        <Check className="w-5 h-5" />
-                        Plano Ativo
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="w-5 h-5" />
-                        Assinar com Google Play
-                      </>
-                    )}
-                  </motion.button>
+                {/* Botão de compra corrigido */}
+                <motion.button
+                  whileHover={{ scale: isCurrentPlan ? 1 : 1.02 }}
+                  whileTap={{ scale: isCurrentPlan ? 1 : 0.98 }}
+                  onClick={async () => {
+                    if (isCurrentPlan) return;
+                    setIsPurchasing(`${plan.id}_${selectedPeriod}`);
+                    try {
+                      toast.loading('Redirecionando para pagamento Mercado Pago...', { id: 'purchase' });
+                      const planObj = plans.find(p => p.id === plan.id);
+                      if (!planObj || !user?.id) throw new Error('Plano ou usuário não encontrado');
+                      const preference = await createPaymentPreference({
+                        title: `Assinatura DropCalc - ${planObj.name}`,
+                        description: `Plano ${planObj.name} (${selectedPeriod})`,
+                        price: getPriceByPeriod(planObj, selectedPeriod).value,
+                        planId: planObj.id,
+                        userId: user.id
+                      });
+                      window.location.href = preference.init_point;
+                    } catch (error) {
+                      console.error('Erro ao criar pagamento Mercado Pago:', error);
+                      toast.error('Erro ao redirecionar para pagamento. Tente novamente.', { id: 'purchase' });
+                    } finally {
+                      setIsPurchasing(null);
+                    }
+                  }}
+                  disabled={isPurchasingThis || isCurrentPlan}
+                  className={`w-full py-4 rounded-xl font-semibold text-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
+                    isCurrentPlan
+                      ? 'bg-green-100 text-green-700 cursor-default'
+                      : isPurchasingThis
+                      ? 'bg-gray-400 text-white cursor-not-allowed'
+                      : `bg-gradient-to-r ${plan.gradient} text-white hover:shadow-xl`
+                  }`}
+                >
+                  {isPurchasingThis ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Processando...
+                    </>
+                  ) : isCurrentPlan ? (
+                    <>
+                      <Check className="w-5 h-5" />
+                      Plano Ativo
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-5 h-5" />
+                      Assinar com Google Play
+                    </>
+                  )}
+                </motion.button>
 
                   {/* Security badges */}
                   {!isCurrentPlan && (
