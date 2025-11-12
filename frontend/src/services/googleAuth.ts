@@ -82,11 +82,15 @@ class GoogleAuthService {
   async syncWithBackend(googleUser: GoogleAuthUser): Promise<any> {
     try {
       console.log('🔄 Sincronizando com backend...');
-      
+      // Obter token JWT do Firebase
+      const currentUser = auth.currentUser;
+      const token = currentUser ? await currentUser.getIdToken() : null;
+
       const response = await fetch(API_CONFIG.auth.login, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
         body: JSON.stringify({
           email: googleUser.email,
