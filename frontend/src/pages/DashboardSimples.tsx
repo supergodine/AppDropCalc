@@ -57,18 +57,20 @@ interface CalculationResult {
 }
 
 const DashboardSimples: React.FC = () => {
+  const { plan, limits, isBasic, isGold, isPremium } = useUserPlan();
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { user, plan, logout: authLogout, refreshAuth, isAdmin } = useAuth();
+  const { user, logout: authLogout, refreshAuth, isAdmin } = useAuth();
 
+  // Hook centralizado para plano e limites
   // Debug info
   console.log('🎯 DashboardSimples - Estado atual:', {
     user: !!user,
     userEmail: user?.email,
     userName: user?.name,
     plan: !!plan,
-    planType: plan?.type,
-    planName: plan?.name
+    planType: plan,
+    planName: plan
   });
 
   // Verificar se o usuário está logado, senão redirecionar
@@ -582,7 +584,7 @@ const DashboardSimples: React.FC = () => {
                     : 'bg-gradient-to-r from-gray-400 to-gray-600 text-white'
                 }`}>
                   <Crown className="w-3 h-3 mr-1" />
-                  {plan.name.toUpperCase()}
+                  {plan.toUpperCase()}
                 </span>
               )}
               
@@ -655,7 +657,7 @@ const DashboardSimples: React.FC = () => {
                     : 'bg-gradient-to-r from-gray-400 to-gray-600 text-white'
                 }`}>
                   <Crown className="w-3 h-3 mr-1" />
-                  {plan.name.toUpperCase()}
+                  {plan.toUpperCase()}
                 </div>
               )}
               

@@ -91,7 +91,7 @@ const Payment: React.FC = () => {
         'Até 4 gateways de pagamento',
         'Cálculo automático em tempo real',
         'Atualização automática de câmbio',
-        'Integração com principais plataformas (Shopee, AliExpress, Nuvemshop, etc.)',
+        'Principais plataformas (Shopee, AliExpress, Nuvemshop, etc.)',
         'Suporte via e-mail'
       ],
       prices: {
@@ -110,6 +110,7 @@ const Payment: React.FC = () => {
         'Todas as moedas disponíveis (70+)',
         'Todas as plataformas integradas',
         'Todos os gateways de pagamento',
+        'Cálculo automático em tempo real',
         'Salvar histórico de preços',
         'Suporte técnico prioritário'
       ],
