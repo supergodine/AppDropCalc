@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from '@/hooks/useTheme';
 import TestPage from '@/pages/TestPage';
+import PaymentSuccess from '@/pages/PaymentSuccess';
 import Welcome from '@/pages/Welcome';
 import Login from '@/pages/Login';
 import LoginSimple from '@/pages/LoginSimple';
@@ -39,7 +40,7 @@ const AppHybrid: React.FC = () => {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/signup" element={<Login />} />
             <Route path="/payment" element={<Payment />} />
-            <Route path="/payment-success" element={require('@/pages/PaymentSuccess').default ? React.createElement(require('@/pages/PaymentSuccess').default) : null} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/plans" element={<PlanSelection />} />
             <Route path="/dashboard" element={
               <ErrorBoundary>
