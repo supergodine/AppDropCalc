@@ -8,29 +8,11 @@ import {
   Gem,
   Zap,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { createPaymentPreference } from '../services/mercadoPago';
-import { saveUserPlanToFirestore } from '../services/userPlan';
 import { useAuth } from '../hooks/useAuth';
 
-// Função utilitária para calcular data de expiração
-function getExpirationDate(period: 'monthly' | 'quarterly' | 'annual', startDate: Date = new Date()): Date {
-  const date = new Date(startDate);
-  switch (period) {
-    case 'monthly':
-      date.setDate(date.getDate() + 30);
-      break;
-    case 'quarterly':
-      date.setDate(date.getDate() + 90);
-      break;
-    case 'annual':
-      date.setDate(date.getDate() + 365);
-      break;
-  }
-  return date;
-}
-
+// Tipagem dos planos
 interface Plan {
   id: 'basic' | 'gold' | 'premium';
   name: string;
@@ -47,7 +29,6 @@ interface Plan {
 }
 
 const Payment: React.FC = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
 
   const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'quarterly' | 'annual'>('monthly');
@@ -160,6 +141,7 @@ const Payment: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 p-8">
       <div className="max-w-6xl mx-auto">
+        {/* Seletor de período */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
