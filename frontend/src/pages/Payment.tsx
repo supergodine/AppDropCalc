@@ -427,27 +427,6 @@ const Payment: React.FC = () => {
                       : 'border-white/20 hover:shadow-2xl hover:scale-102'
                   } ${isCurrentPlan ? 'ring-2 ring-green-500' : ''}`}
                 >
-                setIsPurchasing(`${planId}_${period}`);
-                try {
-                  toast.loading('Redirecionando para pagamento Mercado Pago...', { id: 'purchase' });
-                  const plan = plans.find(p => p.id === planId);
-                  if (!plan || !user?.id) throw new Error('Plano ou usuário não encontrado');
-
-                  // Cria preferência de pagamento Mercado Pago
-                  const preference = await createPaymentPreference({
-                    title: `Assinatura DropCalc - ${plan.name}`,
-                    description: `Plano ${plan.name} (${period})`,
-                    price: getPriceByPeriod(plan, period).value,
-                    planId,
-                    userId: user.id
-                  });
-
-                  // Redireciona para o checkout
-                  window.location.href = preference.init_point;
-                } catch (error) {
-                  console.error('Erro ao criar pagamento Mercado Pago:', error);
-                  toast.error('Erro ao redirecionar para pagamento. Tente novamente.', { id: 'purchase' });
-                }
                 {/* Botão de compra corrigido */}
                 <motion.button
                   whileHover={{ scale: isCurrentPlan ? 1 : 1.02 }}
