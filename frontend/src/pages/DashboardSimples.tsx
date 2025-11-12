@@ -737,21 +737,21 @@ const DashboardSimples: React.FC = () => {
             </h2>
 
             {/* Indicador de Cálculos Restantes */}
-            {currentLimitations?.maxCalculations !== Infinity && (
+            {currentLimitations.maxCalculationsPerMonth !== null && (
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
                 <div className="flex justify-between items-center">
                   <span className="text-blue-700 dark:text-blue-300 font-medium">
                     Cálculos restantes este mês:
                   </span>
                   <span className={`font-bold ${
-                    ((currentLimitations?.maxCalculations || 10) - calculationsUsed) <= 2 
+                    ((currentLimitations.maxCalculationsPerMonth || 10) - calculationsUsed) <= 2 
                       ? 'text-red-600 dark:text-red-400' 
                       : 'text-green-600 dark:text-green-400'
                   }`}>
-                    {(currentLimitations?.maxCalculations || 10) - calculationsUsed} de {currentLimitations?.maxCalculations || 10}
+                    {(currentLimitations.maxCalculationsPerMonth || 10) - calculationsUsed} de {currentLimitations.maxCalculationsPerMonth || 10}
                   </span>
                 </div>
-                {((currentLimitations?.maxCalculations || 10) - calculationsUsed) <= 2 && (
+                {((currentLimitations.maxCalculationsPerMonth || 10) - calculationsUsed) <= 2 && (
                   <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
                     Poucos cálculos restantes! Considere fazer upgrade para continuar usando.
                   </p>
@@ -817,9 +817,9 @@ const DashboardSimples: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                  {currentPlanType !== 'premium' && (
+                  {!isPremium && (
                     <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                      {currentPlanType === 'basic' ? 'Plano Básico: 2 moedas' : 'Plano Gold: 4 moedas'} - Upgrade para Premium para todas as moedas
+                      {isBasic ? 'Plano Básico: 2 moedas' : 'Plano Gold: 10 moedas'} - Upgrade para Premium para todas as moedas
                     </p>
                   )}
                 </div>
@@ -846,9 +846,9 @@ const DashboardSimples: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                  {currentPlanType !== 'premium' && (
+                  {!isPremium && (
                     <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                      {currentPlanType === 'basic' ? 'Plano Básico: 2 moedas' : 'Plano Gold: 4 moedas'} - Upgrade para Premium para todas as moedas
+                      {isBasic ? 'Plano Básico: 2 moedas' : 'Plano Gold: 10 moedas'} - Upgrade para Premium para todas as moedas
                     </p>
                   )}
                 </div>
@@ -952,9 +952,9 @@ const DashboardSimples: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                  {currentPlanType !== 'premium' && (
+                  {!isPremium && (
                     <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                      {currentPlanType === 'basic' 
+                      {isBasic 
                         ? 'Plano Básico: Apenas Shopify e Nuvem Shop' 
                         : 'Plano Gold: Plataformas limitadas'} - Upgrade para Premium para todas as plataformas
                     </p>
@@ -983,11 +983,11 @@ const DashboardSimples: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                  {currentPlanType !== 'premium' && (
+                  {!isPremium && (
                     <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                      {currentPlanType === 'basic' 
+                      {isBasic 
                         ? 'Plano Básico: Apenas Stripe e PayPal' 
-                        : 'Plano Gold: 8 gateways principais'} - Upgrade para Premium para todos os gateways
+                        : 'Plano Gold: 4 gateways principais'} - Upgrade para Premium para todos os gateways
                     </p>
                   )}
                 </div>
