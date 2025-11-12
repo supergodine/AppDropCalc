@@ -58,11 +58,12 @@ interface CalculationResult {
 
 const DashboardSimples: React.FC = () => {
   const { plan, limits, isBasic, isGold, isPremium } = useUserPlan();
+  const currentLimitations = limits;
+  const isBasicPlan = isBasic;
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user, logout: authLogout, refreshAuth, isAdmin } = useAuth();
 
-  // Hook centralizado para plano e limites
   // Debug info
   console.log('🎯 DashboardSimples - Estado atual:', {
     user: !!user,
@@ -132,10 +133,7 @@ const DashboardSimples: React.FC = () => {
   const [menuAberto, setMenuAberto] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Hook centralizado para plano e limites
-  const { plan, limits, isBasic, isGold, isPremium } = useUserPlan();
-  const currentLimitations = limits;
-  const isBasicPlan = isBasic;
+  // ...existing code...
 
   // Estado para loading do cálculo manual
   const [isCalculating, setIsCalculating] = useState(false);
