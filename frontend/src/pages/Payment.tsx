@@ -1,3 +1,21 @@
+// Utilitário para calcular data de expiração do plano
+function getExpirationDate(period: 'monthly' | 'quarterly' | 'annual', startDate: Date = new Date()): Date {
+  const date = new Date(startDate);
+  switch (period) {
+    case 'monthly':
+      date.setDate(date.getDate() + 30);
+      break;
+    case 'quarterly':
+      date.setDate(date.getDate() + 90);
+      break;
+    case 'annual':
+      date.setDate(date.getDate() + 365);
+      break;
+    default:
+      break;
+  }
+  return date;
+}
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -13,6 +31,8 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { saveUserPlanToFirestore } from '../services/userPlan';
+import { useAuth } from '../hooks/useAuth';
 
 interface BillingState {
   isConnected: boolean;
@@ -46,6 +66,7 @@ interface Plan {
 }
 
 const Payment: React.FC = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [billingState, setBillingState] = useState<BillingState>({
     isConnected: false,
@@ -210,6 +231,27 @@ const Payment: React.FC = () => {
   };
 
   const handlePurchase = async (planId: string, period: 'monthly' | 'quarterly' | 'annual') => {
+      // Calcular data de expiração
+      const startDate = new Date();
+      const expirationDate = getExpirationDate(period, startDate);
+
+      // Salvar plano e datas no localStorage
+      localStorage.setItem('userPlan', planId);
+      localStorage.setItem('billingStatus', 'active');
+      localStorage.setItem('subscriptionPeriod', period);
+      localStorage.setItem('subscriptionDate', startDate.toISOString());
+      localStorage.setItem('expirationDate', expirationDate.toISOString());
+
+      // Persistir no Firestore se usuário logado
+      if (user?.id) {
+        await saveUserPlanToFirestore({
+          userId: user.id,
+          planId,
+          period,
+          startDate: startDate.toISOString(),
+          expirationDate: expirationDate.toISOString()
+        });
+      }
     if (!billingState.products) return;
 
     const purchaseKey = `${planId}_${period}`;
@@ -219,11 +261,16 @@ const Payment: React.FC = () => {
       toast.loading('Processando pagamento...', { id: 'purchase' });
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Salvar plano como string ('basic', 'gold', 'premium')
+      // Calcular data de expiração
+      const startDate = new Date();
+      const expirationDate = getExpirationDate(period, startDate);
+
+      // Salvar plano e datas no localStorage
       localStorage.setItem('userPlan', planId);
       localStorage.setItem('billingStatus', 'active');
       localStorage.setItem('subscriptionPeriod', period);
-      localStorage.setItem('subscriptionDate', new Date().toISOString());
+      localStorage.setItem('subscriptionDate', startDate.toISOString());
+      localStorage.setItem('expirationDate', expirationDate.toISOString());
 
       // Atualizar estado imediatamente
       setCurrentPlan(planId);
