@@ -88,7 +88,6 @@ const Payment: React.FC = () => {
       popular: true,
       features: [
         'Suporte a 10 moedas',
-        'Até 4 plataformas',
         'Até 4 gateways de pagamento',
         'Cálculo automático em tempo real',
         'Atualização automática de câmbio',
@@ -111,10 +110,8 @@ const Payment: React.FC = () => {
         'Todas as moedas disponíveis (70+)',
         'Todas as plataformas integradas',
         'Todos os gateways de pagamento',
-        'Histórico de preços completo',
-        'IA de precificação inteligente',
-        'Suporte técnico prioritário',
-        'Recursos exclusivos'
+        'Salvar histórico de preços',
+        'Suporte técnico prioritário'
       ],
       prices: {
         monthly: 19.90,
@@ -216,41 +213,29 @@ const Payment: React.FC = () => {
 
     const purchaseKey = `${planId}_${period}`;
     setIsPurchasing(purchaseKey);
-    
+
     try {
-      // Simular processo de compra (mais rápido para teste)
       toast.loading('Processando pagamento...', { id: 'purchase' });
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Salvar dados da assinatura
-      console.log('Salvando dados do plano:', planId);
+
+      // Salvar plano como string ('basic', 'gold', 'premium')
       localStorage.setItem('userPlan', planId);
       localStorage.setItem('billingStatus', 'active');
       localStorage.setItem('subscriptionPeriod', period);
       localStorage.setItem('subscriptionDate', new Date().toISOString());
-      localStorage.setItem('premiumActive', 'true');
-      
-      // Atualizar estado
+
+      // Atualizar estado imediatamente
       setCurrentPlan(planId);
-      
+
       // Toast de sucesso
       const planName = plans.find(p => p.id === planId)?.name || 'Desconhecido';
       toast.success(`🎉 Assinatura ${planName} ativada com sucesso!`, { id: 'purchase' });
-      
-      // Log para debug
-      console.log('Dados salvos no localStorage:');
-      console.log('- userPlan:', localStorage.getItem('userPlan'));
-      console.log('- billingStatus:', localStorage.getItem('billingStatus'));
-      console.log('- premiumActive:', localStorage.getItem('premiumActive'));
-      console.log('- currentUser:', localStorage.getItem('currentUser'));
-      
-      // Redirecionar para dashboard
-      console.log('Redirecionando para /dashboard em 1.5s...');
+
+      // Forçar reload para atualizar funcionalidades e plano em toda a aplicação
       setTimeout(() => {
-        console.log('Executando navigate(/dashboard)');
-        navigate('/dashboard');
-      }, 1500);
-      
+        window.location.reload();
+      }, 1200);
+
     } catch (error) {
       console.error('Erro na compra:', error);
       toast.error('Erro ao processar pagamento. Tente novamente.', { id: 'purchase' });
@@ -548,12 +533,7 @@ const Payment: React.FC = () => {
                   <td className="text-center py-3 px-4 text-gray-600">Ilimitado</td>
                   <td className="text-center py-3 px-4 text-gray-600">Ilimitado</td>
                 </tr>
-                <tr className="border-b border-gray-100">
-                  <td className="py-3 px-4 text-gray-700">IA de precificação</td>
-                  <td className="text-center py-3 px-4 text-gray-400">—</td>
-                  <td className="text-center py-3 px-4 text-gray-400">—</td>
-                  <td className="text-center py-3 px-4"><Check className="w-4 h-4 text-green-500 mx-auto" /></td>
-                </tr>
+                // ...existing code...
                 <tr className="border-b border-gray-100">
                   <td className="py-3 px-4 text-gray-700">Histórico de preços</td>
                   <td className="text-center py-3 px-4 text-gray-400">—</td>
