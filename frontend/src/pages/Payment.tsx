@@ -65,15 +65,18 @@ const Payment: React.FC = () => {
       color: 'blue',
       gradient: 'from-blue-500 to-cyan-500',
       features: [
-        'Cálculo de precificação manual e automático',
-        'Suporte a Real (BRL) e Dólar (USD)',
+        'Gratuito (R$ 0,00/mês)',
+        'Limite de 2 moedas (ex: BRL, USD)',
+        'Limite de 2 plataformas (Shopify, Nuvemshop)',
+        'Limite de 2 gateways de pagamento (Stripe, Mercado Pago)',
+        'Pode realizar 10 cálculos por mês',
         'Acesso à calculadora padrão',
         'Suporte via e-mail'
       ],
       prices: {
-        monthly: 4.90,
-        quarterly: { total: 12.90, perMonth: 4.30 },
-        annual: { total: 39.90, perMonth: 3.33 }
+        monthly: 0.00,
+        quarterly: { total: 0.00, perMonth: 0.00 },
+        annual: { total: 0.00, perMonth: 0.00 }
       }
     },
     {
@@ -84,11 +87,13 @@ const Payment: React.FC = () => {
       gradient: 'from-yellow-500 to-orange-500',
       popular: true,
       features: [
-        'Suporte a 10+ moedas internacionais',
-        'Integração com principais plataformas',
+        'Suporte a 10 moedas',
+        'Até 4 plataformas',
+        'Até 4 gateways de pagamento',
         'Cálculo automático em tempo real',
         'Atualização automática de câmbio',
-        'Shopee, AliExpress, Nuvemshop'
+        'Integração com principais plataformas (Shopee, AliExpress, Nuvemshop, etc.)',
+        'Suporte via e-mail'
       ],
       prices: {
         monthly: 9.90,
@@ -103,11 +108,13 @@ const Payment: React.FC = () => {
       color: 'purple',
       gradient: 'from-purple-500 to-pink-500',
       features: [
-        'Todas as moedas globais (70+)',
-        'Integração com todas as plataformas',
+        'Todas as moedas disponíveis (70+)',
+        'Todas as plataformas integradas',
+        'Todos os gateways de pagamento',
+        'Histórico de preços completo',
         'IA de precificação inteligente',
         'Suporte técnico prioritário',
-        'Recursos avançados exclusivos'
+        'Recursos exclusivos'
       ],
       prices: {
         monthly: 19.90,
@@ -520,17 +527,35 @@ const Payment: React.FC = () => {
                 <tr className="border-b border-gray-100">
                   <td className="py-3 px-4 text-gray-700">Moedas suportadas</td>
                   <td className="text-center py-3 px-4 text-gray-600">2</td>
-                  <td className="text-center py-3 px-4 text-gray-600">10+</td>
+                  <td className="text-center py-3 px-4 text-gray-600">10</td>
                   <td className="text-center py-3 px-4 text-gray-600">70+</td>
                 </tr>
                 <tr className="border-b border-gray-100">
-                  <td className="py-3 px-4 text-gray-700">Integração com plataformas</td>
-                  <td className="text-center py-3 px-4 text-gray-400">—</td>
-                  <td className="text-center py-3 px-4"><Check className="w-4 h-4 text-green-500 mx-auto" /></td>
-                  <td className="text-center py-3 px-4"><Check className="w-4 h-4 text-green-500 mx-auto" /></td>
+                  <td className="py-3 px-4 text-gray-700">Plataformas integradas</td>
+                  <td className="text-center py-3 px-4 text-gray-600">2</td>
+                  <td className="text-center py-3 px-4 text-gray-600">4</td>
+                  <td className="text-center py-3 px-4 text-gray-600">Todas</td>
+                </tr>
+                <tr className="border-b border-gray-100">
+                  <td className="py-3 px-4 text-gray-700">Gateways de pagamento</td>
+                  <td className="text-center py-3 px-4 text-gray-600">2</td>
+                  <td className="text-center py-3 px-4 text-gray-600">4</td>
+                  <td className="text-center py-3 px-4 text-gray-600">Todos</td>
+                </tr>
+                <tr className="border-b border-gray-100">
+                  <td className="py-3 px-4 text-gray-700">Cálculos mensais permitidos</td>
+                  <td className="text-center py-3 px-4 text-gray-600">10</td>
+                  <td className="text-center py-3 px-4 text-gray-600">Ilimitado</td>
+                  <td className="text-center py-3 px-4 text-gray-600">Ilimitado</td>
                 </tr>
                 <tr className="border-b border-gray-100">
                   <td className="py-3 px-4 text-gray-700">IA de precificação</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4"><Check className="w-4 h-4 text-green-500 mx-auto" /></td>
+                </tr>
+                <tr className="border-b border-gray-100">
+                  <td className="py-3 px-4 text-gray-700">Histórico de preços</td>
                   <td className="text-center py-3 px-4 text-gray-400">—</td>
                   <td className="text-center py-3 px-4 text-gray-400">—</td>
                   <td className="text-center py-3 px-4"><Check className="w-4 h-4 text-green-500 mx-auto" /></td>
