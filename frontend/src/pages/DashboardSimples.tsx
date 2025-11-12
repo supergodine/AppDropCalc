@@ -491,33 +491,22 @@ const DashboardSimples: React.FC = () => {
   // Verificar se as seleções atuais são válidas para o plano
   useEffect(() => {
     if (!currentLimitations) return;
-    
+
     // Verificar moeda origem
-    if (currentLimitations.allowedCurrencies !== 'all' && 
-        currentLimitations.allowedCurrencies && 
-        !currentLimitations.allowedCurrencies.includes(moedaOrigem)) {
-      setMoedaOrigem(currentLimitations.allowedCurrencies[0] || 'USD');
+    if (moedasDisponiveis.length > 0 && !moedasDisponiveis.map(m => m.codigo).includes(moedaOrigem)) {
+      setMoedaOrigem(moedasDisponiveis[0].codigo || 'USD');
     }
-    
     // Verificar moeda destino
-    if (currentLimitations.allowedCurrencies !== 'all' && 
-        currentLimitations.allowedCurrencies &&
-        !currentLimitations.allowedCurrencies.includes(moedaDestino)) {
-      setMoedaDestino(currentLimitations.allowedCurrencies[0] || 'USD');
+    if (moedasDisponiveis.length > 0 && !moedasDisponiveis.map(m => m.codigo).includes(moedaDestino)) {
+      setMoedaDestino(moedasDisponiveis[0].codigo || 'USD');
     }
-    
     // Verificar plataforma
-    if (currentLimitations.allowedPlatforms !== 'all' && 
-        currentLimitations.allowedPlatforms &&
-        !currentLimitations.allowedPlatforms.includes(plataforma)) {
-      setPlataforma(currentLimitations.allowedPlatforms[0] || 'shopify');
+    if (plataformasDisponiveis.length > 0 && !plataformasDisponiveis.map(p => p.id).includes(plataforma)) {
+      setPlataforma(plataformasDisponiveis[0].id || 'shopify');
     }
-    
     // Verificar gateway
-    if (currentLimitations.allowedGateways !== 'all' && 
-        currentLimitations.allowedGateways &&
-        !currentLimitations.allowedGateways.includes(gateway)) {
-      setGateway(currentLimitations.allowedGateways[0] || 'stripe');
+    if (gatewaysDisponiveis.length > 0 && !gatewaysDisponiveis.map(g => g.id).includes(gateway)) {
+      setGateway(gatewaysDisponiveis[0].id || 'stripe');
     }
   }, [plan, currentLimitations, moedaOrigem, moedaDestino, plataforma, gateway]);
 
