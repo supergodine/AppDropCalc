@@ -1,5 +1,4 @@
 import React from 'react';
-import { SpeedInsights } from "@vercel/speed-insights/react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from '@/hooks/useTheme';
@@ -28,7 +27,6 @@ const AppHybrid: React.FC = () => {
     <ThemeProvider>
       <Router>
         <div className="App">
-          <SpeedInsights />
           <Routes>
             {/* Public Routes que sabemos que funcionam */}
             <Route path="/welcome" element={<Welcome />} />
