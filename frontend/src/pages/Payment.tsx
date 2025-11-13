@@ -200,6 +200,22 @@ const Payment: React.FC = () => {
                       : 'border-white/20 hover:shadow-2xl hover:scale-102'
                   } ${isCurrentPlan ? 'ring-2 ring-green-500' : ''}`}
                 >
+                  {/* Nome, ícone e preço do plano */}
+                  <div className="flex items-center gap-3 mb-4">
+                    {plan.icon}
+                    <span className={`text-xl font-bold text-${plan.color}-700`}>{plan.name}</span>
+                  </div>
+                  <div className="mb-2 text-lg font-semibold text-gray-700">
+                    {getPriceByPeriod(plan, selectedPeriod).label}
+                  </div>
+
+                  {/* Lista de features/benefícios */}
+                  <ul className="mb-4 text-sm text-gray-600 list-disc list-inside">
+                    {plan.features.map((feature, i) => (
+                      <li key={i}>{feature}</li>
+                    ))}
+                  </ul>
+
                   <motion.button
                     whileHover={{ scale: isCurrentPlan ? 1 : 1.02 }}
                     whileTap={{ scale: isCurrentPlan ? 1 : 0.98 }}
