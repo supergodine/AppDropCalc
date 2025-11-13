@@ -90,10 +90,11 @@ class AuthService {
     try {
       const loginUrl = API_CONFIG.auth.login;
       console.log('🔐 Login attempt:', { email, url: loginUrl });
-      
-      const requestBody = JSON.stringify({ email, password });
+
+      // Adicionar provider: 'email' para compatibilidade backend
+      const requestBody = JSON.stringify({ email, password, provider: 'email' });
       console.log('📤 Request body:', requestBody);
-      
+
       // Fazer a requisição com timeout e headers específicos
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
@@ -120,7 +121,7 @@ class AuthService {
         console.error('❌ Error response text:', errorText);
         console.error('❌ Error response status:', response.status);
         console.error('❌ Error response statusText:', response.statusText);
-        
+
         let errorMessage = 'Falha no login';
         try {
           const errorJson = JSON.parse(errorText);
@@ -128,18 +129,18 @@ class AuthService {
         } catch (parseError) {
           errorMessage = errorText || errorMessage;
         }
-        
+
         // Tratamento específico para erro 401
         if (response.status === 401) {
           errorMessage = 'Credenciais inválidas. Verifique email e senha.';
         }
-        
+
         throw new Error(errorMessage);
       }
 
       const responseText = await response.text();
       console.log('📥 Raw response text:', responseText);
-      
+
       let data;
       try {
         data = JSON.parse(responseText);
@@ -147,32 +148,37 @@ class AuthService {
         console.error('❌ Failed to parse response JSON:', parseError);
         throw new Error('Resposta inválida do servidor');
       }
-      
+
       console.log('✅ Login successful, data:', data);
-      
+
       // Validar estrutura da resposta
       if (!data.accessToken || !data.user) {
         console.error('❌ Invalid response structure:', data);
         throw new Error('Resposta do servidor incompleta');
       }
-      
+
       // Armazenar token e dados do usuário
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('currentUser', JSON.stringify(data.user));
-      
+
+      // Atualizar plano do usuário se vier na resposta
+      if (data.user.plan) {
+        localStorage.setItem('userPlan', JSON.stringify(data.user.plan));
+      }
+
       return data.user;
     } catch (error: any) {
       console.error('❌ Erro no login completo:', error);
-      
+
       // Tratamento específico para diferentes tipos de erro
       if (error.name === 'AbortError') {
         throw new Error('Timeout na conexão. Tente novamente.');
       }
-      
+
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
         throw new Error('Erro de conexão. Verifique sua internet.');
       }
-      
+
       throw error;
     }
   }
