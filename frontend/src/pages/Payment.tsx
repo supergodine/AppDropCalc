@@ -48,14 +48,18 @@ const Payment: React.FC = () => {
       color: 'gray',
       gradient: 'from-gray-400 to-gray-600',
       features: [
-        'Cálculos básicos',
-        'Limite de 10 cálculos/mês',
-        'Suporte por e-mail'
+        'Gratuito (R$ 0,00/mês)',
+        'Limite de 2 moedas (ex: BRL, USD)',
+        'Limite de 2 plataformas (Shopify, Nuvemshop)',
+        'Limite de 2 gateways de pagamento (Stripe, Mercado Pago)',
+        'Pode realizar 10 cálculos por mês',
+        'Acesso à calculadora padrão',
+        'Suporte via e-mail'
       ],
       prices: {
-        monthly: 4.9,
-        quarterly: { total: 12.9, perMonth: 4.3 },
-        annual: { total: 39.9, perMonth: 3.3 }
+        monthly: 0.0,
+        quarterly: { total: 0.0, perMonth: 0.0 },
+        annual: { total: 0.0, perMonth: 0.0 }
       }
     },
     {
@@ -66,9 +70,14 @@ const Payment: React.FC = () => {
       gradient: 'from-yellow-400 to-yellow-600',
       popular: true,
       features: [
-        'Cálculos ilimitados',
-        'Integração Google Play',
-        'Suporte por e-mail'
+        'R$ 9,90/mês',
+        'Suporte a 10 moedas',
+        'Até 4 plataformas',
+        'Até 4 gateways de pagamento',
+        'Cálculo automático em tempo real',
+        'Atualização automática de câmbio',
+        'Principais plataformas (Shopee, AliExpress, Nuvemshop, etc.)',
+        'Suporte via e-mail'
       ],
       prices: {
         monthly: 9.9,
@@ -83,10 +92,13 @@ const Payment: React.FC = () => {
       color: 'purple',
       gradient: 'from-purple-400 to-purple-600',
       features: [
-        'Cálculos ilimitados',
-        'Integração Google Play',
-        'Histórico de preços',
-        'Suporte prioritário'
+        'R$ 19,90/mês',
+        'Todas as moedas disponíveis (70+)',
+        'Todas as plataformas integradas',
+        'Todos os gateways de pagamento',
+        'Cálculo automático em tempo real',
+        'Histórico de preços completo',
+        'Suporte técnico prioritário'
       ],
       prices: {
         monthly: 19.9,
@@ -200,21 +212,80 @@ const Payment: React.FC = () => {
                       : 'border-white/20 hover:shadow-2xl hover:scale-102'
                   } ${isCurrentPlan ? 'ring-2 ring-green-500' : ''}`}
                 >
-                  {/* Nome, ícone e preço do plano */}
-                  <div className="flex items-center gap-3 mb-4">
-                    {plan.icon}
-                    <span className={`text-xl font-bold text-${plan.color}-700`}>{plan.name}</span>
-                  </div>
-                  <div className="mb-2 text-lg font-semibold text-gray-700">
-                    {getPriceByPeriod(plan, selectedPeriod).label}
+                  <div className="flex flex-col items-center mb-6">
+                    <div className={`w-16 h-16 flex items-center justify-center rounded-2xl mb-3 bg-gradient-to-r ${plan.gradient} shadow-lg`}>
+                      {plan.icon}
+                    </div>
+                    <span className={`text-2xl font-bold text-${plan.color}-700 mb-1`}>{plan.name}</span>
+                    {plan.popular && (
+                      <span className="px-3 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full mb-2 shadow">Mais Popular</span>
+                    )}
+                    <span className="text-2xl font-extrabold text-gray-900 mb-2">{getPriceByPeriod(plan, selectedPeriod).label}</span>
                   </div>
 
-                  {/* Lista de features/benefícios */}
-                  <ul className="mb-4 text-sm text-gray-600 list-disc list-inside">
+                  <ul className="mb-6 text-base text-gray-900 space-y-3">
                     {plan.features.map((feature, i) => (
-                      <li key={i}>{feature}</li>
+                      <li key={i} className="flex items-center gap-2">
+                        <Check className="w-5 h-5 text-green-500" />
+                        <span>{feature}</span>
+                      </li>
                     ))}
                   </ul>
+
+                  <motion.button
+                    whileHover={{ scale: isCurrentPlan ? 1 : 1.03 }}
+                    whileTap={{ scale: isCurrentPlan ? 1 : 0.97 }}
+                    onClick={async () => {
+                      if (isCurrentPlan) return;
+                      setIsPurchasing(`${plan.id}_${selectedPeriod}`);
+                      try {
+                        toast.loading('Redirecionando para pagamento...', { id: 'purchase' });
+                        if (!user?.id) throw new Error('Usuário não encontrado');
+                        const preference = await createPaymentPreference({
+                          title: `Assinatura DropCalc - ${plan.name}`,
+                          description: `Plano ${plan.name} (${selectedPeriod})`,
+                          price: getPriceByPeriod(plan, selectedPeriod).value,
+                          planId: plan.id,
+                          userId: user.id
+                        });
+                        window.location.href = preference.init_point;
+                      } catch (error) {
+                        console.error('Erro ao criar pagamento:', error);
+                        toast.error('Erro ao redirecionar para pagamento.', { id: 'purchase' });
+                      } finally {
+                        setIsPurchasing(null);
+                      }
+                    }}
+                    disabled={isPurchasingThis || isCurrentPlan}
+                    className={`w-full py-4 rounded-xl font-semibold text-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2 mb-2
+                      ${isCurrentPlan
+                        ? 'bg-green-100 text-green-700 cursor-default'
+                        : isPurchasingThis
+                        ? 'bg-gray-400 text-white cursor-not-allowed'
+                        : plan.id === 'gold'
+                        ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white hover:shadow-xl'
+                        : plan.id === 'premium'
+                        ? 'bg-gradient-to-r from-purple-400 to-purple-600 text-white hover:shadow-xl'
+                        : 'bg-gradient-to-r from-blue-500 to-blue-700 text-white hover:shadow-xl'
+                      }`}
+                  >
+                    {isPurchasingThis ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Processando...
+                      </>
+                    ) : isCurrentPlan ? (
+                      <>
+                        <Check className="w-5 h-5" />
+                        Plano Ativo
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="w-5 h-5" />
+                        Assinar com Google Play
+                      </>
+                    )}
+                  </motion.button>
 
                   <motion.button
                     whileHover={{ scale: isCurrentPlan ? 1 : 1.02 }}
