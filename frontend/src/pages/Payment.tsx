@@ -88,7 +88,12 @@ const Payment: React.FC = () => {
     {
       id: 'premium',
       name: 'Premium',
-      icon: <Gem className="w-8 h-8 text-purple-500" />,
+        icon: (
+          <span className="relative flex items-center justify-center">
+            <Gem className="w-8 h-8 text-purple-500" />
+            <Shield className="w-5 h-5 text-blue-500 absolute -top-2 -right-2" />
+          </span>
+        ),
       color: 'purple',
       gradient: 'from-purple-400 to-purple-600',
       features: [
@@ -98,7 +103,8 @@ const Payment: React.FC = () => {
         'Todos os gateways de pagamento',
         'Cálculo automático em tempo real',
         'Histórico de preços completo',
-        'Suporte técnico prioritário'
+          'Suporte técnico prioritário',
+          'Segurança avançada nos pagamentos'
       ],
       prices: {
         monthly: 19.9,
@@ -153,7 +159,7 @@ const Payment: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Seletor de período */}
+        {/* Seletor de período de cobrança */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -168,7 +174,7 @@ const Payment: React.FC = () => {
                 quarterly: 'Trimestral',
                 annual: 'Anual'
               };
-
+              // Botões de seleção de período
               return (
                 <motion.button
                   key={period}
@@ -193,112 +199,209 @@ const Payment: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Grid de planos */}
+        {/* Grid de planos: cada coluna é um plano */}
         {!billingState.isLoading && (
           <div className="grid lg:grid-cols-3 gap-6 mb-8">
-            {plans.map((plan, index) => {
-              const isCurrentPlan = currentPlan === plan.id;
-              const purchaseKey = `${plan.id}_${selectedPeriod}`;
-              const isPurchasingThis = isPurchasing === purchaseKey;
-              return (
-                <motion.div
-                  key={plan.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 + index * 0.1 }}
-                  className={`relative bg-white/60 backdrop-blur-sm rounded-3xl p-6 border shadow-xl transition-all duration-300 ${
-                    plan.popular
-                      ? 'border-yellow-300 shadow-2xl transform scale-105'
-                      : 'border-white/20 hover:shadow-2xl hover:scale-102'
-                  } ${isCurrentPlan ? 'ring-2 ring-green-500' : ''}`}
-                >
-                  <div className="flex flex-col items-center mb-6">
-                    <div className={`w-16 h-16 flex items-center justify-center rounded-2xl mb-3 bg-gradient-to-r ${plan.gradient} shadow-lg`}>
-                      {plan.icon}
-                    </div>
-                    <span className={`text-2xl font-bold text-${plan.color}-700 mb-1`}>{plan.name}</span>
-                    {plan.popular && (
-                      <span className="px-3 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full mb-2 shadow">Mais Popular</span>
-                    )}
-                    <span className="text-2xl font-extrabold text-gray-900 mb-2">{getPriceByPeriod(plan, selectedPeriod).label}</span>
+            {/* Card do Plano Básico */}
+            <>
+            {plans[0] && (
+              <motion.div
+                key={plans[0].id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className={`relative bg-white/60 backdrop-blur-sm rounded-3xl p-6 border shadow-xl transition-all duration-300 ${currentPlan === plans[0].id ? 'ring-2 ring-green-500' : ''}`}
+              >
+                {/* Ícone, nome e preço do Básico */}
+                <div className="flex flex-col items-center mb-6">
+                  <div className={`w-16 h-16 flex items-center justify-center rounded-2xl mb-3 bg-gradient-to-r ${plans[0].gradient} shadow-lg`}>
+                    {plans[0].icon}
                   </div>
-
-                  <ul className="mb-6 text-base text-gray-900 space-y-3">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-center gap-2">
-                        <Check className="w-5 h-5 text-green-500" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-
-                  <motion.button
-                    whileHover={{ scale: isCurrentPlan ? 1 : 1.02 }}
-                    whileTap={{ scale: isCurrentPlan ? 1 : 0.98 }}
-                    onClick={async () => {
-                      if (isCurrentPlan) return;
-                      setIsPurchasing(`${plan.id}_${selectedPeriod}`);
-                      try {
-                        toast.loading('Redirecionando para pagamento...', { id: 'purchase' });
-                        if (!user?.id) throw new Error('Usuário não encontrado');
-                        const preference = await createPaymentPreference({
-                          title: `Assinatura DropCalc - ${plan.name}`,
-                          description: `Plano ${plan.name} (${selectedPeriod})`,
-                          price: getPriceByPeriod(plan, selectedPeriod).value,
-                          planId: plan.id,
-                          userId: user.id
-                        });
-                        window.location.href = preference.init_point;
-                      } catch (error) {
-                        console.error('Erro ao criar pagamento:', error);
-                        toast.error('Erro ao redirecionar para pagamento.', { id: 'purchase' });
-                      } finally {
-                        setIsPurchasing(null);
-                      }
-                    }}
-                    disabled={isPurchasingThis || isCurrentPlan}
-                    className={`w-full py-4 rounded-xl font-semibold text-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
-                      isCurrentPlan
-                        ? 'bg-green-100 text-green-700 cursor-default'
-                        : isPurchasingThis
-                        ? 'bg-gray-400 text-white cursor-not-allowed'
-                        : `bg-gradient-to-r ${plan.gradient} text-white hover:shadow-xl`
-                    }`}
-                  >
-                    {isPurchasingThis ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Processando...
-                      </>
-                    ) : isCurrentPlan ? (
-                      <>
-                        <Check className="w-5 h-5" />
-                        Plano Ativo
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="w-5 h-5" />
-                        testar
-                      </>
-                    )}
-                  </motion.button>
-
-                  {!isCurrentPlan && (
-                    <div className="flex items-center justify-center gap-4 mt-4 text-xs text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <Shield className="w-3 h-3" />
-                        <span>Pagamento Seguro</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-3 h-3" />
-                        <span>Google Play</span>
-                      </div>
-                    </div>
+                  <span className={`text-2xl font-bold text-${plans[0].color}-700 mb-1`}>{plans[0].name}</span>
+                  <span className="text-2xl font-extrabold text-gray-900 mb-2">{getPriceByPeriod(plans[0], selectedPeriod).label}</span>
+                </div>
+                {/* Lista de benefícios do Básico */}
+                <ul className="mb-6 text-base text-gray-900 space-y-3">
+                  {plans[0].features.map((feature, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                {/* Botão de Assinar Básico */}
+                <motion.button
+                  whileHover={{ scale: currentPlan === plans[0].id ? 1 : 1.02 }}
+                  whileTap={{ scale: currentPlan === plans[0].id ? 1 : 0.98 }}
+                  onClick={async () => {
+                    if (currentPlan === plans[0].id) return;
+                    setIsPurchasing(`${plans[0].id}_${selectedPeriod}`);
+                    try {
+                      toast.loading('Redirecionando para pagamento...', { id: 'purchase' });
+                      if (!user?.id) throw new Error('Usuário não encontrado');
+                      const preference = await createPaymentPreference({
+                        title: `Assinatura DropCalc - ${plans[0].name}`,
+                        description: `Plano ${plans[0].name} (${selectedPeriod})`,
+                        price: getPriceByPeriod(plans[0], selectedPeriod).value,
+                        planId: plans[0].id,
+                        userId: user.id
+                      });
+                      window.location.href = preference.init_point;
+                    } catch (error) {
+                      console.error('Erro ao criar pagamento:', error);
+                      toast.error('Erro ao redirecionar para pagamento.', { id: 'purchase' });
+                    } finally {
+                      setIsPurchasing(null);
+                    }
+                  }}
+                  disabled={isPurchasing === `${plans[0].id}_${selectedPeriod}` || currentPlan === plans[0].id}
+                  className={`w-full py-4 rounded-xl font-semibold text-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
+                    currentPlan === plans[0].id
+                      ? 'bg-green-100 text-green-700 cursor-default'
+                      : isPurchasing === `${plans[0].id}_${selectedPeriod}`
+                      ? 'bg-gray-400 text-white cursor-not-allowed'
+                      : `bg-gradient-to-r ${plans[0].gradient} text-white hover:shadow-xl`
+                  }`}
+                >
+                  <CreditCard className="w-5 h-5" />
+                  Assinar
+                </motion.button>
+              </motion.div>
+            )}
+            {/* Card do Plano Gold */}
+            {plans[1] && (
+              <motion.div
+                key={plans[1].id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className={`relative bg-white/60 backdrop-blur-sm rounded-3xl p-6 border shadow-xl transition-all duration-300 ${plans[1].popular ? 'border-yellow-300 shadow-2xl transform scale-105' : ''} ${currentPlan === plans[1].id ? 'ring-2 ring-green-500' : ''}`}
+              >
+                {/* Ícone, nome, selo e preço do Gold */}
+                <div className="flex flex-col items-center mb-6">
+                  <div className={`w-16 h-16 flex items-center justify-center rounded-2xl mb-3 bg-gradient-to-r ${plans[1].gradient} shadow-lg`}>
+                    {plans[1].icon}
+                  </div>
+                  <span className={`text-2xl font-bold text-${plans[1].color}-700 mb-1`}>{plans[1].name}</span>
+                  {plans[1].popular && (
+                    <span className="px-3 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full mb-2 shadow">Mais Popular</span>
                   )}
-                </motion.div>
-              );
-            })}
+                  <span className="text-2xl font-extrabold text-gray-900 mb-2">{getPriceByPeriod(plans[1], selectedPeriod).label}</span>
+                </div>
+                {/* Lista de benefícios do Gold */}
+                <ul className="mb-6 text-base text-gray-900 space-y-3">
+                  {plans[1].features.map((feature, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                {/* Botão de Assinar Gold */}
+                <motion.button
+                  whileHover={{ scale: currentPlan === plans[1].id ? 1 : 1.02 }}
+                  whileTap={{ scale: currentPlan === plans[1].id ? 1 : 0.98 }}
+                  onClick={async () => {
+                    if (currentPlan === plans[1].id) return;
+                    setIsPurchasing(`${plans[1].id}_${selectedPeriod}`);
+                    try {
+                      toast.loading('Redirecionando para pagamento...', { id: 'purchase' });
+                      if (!user?.id) throw new Error('Usuário não encontrado');
+                      const preference = await createPaymentPreference({
+                        title: `Assinatura DropCalc - ${plans[1].name}`,
+                        description: `Plano ${plans[1].name} (${selectedPeriod})`,
+                        price: getPriceByPeriod(plans[1], selectedPeriod).value,
+                        planId: plans[1].id,
+                        userId: user.id
+                      });
+                      window.location.href = preference.init_point;
+                    } catch (error) {
+                      console.error('Erro ao criar pagamento:', error);
+                      toast.error('Erro ao redirecionar para pagamento.', { id: 'purchase' });
+                    } finally {
+                      setIsPurchasing(null);
+                    }
+                  }}
+                  disabled={isPurchasing === `${plans[1].id}_${selectedPeriod}` || currentPlan === plans[1].id}
+                  className={`w-full py-4 rounded-xl font-semibold text-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
+                    currentPlan === plans[1].id
+                      ? 'bg-green-100 text-green-700 cursor-default'
+                      : isPurchasing === `${plans[1].id}_${selectedPeriod}`
+                      ? 'bg-gray-400 text-white cursor-not-allowed'
+                      : `bg-gradient-to-r ${plans[1].gradient} text-white hover:shadow-xl`
+                  }`}
+                >
+                  <CreditCard className="w-5 h-5" />
+                  Assinar
+                </motion.button>
+              </motion.div>
+            )}
+            {/* Card do Plano Premium */}
+            {plans[2] && (
+              <motion.div
+                key={plans[2].id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className={`relative bg-white/60 backdrop-blur-sm rounded-3xl p-6 border shadow-xl transition-all duration-300 ${currentPlan === plans[2].id ? 'ring-2 ring-green-500' : ''}`}
+              >
+                {/* Ícone, nome e preço do Premium */}
+                <div className="flex flex-col items-center mb-6">
+                  <div className={`w-16 h-16 flex items-center justify-center rounded-2xl mb-3 bg-gradient-to-r ${plans[2].gradient} shadow-lg`}>
+                    {plans[2].icon}
+                  </div>
+                  <span className={`text-2xl font-bold text-${plans[2].color}-700 mb-1`}>{plans[2].name}</span>
+                  <span className="text-2xl font-extrabold text-gray-900 mb-2">{getPriceByPeriod(plans[2], selectedPeriod).label}</span>
+                </div>
+                {/* Lista de benefícios do Premium */}
+                <ul className="mb-6 text-base text-gray-900 space-y-3">
+                  {plans[2].features.map((feature, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                {/* Botão de Assinar Premium */}
+                <motion.button
+                  whileHover={{ scale: currentPlan === plans[2].id ? 1 : 1.02 }}
+                  whileTap={{ scale: currentPlan === plans[2].id ? 1 : 0.98 }}
+                  onClick={async () => {
+                    if (currentPlan === plans[2].id) return;
+                    setIsPurchasing(`${plans[2].id}_${selectedPeriod}`);
+                    try {
+                      toast.loading('Redirecionando para pagamento...', { id: 'purchase' });
+                      if (!user?.id) throw new Error('Usuário não encontrado');
+                      const preference = await createPaymentPreference({
+                        title: `Assinatura DropCalc - ${plans[2].name}`,
+                        description: `Plano ${plans[2].name} (${selectedPeriod})`,
+                        price: getPriceByPeriod(plans[2], selectedPeriod).value,
+                        planId: plans[2].id,
+                        userId: user.id
+                      });
+                      window.location.href = preference.init_point;
+                    } catch (error) {
+                      console.error('Erro ao criar pagamento:', error);
+                      toast.error('Erro ao redirecionar para pagamento.', { id: 'purchase' });
+                    } finally {
+                      setIsPurchasing(null);
+                    }
+                  }}
+                  disabled={isPurchasing === `${plans[2].id}_${selectedPeriod}` || currentPlan === plans[2].id}
+                  className={`w-full py-4 rounded-xl font-semibold text-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
+                    currentPlan === plans[2].id
+                      ? 'bg-green-100 text-green-700 cursor-default'
+                      : isPurchasing === `${plans[2].id}_${selectedPeriod}`
+                      ? 'bg-gray-400 text-white cursor-not-allowed'
+                      : `bg-gradient-to-r ${plans[2].gradient} text-white hover:shadow-xl`
+                  }`}
+                >
+                  <CreditCard className="w-5 h-5" />
+                  Assinar
+                </motion.button>
+              </motion.div>
+            )}
+            </>
           </div>
         )}
 
