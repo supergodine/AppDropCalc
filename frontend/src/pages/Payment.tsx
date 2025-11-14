@@ -212,6 +212,7 @@ const Payment: React.FC = () => {
                       : 'border-white/20 hover:shadow-2xl hover:scale-102'
                   } ${isCurrentPlan ? 'ring-2 ring-green-500' : ''}`}
                 >
+                  <div className='relative bg-white/60 backdrop-blur-sm rounded-3xl p-6 border shadow-xl transition-all duration-300'></div>
                   <div className="flex flex-col items-center mb-6">
                     <div className={`w-16 h-16 flex items-center justify-center rounded-2xl mb-3 bg-gradient-to-r ${plan.gradient} shadow-lg`}>
                       {plan.icon}
