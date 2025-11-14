@@ -212,7 +212,6 @@ const Payment: React.FC = () => {
                       : 'border-white/20 hover:shadow-2xl hover:scale-102'
                   } ${isCurrentPlan ? 'ring-2 ring-green-500' : ''}`}
                 >
-                  <div className='relative bg-white/60 backdrop-blur-sm rounded-3xl p-6 border shadow-xl transition-all duration-300'></div>
                   <div className="flex flex-col items-center mb-6">
                     <div className={`w-16 h-16 flex items-center justify-center rounded-2xl mb-3 bg-gradient-to-r ${plan.gradient} shadow-lg`}>
                       {plan.icon}
@@ -233,60 +232,6 @@ const Payment: React.FC = () => {
                     ))}
                   </ul>
 
-                  <motion.button
-                    whileHover={{ scale: isCurrentPlan ? 1 : 1.03 }}
-                    whileTap={{ scale: isCurrentPlan ? 1 : 0.97 }}
-                    onClick={async () => {
-                      if (isCurrentPlan) return;
-                      setIsPurchasing(`${plan.id}_${selectedPeriod}`);
-                      try {
-                        toast.loading('Redirecionando para pagamento...', { id: 'purchase' });
-                        if (!user?.id) throw new Error('Usuário não encontrado');
-                        const preference = await createPaymentPreference({
-                          title: `Assinatura DropCalc - ${plan.name}`,
-                          description: `Plano ${plan.name} (${selectedPeriod})`,
-                          price: getPriceByPeriod(plan, selectedPeriod).value,
-                          planId: plan.id,
-                          userId: user.id
-                        });
-                        window.location.href = preference.init_point;
-                      } catch (error) {
-                        console.error('Erro ao criar pagamento:', error);
-                        toast.error('Erro ao redirecionar para pagamento.', { id: 'purchase' });
-                      } finally {
-                        setIsPurchasing(null);
-                      }
-                    }}
-                    disabled={isPurchasingThis || isCurrentPlan}
-                    className={`w-full py-4 rounded-xl font-semibold text-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2 mb-2
-                      ${isCurrentPlan
-                        ? 'bg-green-100 text-green-700 cursor-default'
-                        : isPurchasingThis
-                        ? 'bg-gray-400 text-white cursor-not-allowed'
-                        : plan.id === 'gold'
-                        ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white hover:shadow-xl'
-                        : plan.id === 'premium'
-                        ? 'bg-gradient-to-r from-purple-400 to-purple-600 text-white hover:shadow-xl'
-                        : 'bg-gradient-to-r from-blue-500 to-blue-700 text-white hover:shadow-xl'
-                      }`}
-                  >
-                    {isPurchasingThis ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Processando...
-                      </>
-                    ) : isCurrentPlan ? (
-                      <>
-                        <Check className="w-5 h-5" />
-                        Plano Ativo
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="w-5 h-5" />
-                        Assinar com Google Play
-                      </>
-                    )}
-                  </motion.button>
 
                   <motion.button
                     whileHover={{ scale: isCurrentPlan ? 1 : 1.02 }}
