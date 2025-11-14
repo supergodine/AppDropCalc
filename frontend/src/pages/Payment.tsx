@@ -279,7 +279,7 @@ const Payment: React.FC = () => {
                     ) : (
                       <>
                         <CreditCard className="w-5 h-5" />
-                        Assinar
+                        testar
                       </>
                     )}
                   </motion.button>
