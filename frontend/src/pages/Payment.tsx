@@ -107,9 +107,8 @@ const Payment: React.FC = () => {
 
   useEffect(() => {
     // Carregar plano salvo localmente (simulação)
-    const userPlan = localStorage.getItem("userPlan");
-    const billingStatus = localStorage.getItem("billingStatus");
-    const subscriptionDate = localStorage.getItem("subscriptionDate");
+  const userPlan = localStorage.getItem("userPlan");
+  const billingStatus = localStorage.getItem("billingStatus");
 
     if (userPlan && billingStatus === "active") {
       // opcional: validar expiração por subscriptionDate
