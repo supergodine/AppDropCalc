@@ -51,55 +51,48 @@ interface Plan {
 }
 
 const Payment: React.FC = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
-
+  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'quarterly' | 'annual'>('monthly');
+  const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
   const [billingState, setBillingState] = useState<BillingState>({
     isConnected: false,
     isLoading: true,
     products: null
   });
-  const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
-  const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'quarterly' | 'annual'>('monthly');
-  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
-
+  const navigate = useNavigate();
   const plans: Plan[] = [
     {
       id: 'basic',
       name: 'Básico',
-      icon: <Gem className="w-8 h-8" />,
+      icon: <Gem className="w-10 h-10" />,
       color: 'blue',
       gradient: 'from-blue-500 to-cyan-500',
       features: [
-        'Gratuito (R$ 0,00/mês)',
-        'Limite de 2 moedas (ex: BRL, USD)',
-        'Limite de 2 plataformas (Shopify, Nuvemshop)',
-        'Limite de 2 gateways de pagamento (Stripe, Mercado Pago)',
-        'Pode realizar 10 cálculos por mês',
+        'Cálculo de precificação manual e automático',
+        'Suporte a Real (BRL) e Dólar (USD)',
         'Acesso à calculadora padrão',
         'Suporte via e-mail'
       ],
       prices: {
-        monthly: 0.0,
-        quarterly: { total: 0.0, perMonth: 0.0 },
-        annual: { total: 0.0, perMonth: 0.0 }
+        monthly: 4.9,
+        quarterly: { total: 13.4, perMonth: 4.47 },
+        annual: { total: 44.9, perMonth: 3.74 }
       }
     },
     {
       id: 'gold',
       name: 'Gold',
-      icon: <Award className="w-8 h-8" />,
+      icon: <Award className="w-10 h-10" />,
       color: 'yellow',
       gradient: 'from-yellow-500 to-orange-500',
       popular: true,
       features: [
-        'Suporte a 10 moedas',
-        'Até 4 plataformas',
-        'Até 4 gateways de pagamento',
+        'Suporte a 10+ moedas internacionais',
+        'Integração com principais plataformas',
         'Cálculo automático em tempo real',
         'Atualização automática de câmbio',
-        'Principais plataformas (Shopee, AliExpress, Nuvemshop, etc.)',
-        'Suporte via e-mail'
+        'Shopee, AliExpress, Nuvemshop'
       ],
       prices: {
         monthly: 9.9,
@@ -110,16 +103,15 @@ const Payment: React.FC = () => {
     {
       id: 'premium',
       name: 'Premium',
-      icon: <Crown className="w-8 h-8" />,
+      icon: <Crown className="w-10 h-10" />,
       color: 'purple',
       gradient: 'from-purple-500 to-pink-500',
       features: [
-        'Todas as moedas disponíveis (70+)',
-        'Todas as plataformas integradas',
-        'Todos os gateways de pagamento',
-        'Cálculo automático em tempo real',
-        'Histórico de preços completo',
-        'Suporte técnico prioritário'
+        'Todas as moedas globais (70+)',
+        'Integração com todas as plataformas',
+        'IA de precificação inteligente',
+        'Suporte técnico prioritário',
+        'Recursos avançados exclusivos'
       ],
       prices: {
         monthly: 19.9,
@@ -128,31 +120,6 @@ const Payment: React.FC = () => {
       }
     }
   ];
-
-  // 🔄 RESTANTE DO SEU CÓDIGO DE ESTADO E INICIALIZAÇÃO
-  useEffect(() => {
-    const userPlan = localStorage.getItem('userPlan');
-    const billingStatus = localStorage.getItem('billingStatus');
-    const currentUser = localStorage.getItem('currentUser');
-
-    if (userPlan && billingStatus === 'active' && currentUser) {
-      const subscriptionDate = localStorage.getItem('subscriptionDate');
-      if (subscriptionDate) {
-        const planDate = new Date(subscriptionDate);
-        const now = new Date();
-        const hoursDiff = (now.getTime() - planDate.getTime()) / (1000 * 60 * 60);
-        if (hoursDiff < 24) {
-          setCurrentPlan(userPlan);
-        } else {
-          localStorage.clear();
-        }
-      } else {
-        setCurrentPlan(userPlan);
-      }
-    }
-    // Nenhum retorno JSX aqui!
-    // Nenhum uso de error fora de try/catch
-  }, []);
 
   // Recupera plano atual salvo no localStorage (se for recente e corresponder ao usuário)
   useEffect(() => {
