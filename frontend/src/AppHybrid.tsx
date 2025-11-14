@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from '@/hooks/useTheme';
-import TestPage from '@/pages/TestPage';
 import PaymentSuccess from '@/pages/PaymentSuccess';
 import Welcome from '@/pages/Welcome';
 import Login from '@/pages/Login';
@@ -12,12 +11,10 @@ import AuthCallback from '@/pages/AuthCallback';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import Payment from '@/pages/Payment';
-import PlanSelection from '@/pages/PlanSelection';
 import Settings from '@/pages/Settings';
 import Help from '@/pages/Help';
 import Debug from '@/pages/Debug';
 import DashboardSimples from '@/pages/DashboardSimples';
-import UsersList from '@/pages/UsersList';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 const AppHybrid: React.FC = () => {
@@ -30,7 +27,6 @@ const AppHybrid: React.FC = () => {
           <Routes>
             {/* Public Routes que sabemos que funcionam */}
             <Route path="/welcome" element={<Welcome />} />
-            <Route path="/test" element={<TestPage />} />
             <Route path="/debug" element={<Debug />} />
             <Route path="/login" element={<Login />} />
             <Route path="/login-simple" element={<LoginSimple />} />
@@ -41,7 +37,6 @@ const AppHybrid: React.FC = () => {
             <Route path="/signup" element={<Login />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/plans" element={<PlanSelection />} />
             <Route path="/dashboard" element={
               <ErrorBoundary>
                 <DashboardSimples />
@@ -49,13 +44,10 @@ const AppHybrid: React.FC = () => {
             } />
             <Route path="/settings" element={<Settings />} />
             <Route path="/help" element={<Help />} />
-            <Route path="/users" element={<UsersList />} />
-            
             {/* Default redirect para dashboard direto */}
-              <Route path="/" element={<Navigate to="/welcome" replace />} />
-              <Route path="*" element={<Navigate to="/welcome" replace />} />
+            <Route path="/" element={<Navigate to="/welcome" replace />} />
+            <Route path="*" element={<Navigate to="/welcome" replace />} />
           </Routes>
-          
           {/* Toast notifications */}
           <Toaster
             position="top-right"
