@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import TestPage from '@/pages/TestPage';
 import Welcome from '@/pages/Welcome';
 import Login from '@/pages/Login';
 import LoginSimple from '@/pages/LoginSimple';
@@ -33,7 +32,6 @@ const App: React.FC = () => {
         <Routes>
           {/* Public Routes */}
           <Route path="/welcome" element={<Welcome />} />
-          <Route path="/test" element={<TestPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/login-simple" element={<LoginSimple />} />
           <Route path="/signup" element={<Login />} />
