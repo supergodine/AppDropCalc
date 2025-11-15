@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { Calculator, DollarSign, TrendingUp, Settings, HelpCircle, Crown, Menu, X } from 'lucide-react';
+import { Calculator, DollarSign, TrendingUp, Settings, HelpCircle, Crown, Menu, X, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const API_BASE = 'https://appdropcalc-production.up.railway.app';
@@ -23,6 +24,7 @@ interface CalculationResult {
 
 const DashboardCalculadora: React.FC = () => {
   const { user, plan, checkPlanAccess } = useAuth();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   
   // Log para debug
@@ -182,12 +184,12 @@ const DashboardCalculadora: React.FC = () => {
     : 'Cálculo automático ativado - O preço é atualizado em tempo real';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className={`min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900`}>
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-white/20"
+        className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg border-b border-white/20 dark:border-gray-700/20"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
@@ -197,7 +199,7 @@ const DashboardCalculadora: React.FC = () => {
                 <Calculator className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">DropCalc</h1>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">DropCalc</h1>
                 {hasPremiumAccess() && (
                   <div className="flex items-center gap-1">
                     <Crown className="w-3 h-3 text-yellow-500" />
@@ -209,12 +211,19 @@ const DashboardCalculadora: React.FC = () => {
 
             {/* User menu */}
             <div className="flex items-center gap-4">
-              <span className="text-gray-700 font-medium hidden sm:block">
+              <span className="text-gray-700 dark:text-gray-200 font-medium hidden sm:block">
                 Olá, {user?.name || 'Usuário'}!
               </span>
               
               {/* Navigation buttons */}
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                  title={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
+                >
+                  {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -286,13 +295,13 @@ const DashboardCalculadora: React.FC = () => {
         </AnimatePresence>
       </motion.div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Formulário de Cálculo */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center mb-6">
               <Settings className="h-6 w-6 text-blue-600 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Parâmetros do Produto
               </h2>
             </div>
@@ -300,11 +309,11 @@ const DashboardCalculadora: React.FC = () => {
             <div className="space-y-6">
               {/* Custo do Produto */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Custo do Produto
                 </label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <DollarSign className="absolute left-3 top-3 h-5 w-5 text-gray-400 dark:text-gray-500" />
                   <input
                     type="number"
                     value={formData.custoProduto}
@@ -317,14 +326,14 @@ const DashboardCalculadora: React.FC = () => {
 
               {/* Custos Adicionais */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Custos Adicionais (Frete, Impostos, etc.)
                 </label>
                 <input
                   type="number"
                   value={formData.custosAdicionais}
                   onChange={(e) => handleInputChange('custosAdicionais', parseFloat(e.target.value) || 0)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                   placeholder="0.00"
                 />
               </div>
@@ -332,13 +341,13 @@ const DashboardCalculadora: React.FC = () => {
               {/* Moedas */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Moeda Origem
                   </label>
                   <select
                     value={formData.moedaOrigem}
                     onChange={(e) => handleInputChange('moedaOrigem', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                   >
                     <optgroup label=" Principais">
                       <option value="USD">USD - Dólar Americano</option>
@@ -438,13 +447,13 @@ const DashboardCalculadora: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Moeda Venda
                   </label>
                   <select
                     value={formData.moedaVenda}
                     onChange={(e) => handleInputChange('moedaVenda', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                   >
                     <optgroup label=" Principais">
                       <option value="BRL">BRL - Real Brasileiro</option>
@@ -547,13 +556,13 @@ const DashboardCalculadora: React.FC = () => {
 
               {/* Plataforma */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Plataforma de Venda
                 </label>
                 <select
                   value={formData.plataforma}
                   onChange={(e) => handleInputChange('plataforma', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 >
                   <optgroup label="Marketplaces Nacionais">
                     <option value="mercado-livre">Mercado Livre</option>
@@ -633,7 +642,7 @@ const DashboardCalculadora: React.FC = () => {
                   Margem de Lucro (%)
                 </label>
                 <div className="relative">
-                  <TrendingUp className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <TrendingUp className="absolute left-3 top-3 h-5 w-5 text-gray-400 dark:text-gray-500" />
                   <input
                     type="number"
                     value={formData.margemLucro}
@@ -685,10 +694,10 @@ const DashboardCalculadora: React.FC = () => {
           </div>
 
           {/* Resultado */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center mb-6">
               <DollarSign className="h-6 w-6 text-green-600 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Resultado do Cálculo
               </h2>
             </div>
@@ -696,64 +705,64 @@ const DashboardCalculadora: React.FC = () => {
             {result ? (
               <div className="space-y-6">
                 {/* Preço Final */}
-                <div className="text-center bg-green-50 p-6 rounded-lg">
-                  <h3 className="text-2xl font-bold text-green-600 mb-2">
+                <div className="text-center bg-green-50 dark:bg-green-900 p-6 rounded-lg">
+                  <h3 className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">
                     Preço de Venda Sugerido
                   </h3>
-                  <p className="text-4xl font-bold text-green-700">
+                  <p className="text-4xl font-bold text-green-700 dark:text-green-300">
                     {formData.moedaVenda} {result.precoVenda.toFixed(2)}
                   </p>
                 </div>
 
                 {/* Detalhes */}
                 <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-gray-900">Detalhamento:</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Detalhamento:</h4>
                   
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Custo do Produto:</span>
+                      <span className="text-gray-600 dark:text-gray-300">Custo do Produto:</span>
                       <span className="font-medium">{formData.moedaOrigem} {result.detalhes.custoProduto.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Custos Adicionais:</span>
+                      <span className="text-gray-600 dark:text-gray-300">Custos Adicionais:</span>
                       <span className="font-medium">{formData.moedaOrigem} {result.detalhes.custosAdicionais.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Taxa de Câmbio:</span>
+                      <span className="text-gray-600 dark:text-gray-300">Taxa de Câmbio:</span>
                       <span className="font-medium">{result.detalhes.taxaCambio.toFixed(4)}</span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Custo Convertido:</span>
+                      <span className="text-gray-600 dark:text-gray-300">Custo Convertido:</span>
                       <span className="font-medium">{formData.moedaVenda} {result.detalhes.custoConvertido.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Taxa da Plataforma:</span>
+                      <span className="text-gray-600 dark:text-gray-300">Taxa da Plataforma:</span>
                       <span className="font-medium">{formData.moedaVenda} {result.detalhes.taxaPlataforma.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Taxa do Gateway:</span>
+                      <span className="text-gray-600 dark:text-gray-300">Taxa do Gateway:</span>
                       <span className="font-medium">{formData.moedaVenda} {result.detalhes.taxaGateway.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between border-t pt-3">
-                      <span className="text-gray-600">Total de Taxas:</span>
+                      <span className="text-gray-600 dark:text-gray-300">Total de Taxas:</span>
                       <span className="font-medium">{formData.moedaVenda} {result.detalhes.taxaTotal.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Margem de Lucro ({formData.margemLucro}%):</span>
-                      <span className="font-medium text-green-600">{formData.moedaVenda} {result.detalhes.valorMargemBRL.toFixed(2)}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Margem de Lucro ({formData.margemLucro}%):</span>
+                      <span className="font-medium text-green-600 dark:text-green-400">{formData.moedaVenda} {result.detalhes.valorMargemBRL.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="text-center text-gray-500 py-12">
+              <div className="text-center text-gray-500 dark:text-gray-400 py-12">
                 <Calculator className="h-16 w-16 mx-auto mb-4 opacity-50" />
                 <p>Preencha os dados e clique em "Calcular Preço" para ver o resultado</p>
               </div>

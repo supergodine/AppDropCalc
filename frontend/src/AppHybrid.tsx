@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { ThemeProvider } from '@/hooks/useTheme';
+// import { ThemeProvider } from '@/hooks/useTheme';
 import PaymentSuccess from '@/pages/PaymentSuccess';
 import Welcome from '@/pages/Welcome';
 import Login from '@/pages/Login';
@@ -21,10 +21,9 @@ const AppHybrid: React.FC = () => {
   console.log('=== AppHybrid carregando ===');
 
   return (
-    <ThemeProvider>
-      <Router>
-        <div className="App">
-          <Routes>
+    <Router>
+      <div className="App">
+        <Routes>
             {/* Public Routes que sabemos que funcionam */}
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/debug" element={<Debug />} />
@@ -64,7 +63,6 @@ const AppHybrid: React.FC = () => {
           />
         </div>
       </Router>
-    </ThemeProvider>
   );
 };
 
