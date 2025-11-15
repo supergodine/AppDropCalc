@@ -9,8 +9,7 @@ import {
   Zap,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-// import { createPaymentPreference } from '../services/mercadoPago';
-import { useNavigate } from 'react-router-dom';
+import { createPaymentPreference } from '../services/mercadoPago';
 
 // Tipagem dos planos
 interface Plan {
@@ -29,8 +28,6 @@ interface Plan {
 }
 
 const Payment: React.FC = () => {
-  const navigate = useNavigate();
-
   const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'quarterly' | 'annual'>('monthly');
   const [billingState, setBillingState] = useState({
     isConnected: false,
@@ -262,28 +259,20 @@ const Payment: React.FC = () => {
                     whileHover={{ scale: 1.07, boxShadow: `0 0 16px ${plan.color === 'yellow' ? '#FFD700' : plan.color === 'purple' ? '#6366F1' : '#60A5FA'}` }}
                     whileTap={{ scale: 0.97 }}
                     onClick={async () => {
-                      // Ativar plano no localStorage
-                      localStorage.setItem('userPlan', JSON.stringify({
-                        type: plan.id,
-                        name: plan.name,
-                        price: getPriceByPeriod(plan, selectedPeriod).value,
-                        active: true
-                      }));
-                      // Criar usuário de teste no localStorage
-                      localStorage.setItem('currentUser', JSON.stringify({
-                        id: 'test-user',
-                        email: 'teste@dropcalc.com',
-                        name: 'Usuário Teste',
-                        role: 'user',
-                        plan: {
-                          type: plan.id,
-                          name: plan.name,
+                      // Chamar integração Mercado Pago
+                      try {
+                        const preferenceId = await createPaymentPreference({
+                          planId: plan.id,
                           price: getPriceByPeriod(plan, selectedPeriod).value,
-                          active: true
-                        }
-                      }));
-                      toast.success(`Plano ${plan.name} ativado!`);
-                      navigate('/dashboard');
+                          title: plan.name,
+                          description: `Plano ${plan.name} (${selectedPeriod})`,
+                          userId: 'test-user'
+                        });
+                        // Redirecionar para Mercado Pago
+                        window.location.href = `https://www.mercadopago.com.br/checkout/v1/redirect?preference-id=${preferenceId}`;
+                      } catch (error) {
+                        toast.error('Erro ao iniciar pagamento Mercado Pago.');
+                      }
                     }}
                     className={`w-full py-4 rounded-2xl font-bold text-lg shadow-xl transition-all duration-300 flex items-center justify-center gap-3 bg-gradient-to-r ${plan.gradient} text-white hover:shadow-2xl`}
                   >
