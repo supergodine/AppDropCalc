@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -86,7 +86,7 @@ const DashboardCalculadora: React.FC = () => {
   };
 
   // Calcular preço (manual para plano básico, automático para outros)
-  const calculatePrice = async () => {
+  const calculatePrice = useCallback(async () => {
     setIsCalculating(true);
     try {
       const response = await fetch(`${API_BASE}/calc/calcular`, {
@@ -131,7 +131,7 @@ const DashboardCalculadora: React.FC = () => {
     } finally {
       setIsCalculating(false);
     }
-  };
+  }, [formData, exchangeRate]);
 
   // Limpar formulário
   const clearForm = () => {
@@ -168,7 +168,7 @@ const DashboardCalculadora: React.FC = () => {
         calculatePrice();
       }
     }
-  }, [formData, exchangeRate, plan]);
+  }, [formData, exchangeRate, plan, calculatePrice, result, isBasicPlan]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
