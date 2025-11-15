@@ -33,18 +33,18 @@ const DashboardCalculadora: React.FC = () => {
   console.log('localStorage userPlan:', localStorage.getItem('userPlan'));
   console.log('localStorage premiumActive:', localStorage.getItem('premiumActive'));
   
-  // Verificar se o usuário está autenticado
-  if (!user) {
-    console.log('Usuário não autenticado, redirecionando para login');
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1>Carregando usuário...</h1>
-          <p>Redirecionando...</p>
-        </div>
-      </div>
-    );
-  }
+  // Remover bloqueio de usuário não autenticado para testes
+  // if (!user) {
+  //   console.log('Usuário não autenticado, redirecionando para login');
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       <div className="text-center">
+  //         <h1>Carregando usuário...</h1>
+  //         <p>Redirecionando...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
   
   const [formData, setFormData] = useState({
     custoProduto: 100,
