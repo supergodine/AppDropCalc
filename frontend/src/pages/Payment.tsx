@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { createPaymentPreference } from '../services/mercadoPago';
+import { useAuth } from '../hooks/useAuth';
 
 // Tipagem dos planos
 interface Plan {
@@ -28,6 +29,8 @@ interface Plan {
 }
 
 const Payment: React.FC = () => {
+  const { user } = useAuth();
+
   const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'quarterly' | 'annual'>('monthly');
   const [billingState, setBillingState] = useState({
     isConnected: false,
@@ -35,6 +38,7 @@ const Payment: React.FC = () => {
     products: null,
   });
   const [currentPlan, setCurrentPlan] = useState<string | null>(null);
+  const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
 
   const plans: Plan[] = [
     {
@@ -256,25 +260,37 @@ const Payment: React.FC = () => {
                 {/* Botão de Assinar */}
                 <div className="mt-auto">
                   <motion.button
-                    whileHover={{ scale: 1.07, boxShadow: `0 0 16px ${plan.color === 'yellow' ? '#FFD700' : plan.color === 'purple' ? '#6366F1' : '#60A5FA'}` }}
-                    whileTap={{ scale: 0.97 }}
+                    whileHover={{ scale: currentPlan === plan.id ? 1 : 1.07, boxShadow: currentPlan === plan.id ? undefined : `0 0 16px ${plan.color === 'yellow' ? '#FFD700' : plan.color === 'purple' ? '#6366F1' : '#60A5FA'}` }}
+                    whileTap={{ scale: currentPlan === plan.id ? 1 : 0.97 }}
                     onClick={async () => {
-                      // Chamar integração Mercado Pago
+                      if (currentPlan === plan.id) return;
+                      setIsPurchasing(`${plan.id}_${selectedPeriod}`);
                       try {
-                        const preferenceId = await createPaymentPreference({
-                          planId: plan.id,
-                          price: getPriceByPeriod(plan, selectedPeriod).value,
-                          title: plan.name,
+                        toast.loading('Redirecionando para pagamento...', { id: 'purchase' });
+                        if (!user?.id) throw new Error('Usuário não encontrado');
+                        const preference = await createPaymentPreference({
+                          title: `Assinatura DropCalc - ${plan.name}`,
                           description: `Plano ${plan.name} (${selectedPeriod})`,
-                          userId: 'test-user'
+                          price: getPriceByPeriod(plan, selectedPeriod).value,
+                          planId: plan.id,
+                          userId: user.id
                         });
-                        // Redirecionar para Mercado Pago
-                        window.location.href = `https://www.mercadopago.com.br/checkout/v1/redirect?preference-id=${preferenceId}`;
+                        window.location.href = preference.init_point;
                       } catch (error) {
-                        toast.error('Erro ao iniciar pagamento Mercado Pago.');
+                        console.error('Erro ao criar pagamento:', error);
+                        toast.error('Erro ao redirecionar para pagamento.', { id: 'purchase' });
+                      } finally {
+                        setIsPurchasing(null);
                       }
                     }}
-                    className={`w-full py-4 rounded-2xl font-bold text-lg shadow-xl transition-all duration-300 flex items-center justify-center gap-3 bg-gradient-to-r ${plan.gradient} text-white hover:shadow-2xl`}
+                    disabled={isPurchasing === `${plan.id}_${selectedPeriod}` || currentPlan === plan.id}
+                    className={`w-full py-4 rounded-2xl font-bold text-lg shadow-xl transition-all duration-300 flex items-center justify-center gap-3 ${
+                      currentPlan === plan.id
+                        ? 'bg-green-100 text-green-700 cursor-default'
+                        : isPurchasing === `${plan.id}_${selectedPeriod}`
+                        ? 'bg-gray-400 text-white cursor-not-allowed'
+                        : `bg-gradient-to-r ${plan.gradient} text-white hover:shadow-2xl`
+                    }`}
                   >
                     <CreditCard className="w-5 h-5" />
                     Assinar
