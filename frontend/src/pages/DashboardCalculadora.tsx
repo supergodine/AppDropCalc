@@ -35,14 +35,25 @@ const DashboardCalculadora: React.FC = () => {
   console.log('localStorage userPlan:', localStorage.getItem('userPlan'));
   console.log('localStorage premiumActive:', localStorage.getItem('premiumActive'));
   
-  // Restaurar bloqueio de usuário não autenticado
+  useEffect(() => {
+    // Redirect to login if user is not authenticated after a delay.
+    // This handles the case where useAuth is still loading the user.
+    const authTimer = setTimeout(() => {
+      if (!user) {
+        console.log('Usuário não autenticado, redirecionando para o login.');
+        navigate('/login');
+      }
+    }, 1500); // 1.5 second delay to wait for authentication
+
+    return () => clearTimeout(authTimer);
+  }, [user, navigate]);
+  
+  // Show a loading screen while waiting for user authentication
   if (!user) {
-    console.log('Usuário não autenticado, redirecionando para login');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1>Carregando usuário...</h1>
-          <p>Redirecionando...</p>
+          <h1>Verificando autenticação...</h1>
         </div>
       </div>
     );
