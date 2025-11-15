@@ -266,13 +266,19 @@ const Payment: React.FC = () => {
                       if (currentPlan === plan.id) return;
                       setIsPurchasing(`${plan.id}_${selectedPeriod}`);
                       try {
-                        toast.loading('Redirecionando para pagamento...', { id: 'purchase' });
-                        if (!user?.id) throw new Error('Usuário não encontrado');
-                        // Mercado Pago desativado para testes dos planos
-                        toast.success('Teste de plano ativado! (Mercado Pago desativado)');
+                        // Ativar plano no localStorage
+                        localStorage.setItem('userPlan', JSON.stringify({
+                          type: plan.id,
+                          name: plan.name,
+                          price: getPriceByPeriod(plan, selectedPeriod).value,
+                          active: true
+                        }));
+                        toast.success(`Plano ${plan.name} ativado!`);
+                        // Redirecionar para a calculadora
+                        window.location.href = '/dashboard';
                       } catch (error) {
-                        console.error('Erro ao criar pagamento:', error);
-                        toast.error('Erro ao redirecionar para pagamento.', { id: 'purchase' });
+                        console.error('Erro ao ativar plano:', error);
+                        toast.error('Erro ao ativar plano.');
                       } finally {
                         setIsPurchasing(null);
                       }
