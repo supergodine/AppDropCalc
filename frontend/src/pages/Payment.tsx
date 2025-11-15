@@ -9,7 +9,7 @@ import {
   Zap,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { createPaymentPreference } from '../services/mercadoPago';
+// import { createPaymentPreference } from '../services/mercadoPago';
 import { useAuth } from '../hooks/useAuth';
 
 // Tipagem dos planos
@@ -268,14 +268,8 @@ const Payment: React.FC = () => {
                       try {
                         toast.loading('Redirecionando para pagamento...', { id: 'purchase' });
                         if (!user?.id) throw new Error('Usuário não encontrado');
-                        const preference = await createPaymentPreference({
-                          title: `Assinatura DropCalc - ${plan.name}`,
-                          description: `Plano ${plan.name} (${selectedPeriod})`,
-                          price: getPriceByPeriod(plan, selectedPeriod).value,
-                          planId: plan.id,
-                          userId: user.id
-                        });
-                        window.location.href = preference.init_point;
+                        // Mercado Pago desativado para testes dos planos
+                        toast.success('Teste de plano ativado! (Mercado Pago desativado)');
                       } catch (error) {
                         console.error('Erro ao criar pagamento:', error);
                         toast.error('Erro ao redirecionar para pagamento.', { id: 'purchase' });
