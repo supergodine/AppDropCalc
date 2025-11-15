@@ -33,18 +33,18 @@ const DashboardCalculadora: React.FC = () => {
   console.log('localStorage userPlan:', localStorage.getItem('userPlan'));
   console.log('localStorage premiumActive:', localStorage.getItem('premiumActive'));
   
-  // Remover bloqueio de usuário não autenticado para testes
-  // if (!user) {
-  //   console.log('Usuário não autenticado, redirecionando para login');
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <div className="text-center">
-  //         <h1>Carregando usuário...</h1>
-  //         <p>Redirecionando...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  // Restaurar bloqueio de usuário não autenticado
+  if (!user) {
+    console.log('Usuário não autenticado, redirecionando para login');
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1>Carregando usuário...</h1>
+          <p>Redirecionando...</p>
+        </div>
+      </div>
+    );
+  }
   
   const [formData, setFormData] = useState({
     custoProduto: 100,
@@ -174,14 +174,6 @@ const DashboardCalculadora: React.FC = () => {
       [field]: value
     }));
   };
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div>Carregando...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
