@@ -301,31 +301,43 @@ const Payment: React.FC = () => {
           </div>
         )}
 
-        {/* Tabela comparativa de benefícios */}
+        {/* Tabela comparativa de benefícios - visual moderno */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
           className="overflow-x-auto mb-10"
         >
-          <h3 className="text-xl font-bold text-blue-700 mb-4 text-center">Comparativo dos Benefícios</h3>
-          <table className="min-w-full bg-white rounded-2xl shadow-xl">
+          <h3 className="text-2xl font-extrabold text-blue-700 mb-6 text-center tracking-tight">Comparativo dos Benefícios</h3>
+          <table className="min-w-full bg-white/80 rounded-3xl shadow-2xl border border-blue-100">
             <thead>
               <tr>
-                <th className="py-3 px-4 text-left font-bold text-lg">Benefício</th>
+                <th className="py-4 px-6 text-left font-bold text-lg bg-blue-50 rounded-tl-3xl">Benefício</th>
                 {plans.map(plan => (
-                  <th key={plan.id} className="py-3 px-4 text-center font-bold text-lg">{plan.name}</th>
+                  <th key={plan.id} className="py-4 px-6 text-center font-bold text-lg bg-blue-50">
+                    <div className="flex flex-col items-center gap-1">
+                      <span className={`text-base font-bold text-${plan.color}-700`}>{plan.name}</span>
+                      <span className="block">{plan.icon}</span>
+                    </div>
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {/* Coletar todos os benefícios únicos */}
-              {Array.from(new Set(plans.flatMap(p => p.features))).map((feature, idx) => (
-                <tr key={idx} className="border-t">
-                  <td className="py-2 px-4 text-gray-700 text-base">{feature}</td>
+              {Array.from(new Set(plans.flatMap(p => p.features))).map((feature, idx, arr) => (
+                <tr
+                  key={idx}
+                  className={
+                    `transition-colors duration-200 ${idx % 2 === 0 ? 'bg-white/60' : 'bg-blue-50/60'} hover:bg-blue-100/80` +
+                    (idx === arr.length - 1 ? ' rounded-b-3xl' : '')
+                  }
+                >
+                  <td className="py-3 px-6 text-gray-700 text-base font-medium">{feature}</td>
                   {plans.map(plan => (
-                    <td key={plan.id} className="py-2 px-4 text-center">
-                      {plan.features.includes(feature) ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <span className="text-gray-400">—</span>}
+                    <td key={plan.id} className="py-3 px-6 text-center">
+                      {plan.features.includes(feature)
+                        ? <Check className="w-6 h-6 text-green-500 mx-auto" />
+                        : <span className="text-gray-400 text-xl font-bold">—</span>}
                     </td>
                   ))}
                 </tr>
