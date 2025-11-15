@@ -295,20 +295,10 @@ const DashboardSimples: React.FC = () => {
     { codigo: 'BRL', nome: 'Real Brasileiro' },
   ];
 
-  // Filtrar plataformas baseado no plano (com verificação de segurança)
-  const plataformasDisponiveis = !currentLimitations || currentLimitations.maxPlatforms >= plataformas.length
-    ? plataformas
-    : plataformas.slice(0, currentLimitations.maxPlatforms);
-
-  // Filtrar moedas baseado no plano (com verificação de segurança)
-  const moedasDisponiveis = !currentLimitations || currentLimitations.maxCurrencies >= moedas.length
-    ? moedas
-    : moedas.slice(0, currentLimitations.maxCurrencies);
-
-  // Filtrar gateways baseado no plano (com verificação de segurança)
-  const gatewaysDisponiveis = !currentLimitations || currentLimitations.maxGateways >= gateways.length
-    ? gateways
-    : gateways.slice(0, currentLimitations.maxGateways);
+  // Filtrar plataformas, moedas e gateways conforme o plano do usuário
+  const plataformasDisponiveis = plataformas.slice(0, currentLimitations.maxPlatforms);
+  const moedasDisponiveis = moedas.slice(0, currentLimitations.maxCurrencies);
+  const gatewaysDisponiveis = gateways.slice(0, currentLimitations.maxGateways);
 
   // Função para salvar cálculo no histórico (apenas Premium)
   const salvarCalculo = () => {
