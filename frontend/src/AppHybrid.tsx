@@ -14,7 +14,7 @@ import Payment from '@/pages/Payment';
 import Settings from '@/pages/Settings';
 import Help from '@/pages/Help';
 import Debug from '@/pages/Debug';
-import DashboardSimples from '@/pages/DashboardSimples';
+import DashboardCalculadora from '@/pages/DashboardCalculadora';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 const AppHybrid: React.FC = () => {
@@ -39,7 +39,8 @@ const AppHybrid: React.FC = () => {
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/dashboard" element={
               <ErrorBoundary>
-                <DashboardSimples />
+                {/* Renderiza DashboardCalculadora ao invés de DashboardSimples */}
+                <DashboardCalculadora />
               </ErrorBoundary>
             } />
             <Route path="/settings" element={<Settings />} />
