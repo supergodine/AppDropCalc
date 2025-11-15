@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 // import { createPaymentPreference } from '../services/mercadoPago';
-import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 // Tipagem dos planos
@@ -30,7 +29,6 @@ interface Plan {
 }
 
 const Payment: React.FC = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'quarterly' | 'annual'>('monthly');
@@ -40,7 +38,6 @@ const Payment: React.FC = () => {
     products: null,
   });
   const [currentPlan, setCurrentPlan] = useState<string | null>(null);
-  const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
 
   const plans: Plan[] = [
     {
@@ -262,8 +259,8 @@ const Payment: React.FC = () => {
                 {/* Botão de Assinar */}
                 <div className="mt-auto">
                   <motion.button
-                    whileHover={{ scale: currentPlan === plan.id ? 1 : 1.07, boxShadow: currentPlan === plan.id ? undefined : `0 0 16px ${plan.color === 'yellow' ? '#FFD700' : plan.color === 'purple' ? '#6366F1' : '#60A5FA'}` }}
-                    whileTap={{ scale: currentPlan === plan.id ? 1 : 0.97 }}
+                    whileHover={{ scale: 1.07, boxShadow: `0 0 16px ${plan.color === 'yellow' ? '#FFD700' : plan.color === 'purple' ? '#6366F1' : '#60A5FA'}` }}
+                    whileTap={{ scale: 0.97 }}
                     onClick={async () => {
                       // Ativar plano no localStorage
                       localStorage.setItem('userPlan', JSON.stringify({
@@ -276,13 +273,7 @@ const Payment: React.FC = () => {
                       // Redirecionar para a calculadora SEM condição de plano já ativo
                       navigate('/dashboard');
                     }}
-                    // Remover condição de desabilitar se plano já está ativo
-                    disabled={isPurchasing === `${plan.id}_${selectedPeriod}`}
-                    className={`w-full py-4 rounded-2xl font-bold text-lg shadow-xl transition-all duration-300 flex items-center justify-center gap-3 ${
-                      isPurchasing === `${plan.id}_${selectedPeriod}`
-                        ? 'bg-gray-400 text-white cursor-not-allowed'
-                        : `bg-gradient-to-r ${plan.gradient} text-white hover:shadow-2xl`
-                    }`}
+                    className={`w-full py-4 rounded-2xl font-bold text-lg shadow-xl transition-all duration-300 flex items-center justify-center gap-3 bg-gradient-to-r ${plan.gradient} text-white hover:shadow-2xl`}
                   >
                     <CreditCard className="w-5 h-5" />
                     Assinar
