@@ -269,8 +269,20 @@ const Payment: React.FC = () => {
                         price: getPriceByPeriod(plan, selectedPeriod).value,
                         active: true
                       }));
+                      // Criar usuário de teste no localStorage
+                      localStorage.setItem('currentUser', JSON.stringify({
+                        id: 'test-user',
+                        email: 'teste@dropcalc.com',
+                        name: 'Usuário Teste',
+                        role: 'user',
+                        plan: {
+                          type: plan.id,
+                          name: plan.name,
+                          price: getPriceByPeriod(plan, selectedPeriod).value,
+                          active: true
+                        }
+                      }));
                       toast.success(`Plano ${plan.name} ativado!`);
-                      // Redirecionar para a calculadora SEM condição de plano já ativo
                       navigate('/dashboard');
                     }}
                     className={`w-full py-4 rounded-2xl font-bold text-lg shadow-xl transition-all duration-300 flex items-center justify-center gap-3 bg-gradient-to-r ${plan.gradient} text-white hover:shadow-2xl`}
