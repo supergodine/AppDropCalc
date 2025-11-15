@@ -265,31 +265,21 @@ const Payment: React.FC = () => {
                     whileHover={{ scale: currentPlan === plan.id ? 1 : 1.07, boxShadow: currentPlan === plan.id ? undefined : `0 0 16px ${plan.color === 'yellow' ? '#FFD700' : plan.color === 'purple' ? '#6366F1' : '#60A5FA'}` }}
                     whileTap={{ scale: currentPlan === plan.id ? 1 : 0.97 }}
                     onClick={async () => {
-                      if (currentPlan === plan.id) return;
-                      setIsPurchasing(`${plan.id}_${selectedPeriod}`);
-                      try {
-                        // Ativar plano no localStorage
-                        localStorage.setItem('userPlan', JSON.stringify({
-                          type: plan.id,
-                          name: plan.name,
-                          price: getPriceByPeriod(plan, selectedPeriod).value,
-                          active: true
-                        }));
-                        toast.success(`Plano ${plan.name} ativado!`);
-                        // Redirecionar para a calculadora usando react-router
-                        navigate('/dashboard');
-                      } catch (error) {
-                        console.error('Erro ao ativar plano:', error);
-                        toast.error('Erro ao ativar plano.');
-                      } finally {
-                        setIsPurchasing(null);
-                      }
+                      // Ativar plano no localStorage
+                      localStorage.setItem('userPlan', JSON.stringify({
+                        type: plan.id,
+                        name: plan.name,
+                        price: getPriceByPeriod(plan, selectedPeriod).value,
+                        active: true
+                      }));
+                      toast.success(`Plano ${plan.name} ativado!`);
+                      // Redirecionar para a calculadora SEM condição de plano já ativo
+                      navigate('/dashboard');
                     }}
-                    disabled={isPurchasing === `${plan.id}_${selectedPeriod}` || currentPlan === plan.id}
+                    // Remover condição de desabilitar se plano já está ativo
+                    disabled={isPurchasing === `${plan.id}_${selectedPeriod}`}
                     className={`w-full py-4 rounded-2xl font-bold text-lg shadow-xl transition-all duration-300 flex items-center justify-center gap-3 ${
-                      currentPlan === plan.id
-                        ? 'bg-green-100 text-green-700 cursor-default'
-                        : isPurchasing === `${plan.id}_${selectedPeriod}`
+                      isPurchasing === `${plan.id}_${selectedPeriod}`
                         ? 'bg-gray-400 text-white cursor-not-allowed'
                         : `bg-gradient-to-r ${plan.gradient} text-white hover:shadow-2xl`
                     }`}
