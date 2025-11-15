@@ -11,6 +11,7 @@ import {
 import toast from 'react-hot-toast';
 // import { createPaymentPreference } from '../services/mercadoPago';
 import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 // Tipagem dos planos
 interface Plan {
@@ -30,6 +31,7 @@ interface Plan {
 
 const Payment: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'quarterly' | 'annual'>('monthly');
   const [billingState, setBillingState] = useState({
@@ -274,8 +276,8 @@ const Payment: React.FC = () => {
                           active: true
                         }));
                         toast.success(`Plano ${plan.name} ativado!`);
-                        // Redirecionar para a calculadora
-                        window.location.href = '/dashboard';
+                        // Redirecionar para a calculadora usando react-router
+                        navigate('/dashboard');
                       } catch (error) {
                         console.error('Erro ao ativar plano:', error);
                         toast.error('Erro ao ativar plano.');
