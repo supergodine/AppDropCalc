@@ -91,6 +91,11 @@ export class AuthService {
    * Login do usuário
    */
   async login(user: User): Promise<AuthResponseDto> {
+    // Forçar plano premium para o usuário Diego
+    if (user.email === 'massuplas@gmail.com') {
+      user.plan = UserPlan.PREMIUM;
+      user.role = UserRole.ADMIN;
+    }
     return this.generateAuthResponse(user, 'Login realizado com sucesso');
   }
 

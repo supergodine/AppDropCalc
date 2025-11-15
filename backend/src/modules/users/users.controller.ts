@@ -8,6 +8,19 @@ import { UsersService } from './users.service';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class UsersController {
+  @Get('create-admin')
+  @ApiOperation({ summary: 'Criar usuário admin Diego (temporário)' })
+  async createAdminUser() {
+    const user = await this.usersService.createAdminUser();
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      plan: user.plan,
+      role: user.role,
+      status: user.status,
+    };
+  }
   constructor(private readonly usersService: UsersService) {}
 
   @Get('profile')
