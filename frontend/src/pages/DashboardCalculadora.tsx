@@ -175,6 +175,12 @@ const DashboardCalculadora: React.FC = () => {
     }));
   };
 
+  // Corrigir erro de plano básico: garantir que userPlan nunca seja null
+  const planoAtivo = plan?.type || 'basic';
+  const descricaoPlano = planoAtivo === 'basic'
+    ? 'Plano Básico - Clique no botão "Calcular Preço" para obter o resultado'
+    : 'Cálculo automático ativado - O preço é atualizado em tempo real';
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header */}
@@ -672,10 +678,7 @@ const DashboardCalculadora: React.FC = () => {
               <div className={`p-4 rounded-lg ${isBasicPlan() ? 'bg-orange-50' : 'bg-green-50'}`}>
                 <p className={`text-sm flex items-center ${isBasicPlan() ? 'text-orange-600' : 'text-green-600'}`}>
                   <TrendingUp className="h-4 w-4 mr-2" />
-                  {isBasicPlan() 
-                    ? 'Plano Básico - Clique no botão "Calcular Preço" para obter o resultado'
-                    : 'Cálculo automático ativado - O preço é atualizado em tempo real'
-                  }
+                  {descricaoPlano}
                 </p>
               </div>
             </div>
