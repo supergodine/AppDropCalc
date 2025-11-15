@@ -73,8 +73,8 @@ const Help: React.FC = () => {
       content: [
         '1. Clique em "Ativar Premium" no menu principal',
         '2. Revise os recursos inclusos no plano Premium',
-        '3. Clique em "Comprar com Google Play"',
-        '4. Complete o pagamento através da Google Play Store',
+        '3. Clique em "Comprar com Mercado Pago"',
+        '4. Complete o pagamento através do Mercado Pago',
         '5. Seu acesso Premium será ativado automaticamente',
         '6. Aproveite todos os recursos avançados da calculadora!'
       ]
@@ -248,25 +248,50 @@ const Help: React.FC = () => {
           </motion.div>
 
           {/* Support Section */}
-          <motion.div
+          <motion.form
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
             className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white text-center"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.target as HTMLFormElement;
+              const formData = new FormData(form);
+              const nome = formData.get('nome');
+              const email = formData.get('email');
+              const mensagem = formData.get('mensagem');
+              try {
+                await fetch('https://formspree.io/f/xwkzqgqg', {
+                  method: 'POST',
+                  headers: { 'Accept': 'application/json' },
+                  body: JSON.stringify({ nome, email, mensagem })
+                });
+                alert('Mensagem enviada com sucesso!');
+                form.reset();
+              } catch {
+                alert('Erro ao enviar mensagem. Tente novamente.');
+              }
+            }}
           >
             <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-80" />
             <h3 className="text-xl font-bold mb-2">Ainda precisa de ajuda?</h3>
             <p className="mb-4 opacity-90">
               Nossa equipe de suporte está sempre pronta para ajudar você a aproveitar ao máximo o DropCalc.
             </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <input name="nome" required placeholder="Seu nome" className="p-3 rounded-xl text-gray-800" />
+              <input name="email" required type="email" placeholder="Seu e-mail" className="p-3 rounded-xl text-gray-800" />
+              <input name="mensagem" required placeholder="Sua mensagem" className="p-3 rounded-xl text-gray-800" />
+            </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              type="submit"
               className="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
             >
-              Entrar em Contato
+              Enviar Mensagem
             </motion.button>
-          </motion.div>
+          </motion.form>
         </div>
       </div>
     </div>
