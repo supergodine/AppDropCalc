@@ -127,7 +127,7 @@ const Settings: React.FC = () => {
   
   // Simulação de dados do usuário via localStorage
   const [user, setUser] = useState<any>(null);
-  
+  const [userPlan, setUserPlan] = useState<'basic' | 'gold' | 'premium'>('basic');
   const [settings, setSettings] = useState<SettingsState>({
     language: 'pt',
     notifications: true,
@@ -141,17 +141,30 @@ const Settings: React.FC = () => {
       setUser(JSON.parse(userData));
     }
 
+    // Carregar plano do usuário
+    const planData = localStorage.getItem('userPlan');
+    if (planData) {
+      try {
+        const parsed = JSON.parse(planData);
+        if (parsed && typeof parsed === 'object' && parsed.type) {
+          setUserPlan(parsed.type);
+        }
+      } catch {
+        setUserPlan('basic');
+      }
+    } else {
+      setUserPlan('basic');
+    }
+
     // Carregar configurações do localStorage
     const savedLanguage = language; // Usar idioma do contexto
     const savedNotifications = localStorage.getItem('notifications') === 'true';
-    const isPremium = localStorage.getItem('premiumActive') === 'true';
-
     setSettings({
       language: savedLanguage,
       notifications: savedNotifications,
-      isPremium
+      isPremium: userPlan === 'premium'
     });
-  }, []);
+  }, [language]);
 
   const handleThemeChange = (newTheme: 'light' | 'dark') => {
     setTheme(newTheme);
@@ -237,15 +250,20 @@ const Settings: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-2">
-              {settings.isPremium ? (
+              {userPlan === 'premium' ? (
                 <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                   <Crown className="w-4 h-4" />
                   Premium Ativo
                 </div>
+              ) : userPlan === 'gold' ? (
+                <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-300 to-yellow-500 text-black px-3 py-1 rounded-full text-sm font-medium">
+                  <Crown className="w-4 h-4" />
+                  Gold Ativo
+                </div>
               ) : (
-                <div className="flex items-center gap-2 bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm">
+                <div className="flex items-center gap-2 bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
                   <User className="w-4 h-4" />
-                  Plano Gratuito
+                  Plano Básico
                 </div>
               )}
             </div>
