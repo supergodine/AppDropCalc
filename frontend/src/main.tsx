@@ -1,14 +1,14 @@
 import ReactDOM from 'react-dom/client'
 import { LanguageProvider } from './contexts/LanguageContext'
-import AppHybrid from './AppHybrid'
+import App from './AppWithAuth'
 import './index.css'
 import './utils/pwa'
 
-console.log('=== main.tsx carregando AppHybrid com sistema de idiomas ===');
+console.log('=== main.tsx carregando AppWithAuth com sistema de idiomas ===');
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
   <LanguageProvider>
-    <AppHybrid />
+    <App />
   </LanguageProvider>
 );

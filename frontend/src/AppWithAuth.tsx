@@ -8,6 +8,7 @@ import Login from '@/pages/Login';
 import LoginSimple from '@/pages/LoginSimple';
 import Payment from '@/pages/Payment';
 import Dashboard from '@/pages/DashboardCalculadora';
+import Help from '@/pages/Help';
 
 const App: React.FC = () => {
   const { loading, user } = useAuth();
@@ -35,6 +36,7 @@ const App: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/login-simple" element={<LoginSimple />} />
           <Route path="/signup" element={<Login />} />
+          <Route path="/help" element={<Help />} />
           
           {/* Protected Routes */}
           <Route 
