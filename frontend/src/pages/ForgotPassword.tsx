@@ -31,11 +31,21 @@ const ForgotPassword: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Simular envio de email de recuperação
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setEmailSent(true);
-      toast.success('Email de recuperação enviado com sucesso!');
+      // Chamar endpoint real do backend
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://dropcalc-backend-production.up.railway.app'}/auth/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      if (response.ok) {
+        setEmailSent(true);
+        toast.success('Email de recuperação enviado com sucesso!');
+      } else {
+        const data = await response.json();
+        toast.error(data.message || 'Erro ao enviar email de recuperação');
+      }
     } catch (error) {
       toast.error('Erro ao enviar email de recuperação');
     } finally {
