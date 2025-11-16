@@ -27,13 +27,7 @@ const DashboardCalculadora: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   
-  // Log para debug
-  console.log('=== DashboardCalculadora INICIANDO ===');
-  console.log('User:', user);
-  console.log('User autenticado:', !!user);
-  console.log('Plan:', plan);
-  console.log('localStorage userPlan:', localStorage.getItem('userPlan'));
-  console.log('localStorage premiumActive:', localStorage.getItem('premiumActive'));
+  // Log para debug (removido para produção)
   
   useEffect(() => {
     // Redirect to login if user is not authenticated after a delay.
@@ -196,26 +190,31 @@ const DashboardCalculadora: React.FC = () => {
     : 'Cálculo automático ativado - O preço é atualizado em tempo real';
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900`}>
+    <div className={
+      `min-h-screen flex flex-col bg-gradient-to-br from-blue-100 via-purple-100 to-indigo-200 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900`
+    }>
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg border-b border-white/20 dark:border-gray-700/20"
+  className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg shadow-2xl border-b border-white/20 dark:border-gray-700/20"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl">
-                <Calculator className="h-6 w-6 text-white" />
+              <div className="p-3 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-2xl shadow-lg animate-gradient-x">
+                <Calculator className="h-8 w-8 text-white drop-shadow-lg" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">DropCalc</h1>
+                <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight drop-shadow">DropCalc</h1>
                 {hasPremiumAccess() && (
-                  <div className="flex items-center gap-1">
-                    <Crown className="w-3 h-3 text-yellow-500" />
-                    <span className="text-xs text-yellow-600 font-medium">Premium</span>
+                  <div className="flex items-center gap-1 mt-1">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold border border-yellow-300 shadow-sm">
+                      <Crown className="w-4 h-4 mr-1 text-yellow-500 animate-bounce" />
+                      Premium
+                      <span className="ml-2 text-[10px] text-gray-500 font-normal">Seguro <span className="inline-block w-3 h-3 bg-green-400 rounded-full ml-1 animate-pulse"></span></span>
+                    </span>
                   </div>
                 )}
               </div>
@@ -223,24 +222,26 @@ const DashboardCalculadora: React.FC = () => {
 
             {/* User menu */}
             <div className="flex items-center gap-4">
-              <span className="text-gray-700 dark:text-gray-200 font-medium hidden sm:block">
+              <span className="text-gray-700 dark:text-gray-200 font-semibold hidden sm:block text-base">
                 Olá, {user?.name || 'Usuário'}!
               </span>
               
               {/* Navigation buttons */}
               <div className="flex items-center gap-2">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.15, rotate: 10 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-100 dark:hover:bg-gray-800 rounded-lg transition-colors shadow-md"
                   title={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
                 >
-                  {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                </button>
+                  {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+                </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => navigate('/help')}
-                  className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-100 rounded-lg transition-colors shadow-md"
                   title="Ajuda"
                 >
                   <HelpCircle className="w-5 h-5" />
@@ -250,7 +251,7 @@ const DashboardCalculadora: React.FC = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => navigate('/settings')}
-                  className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-100 rounded-lg transition-colors shadow-md"
                   title="Configurações"
                 >
                   <Settings className="w-5 h-5" />
@@ -260,7 +261,7 @@ const DashboardCalculadora: React.FC = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors sm:hidden"
+                  className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-100 rounded-lg transition-colors shadow-md sm:hidden"
                   title="Menu"
                 >
                   {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -278,7 +279,7 @@ const DashboardCalculadora: React.FC = () => {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="border-t border-gray-200 bg-white sm:hidden"
+              className="border-t border-gray-200 bg-white/90 backdrop-blur-lg sm:hidden shadow-lg"
             >
               <div className="px-4 py-3 space-y-2">
                 <button
@@ -308,29 +309,25 @@ const DashboardCalculadora: React.FC = () => {
       </motion.div>
 
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Formulário de Cálculo */}
           <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center mb-6">
-              <Settings className="h-6 w-6 text-blue-600 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Parâmetros do Produto
-              </h2>
+              <Settings className="h-7 w-7 text-blue-600 mr-2 drop-shadow" />
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Parâmetros do Produto</h2>
             </div>
 
             <div className="space-y-6">
               {/* Custo do Produto */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Custo do Produto
-                </label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Custo do Produto</label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-3 h-5 w-5 text-gray-400 dark:text-gray-500" />
+                  <DollarSign className="absolute left-3 top-3 h-6 w-6 text-blue-400 dark:text-blue-500" />
                   <input
                     type="number"
                     value={formData.custoProduto}
                     onChange={(e) => handleInputChange('custoProduto', parseFloat(e.target.value) || 0)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-12 pr-4 py-3 border border-blue-300 dark:border-blue-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-md"
                     placeholder="100.00"
                   />
                 </div>
@@ -338,14 +335,12 @@ const DashboardCalculadora: React.FC = () => {
 
               {/* Custos Adicionais */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Custos Adicionais (Frete, Impostos, etc.)
-                </label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Custos Adicionais (Frete, Impostos, etc.)</label>
                 <input
                   type="number"
                   value={formData.custosAdicionais}
                   onChange={(e) => handleInputChange('custosAdicionais', parseFloat(e.target.value) || 0)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-3 border border-blue-300 dark:border-blue-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-md"
                   placeholder="0.00"
                 />
               </div>
@@ -359,7 +354,7 @@ const DashboardCalculadora: React.FC = () => {
                   <select
                     value={formData.moedaOrigem}
                     onChange={(e) => handleInputChange('moedaOrigem', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    className="w-full px-4 py-3 border border-blue-300 dark:border-blue-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-md"
                   >
                     <optgroup label=" Principais">
                       <option value="USD">USD - Dólar Americano</option>
@@ -465,7 +460,7 @@ const DashboardCalculadora: React.FC = () => {
                   <select
                     value={formData.moedaVenda}
                     onChange={(e) => handleInputChange('moedaVenda', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    className="w-full px-4 py-3 border border-blue-300 dark:border-blue-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-md"
                   >
                     <optgroup label=" Principais">
                       <option value="BRL">BRL - Real Brasileiro</option>
@@ -574,7 +569,7 @@ const DashboardCalculadora: React.FC = () => {
                 <select
                   value={formData.plataforma}
                   onChange={(e) => handleInputChange('plataforma', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-3 border border-blue-300 dark:border-blue-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-md"
                 >
                   <optgroup label="Marketplaces Nacionais">
                     <option value="mercado-livre">Mercado Livre</option>
@@ -617,7 +612,7 @@ const DashboardCalculadora: React.FC = () => {
                 <select
                   value={formData.gateway}
                   onChange={(e) => handleInputChange('gateway', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-blue-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-md"
                 >
                   <optgroup label="Gateways Nacionais">
                     <option value="mercado-pago">Mercado Pago</option>
@@ -654,12 +649,12 @@ const DashboardCalculadora: React.FC = () => {
                   Margem de Lucro (%)
                 </label>
                 <div className="relative">
-                  <TrendingUp className="absolute left-3 top-3 h-5 w-5 text-gray-400 dark:text-gray-500" />
+                  <TrendingUp className="absolute left-3 top-3 h-6 w-6 text-green-400 dark:text-green-500" />
                   <input
                     type="number"
                     value={formData.margemLucro}
                     onChange={(e) => handleInputChange('margemLucro', parseFloat(e.target.value) || 0)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-12 pr-4 py-3 border border-green-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-md"
                     placeholder="30"
                   />
                 </div>
@@ -667,38 +662,40 @@ const DashboardCalculadora: React.FC = () => {
 
               {/* Taxa de Câmbio */}
               {exchangeRate > 0 && (
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <p className="text-sm text-blue-600">
-                    Taxa de câmbio atual: {formData.moedaOrigem} → {formData.moedaVenda} = {exchangeRate.toFixed(4)}
+                <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-xl shadow-md">
+                  <p className="text-sm text-blue-700 dark:text-blue-300 font-semibold">
+                    Taxa de câmbio atual: <span className="font-bold">{formData.moedaOrigem} → {formData.moedaVenda} = {exchangeRate.toFixed(4)}</span>
                   </p>
                 </div>
               )}
 
               {/* Botão Calcular - APENAS para plano básico */}
               {isBasicPlan() && (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.07, backgroundColor: '#4338ca' }}
+                  whileTap={{ scale: 0.97 }}
                   onClick={calculatePrice}
                   disabled={isCalculating || formData.custoProduto <= 0 || exchangeRate <= 0}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center"
+                  className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:to-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-xl font-bold text-lg transition-all flex items-center justify-center shadow-lg"
                 >
-                  <Calculator className="h-5 w-5 mr-2" />
+                  <Calculator className="h-6 w-6 mr-2 animate-spin-slow" />
                   {isCalculating ? 'Calculando...' : 'Calcular Preço'}
-                </button>
+                </motion.button>
               )}
 
               {/* Botão Limpar */}
               <button
                 onClick={clearForm}
-                className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center"
+                className="w-full bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white py-3 px-6 rounded-xl font-bold text-lg transition-all flex items-center justify-center shadow-lg mt-2"
               >
-                <Settings className="h-5 w-5 mr-2" />
+                <Settings className="h-6 w-6 mr-2" />
                 Limpar Formulário
               </button>
 
               {/* Indicador de Cálculo Automático ou Manual */}
               <div className={`p-4 rounded-lg ${isBasicPlan() ? 'bg-orange-50' : 'bg-green-50'}`}>
-                <p className={`text-sm flex items-center ${isBasicPlan() ? 'text-orange-600' : 'text-green-600'}`}>
-                  <TrendingUp className="h-4 w-4 mr-2" />
+                <p className={`text-base flex items-center font-semibold ${isBasicPlan() ? 'text-orange-600' : 'text-green-600'}`}>
+                  <TrendingUp className="h-5 w-5 mr-2 animate-pulse" />
                   {descricaoPlano}
                 </p>
               </div>
@@ -708,75 +705,71 @@ const DashboardCalculadora: React.FC = () => {
           {/* Resultado */}
           <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center mb-6">
-              <DollarSign className="h-6 w-6 text-green-600 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Resultado do Cálculo
-              </h2>
+              <DollarSign className="h-7 w-7 text-green-600 mr-2 drop-shadow" />
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Resultado do Cálculo</h2>
             </div>
 
             {result ? (
               <div className="space-y-6">
                 {/* Preço Final */}
-                <div className="text-center bg-green-50 dark:bg-green-900 p-6 rounded-lg">
-                  <h3 className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">
-                    Preço de Venda Sugerido
-                  </h3>
-                  <p className="text-4xl font-bold text-green-700 dark:text-green-300">
+                <div className="text-center bg-gradient-to-r from-green-100 via-green-200 to-green-300 dark:from-green-900 dark:via-green-800 dark:to-green-700 p-8 rounded-2xl shadow-lg border border-green-200 dark:border-green-700">
+                  <h3 className="text-3xl font-extrabold text-green-700 dark:text-green-400 mb-2 tracking-tight animate-pulse">Preço de Venda Sugerido</h3>
+                  <p className="text-5xl font-extrabold text-green-800 dark:text-green-300 drop-shadow-lg">
                     {formData.moedaVenda} {result.precoVenda.toFixed(2)}
                   </p>
                 </div>
 
                 {/* Detalhes */}
                 <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Detalhamento:</h4>
+                  <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Detalhamento:</h4>
                   
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Custo do Produto:</span>
-                      <span className="font-medium">{formData.moedaOrigem} {result.detalhes.custoProduto.toFixed(2)}</span>
+                      <span className="text-gray-600 dark:text-gray-300 font-semibold">Custo do Produto:</span>
+                      <span className="font-bold">{formData.moedaOrigem} {result.detalhes.custoProduto.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Custos Adicionais:</span>
-                      <span className="font-medium">{formData.moedaOrigem} {result.detalhes.custosAdicionais.toFixed(2)}</span>
+                      <span className="text-gray-600 dark:text-gray-300 font-semibold">Custos Adicionais:</span>
+                      <span className="font-bold">{formData.moedaOrigem} {result.detalhes.custosAdicionais.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Taxa de Câmbio:</span>
-                      <span className="font-medium">{result.detalhes.taxaCambio.toFixed(4)}</span>
+                      <span className="text-gray-600 dark:text-gray-300 font-semibold">Taxa de Câmbio:</span>
+                      <span className="font-bold">{result.detalhes.taxaCambio.toFixed(4)}</span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Custo Convertido:</span>
-                      <span className="font-medium">{formData.moedaVenda} {result.detalhes.custoConvertido.toFixed(2)}</span>
+                      <span className="text-gray-600 dark:text-gray-300 font-semibold">Custo Convertido:</span>
+                      <span className="font-bold">{formData.moedaVenda} {result.detalhes.custoConvertido.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Taxa da Plataforma:</span>
-                      <span className="font-medium">{formData.moedaVenda} {result.detalhes.taxaPlataforma.toFixed(2)}</span>
+                      <span className="text-gray-600 dark:text-gray-300 font-semibold">Taxa da Plataforma:</span>
+                      <span className="font-bold">{formData.moedaVenda} {result.detalhes.taxaPlataforma.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Taxa do Gateway:</span>
-                      <span className="font-medium">{formData.moedaVenda} {result.detalhes.taxaGateway.toFixed(2)}</span>
+                      <span className="text-gray-600 dark:text-gray-300 font-semibold">Taxa do Gateway:</span>
+                      <span className="font-bold">{formData.moedaVenda} {result.detalhes.taxaGateway.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between border-t pt-3">
-                      <span className="text-gray-600 dark:text-gray-300">Total de Taxas:</span>
-                      <span className="font-medium">{formData.moedaVenda} {result.detalhes.taxaTotal.toFixed(2)}</span>
+                      <span className="text-gray-600 dark:text-gray-300 font-semibold">Total de Taxas:</span>
+                      <span className="font-bold">{formData.moedaVenda} {result.detalhes.taxaTotal.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Margem de Lucro ({formData.margemLucro}%):</span>
-                      <span className="font-medium text-green-600 dark:text-green-400">{formData.moedaVenda} {result.detalhes.valorMargemBRL.toFixed(2)}</span>
+                      <span className="text-gray-600 dark:text-gray-300 font-semibold">Margem de Lucro ({formData.margemLucro}%):</span>
+                      <span className="font-bold text-green-600 dark:text-green-400">{formData.moedaVenda} {result.detalhes.valorMargemBRL.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
               </div>
             ) : (
               <div className="text-center text-gray-500 dark:text-gray-400 py-12">
-                <Calculator className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                <p>Preencha os dados e clique em "Calcular Preço" para ver o resultado</p>
+                <Calculator className="h-20 w-20 mx-auto mb-4 opacity-50 animate-pulse" />
+                <p className="text-lg font-semibold">Preencha os dados e clique em <span className="text-blue-600">"Calcular Preço"</span> para ver o resultado</p>
               </div>
             )}
           </div>
