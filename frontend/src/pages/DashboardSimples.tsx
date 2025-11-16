@@ -593,7 +593,7 @@ const DashboardSimples: React.FC = () => {
                 className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
                 title="Ajuda"
               >
-                <HelpCircle className="w-5 h-5" />
+                <HelpCircle className="w-5 h-5 text-gray-600 dark:text-white transition-colors" />
               </button>
               <button
                 onClick={() => navigate('/settings')}
@@ -667,7 +667,7 @@ const DashboardSimples: React.FC = () => {
                 }}
                 className="flex items-center w-full p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
-                <HelpCircle className="w-4 h-4 mr-2" />
+                <HelpCircle className="w-4 h-4 mr-2 text-gray-600 dark:text-white transition-colors" />
                 Ajuda
               </button>
               <button
