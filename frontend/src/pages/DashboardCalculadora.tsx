@@ -188,8 +188,9 @@ const DashboardCalculadora: React.FC = () => {
     }));
   };
 
-  // Corrigir erro de plano básico: garantir que userPlan nunca seja null
-  const planoAtivo = plan?.type || 'basic';
+
+  // Corrigir erro: garantir que plan nunca seja null
+  const planoAtivo = plan && plan.type ? plan.type : 'basic';
   const descricaoPlano = planoAtivo === 'basic'
     ? 'Plano Básico - Clique no botão "Calcular Preço" para obter o resultado'
     : 'Cálculo automático ativado - O preço é atualizado em tempo real';
