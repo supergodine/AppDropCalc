@@ -24,11 +24,25 @@ export const useAuth = () => {
     setIsAuthenticated(isAuth);
     
     if (currentUser) {
-      const userPlan = authService.getUserPlan();
+      let userPlan = authService.getUserPlan();
+      // Garante que userPlan nunca seja null ou inválido
+      if (!userPlan || typeof userPlan !== 'object' || !userPlan.type) {
+        userPlan = {
+          type: 'basic',
+          name: 'Básico',
+          price: 0,
+          active: true
+        };
+      }
       console.log('📋 useAuth - Plano do usuário:', userPlan);
       setPlan(userPlan);
     } else {
-      setPlan(null);
+      setPlan({
+        type: 'basic',
+        name: 'Básico',
+        price: 0,
+        active: true
+      });
     }
     
     setLoading(false);
