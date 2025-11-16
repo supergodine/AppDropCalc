@@ -44,42 +44,13 @@ const DashboardCalculadora: React.FC = () => {
   
   // Log para debug (removido para produção)
   
-  useEffect(() => {
-    // Redirect to login if user is not authenticated after a delay.
-    // This handles the case where useAuth is still loading the user.
-    const authTimer = setTimeout(() => {
-      if (!user) {
-        console.log('Usuário não autenticado, redirecionando para o login.');
-        navigate('/login');
-      }
-    }, 1500); // 1.5 second delay to wait for authentication
-
-    return () => clearTimeout(authTimer);
-  }, [user, navigate]);
-  
-  // Show a loading screen while waiting for user authentication
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1>Verificando autenticação...</h1>
-        </div>
-      </div>
-    );
-  }
-
-  // Check if user has premium access
-  const hasPremiumAccess = () => {
-    return localStorage.getItem('premiumActive') === 'true';
-  };
-
   // Verificar se é plano básico
-  const isBasicPlan = () => {
+  const isBasicPlan = useCallback(() => {
     return plan?.type === 'basic' || !checkPlanAccess('professional');
-  };
+  }, [plan, checkPlanAccess]);
 
   // Buscar taxa de câmbio
-  const fetchExchangeRate = async () => {
+  const fetchExchangeRate = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE}/exchange/rate/${formData.moedaOrigem}/${formData.moedaVenda}`);
       const data = await response.json();
@@ -88,7 +59,7 @@ const DashboardCalculadora: React.FC = () => {
       console.error('Erro ao buscar taxa de câmbio:', error);
       setExchangeRate(5.50); // Valor padrão USD->BRL
     }
-  };
+  }, [formData.moedaOrigem, formData.moedaVenda]);
 
   // Calcular preço (manual para plano básico, automático para outros)
   const calculatePrice = useCallback(async () => {
@@ -138,26 +109,25 @@ const DashboardCalculadora: React.FC = () => {
     }
   }, [formData, exchangeRate]);
 
-  // Limpar formulário
-  const clearForm = () => {
-    setFormData({
-      custoProduto: 0,
-      custosAdicionais: 0,
-      moedaOrigem: 'USD',
-      moedaVenda: 'BRL',
-      plataforma: 'mercado-livre',
-      gateway: 'mercado-pago',
-      margemLucro: 30
-    });
-    setResult(null);
-  };
+  useEffect(() => {
+    // Redirect to login if user is not authenticated after a delay.
+    // This handles the case where useAuth is still loading the user.
+    const authTimer = setTimeout(() => {
+      if (!user) {
+        console.log('Usuário não autenticado, redirecionando para o login.');
+        navigate('/login');
+      }
+    }, 1500); // 1.5 second delay to wait for authentication
+
+    return () => clearTimeout(authTimer);
+  }, [user, navigate]);
 
   // Buscar taxa quando mudar moedas ou recalcular automaticamente
   useEffect(() => {
     if (formData.moedaOrigem && formData.moedaVenda) {
       fetchExchangeRate();
     }
-  }, [formData.moedaOrigem, formData.moedaVenda]);
+  }, [formData.moedaOrigem, formData.moedaVenda, fetchExchangeRate]);
 
   // Calcular automaticamente quando qualquer campo mudar (APENAS para planos premium/professional)
   // Para plano básico, limpar resultado quando campos mudarem
@@ -174,6 +144,36 @@ const DashboardCalculadora: React.FC = () => {
       }
     }
   }, [formData, exchangeRate, plan, calculatePrice, result, isBasicPlan]);
+  
+  // Show a loading screen while waiting for user authentication
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1>Verificando autenticação...</h1>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if user has premium access
+  const hasPremiumAccess = () => {
+    return localStorage.getItem('premiumActive') === 'true';
+  };
+
+  // Limpar formulário
+  const clearForm = () => {
+    setFormData({
+      custoProduto: 0,
+      custosAdicionais: 0,
+      moedaOrigem: 'USD',
+      moedaVenda: 'BRL',
+      plataforma: 'mercado-livre',
+      gateway: 'mercado-pago',
+      margemLucro: 30
+    });
+    setResult(null);
+  };
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
