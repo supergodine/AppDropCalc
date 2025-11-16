@@ -9,6 +9,7 @@ import LoginSimple from '@/pages/LoginSimple';
 import Payment from '@/pages/Payment';
 import Dashboard from '@/pages/DashboardCalculadora';
 import Help from '@/pages/Help';
+import Settings from '@/pages/Settings';
 
 const App: React.FC = () => {
   const { loading, user } = useAuth();
@@ -47,12 +48,21 @@ const App: React.FC = () => {
               </ProtectedRoute>
             } 
           />
-          
+
           <Route 
             path="/dashboard" 
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/settings" 
+            element={
+              <ProtectedRoute>
+                <Settings />
               </ProtectedRoute>
             } 
           />
