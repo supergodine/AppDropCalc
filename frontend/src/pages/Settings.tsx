@@ -135,10 +135,13 @@ const Settings: React.FC = () => {
   });
 
   useEffect(() => {
-    // Carregar dados do usuário
+    // Carregar dados do usuário, mas nunca deslogar ou redirecionar se faltar
     const userData = localStorage.getItem('user');
     if (userData) {
       setUser(JSON.parse(userData));
+    } else {
+      // Se não houver dados, mantém usuário nulo, mas não desloga nem redireciona
+      setUser(null);
     }
 
     // Carregar plano do usuário
