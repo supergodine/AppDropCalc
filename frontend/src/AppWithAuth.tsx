@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Welcome from '@/pages/Welcome';
+import ForgotPassword from '@/pages/ForgotPassword';
 import Login from '@/pages/Login';
 import LoginSimple from '@/pages/LoginSimple';
 import Payment from '@/pages/Payment';
@@ -38,6 +39,7 @@ const App: React.FC = () => {
           <Route path="/login-simple" element={<LoginSimple />} />
           <Route path="/signup" element={<Login />} />
           <Route path="/help" element={<Help />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           
           {/* Protected Routes */}
           <Route 
