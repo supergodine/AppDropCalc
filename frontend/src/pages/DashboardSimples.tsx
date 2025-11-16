@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calculator, DollarSign, TrendingUp, Settings, HelpCircle, Crown, Menu, X, Info } from 'lucide-react';
+import { Calculator, DollarSign, TrendingUp, Settings, User, Crown, Menu, X, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useUserPlan } from '../hooks/useUserPlan';
@@ -62,7 +62,7 @@ const DashboardSimples: React.FC = () => {
   const isBasicPlan = isBasic;
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { user, logout: authLogout, refreshAuth } = useAuth();
+  const { user, logout: authLogout, refreshAuth, isAdmin } = useAuth();
 
   // Debug info
   console.log('🎯 DashboardSimples - Estado atual:', {
@@ -587,16 +587,22 @@ const DashboardSimples: React.FC = () => {
                 {plan ? 'Alterar Plano' : 'Escolher Plano'}
               </button>
               
-              {/* Botão de Ajuda - Substitui admin user icon */}
+              {/* Botão Ver Usuários - Apenas para Administradores */}
+              {isAdmin && (
+                <button
+                  onClick={() => navigate('/users')}
+                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  title="Ver Usuários (Admin)"
+                >
+                  <User className="w-5 h-5" />
+                </button>
+              )}
               <button
-                onClick={() => navigate('/help')}
-                className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-                title="Ajuda"
-              >
-                <HelpCircle className="w-5 h-5 text-gray-600 dark:text-white transition-colors" />
-              </button>
-              <button
-                onClick={() => navigate('/settings')}
+                onClick={() => {
+                  // Força navegação para /settings sem fallback
+                  window.history.pushState({}, '', '/settings');
+                  navigate('/settings', { replace: true });
+                }}
                 className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <Settings className="w-5 h-5" />
@@ -659,20 +665,23 @@ const DashboardSimples: React.FC = () => {
                 {plan ? 'Alterar Plano' : 'Escolher Plano'}
               </button>
               
-              {/* Botão de Ajuda no menu mobile */}
+              {/* Botão Ver Usuários - Apenas para Administradores */}
+              {isAdmin && (
+                <button
+                  onClick={() => {
+                    navigate('/users');
+                    setMenuAberto(false);
+                  }}
+                  className="flex items-center w-full p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  Ver Usuários (Admin)
+                </button>
+              )}
               <button
                 onClick={() => {
-                  navigate('/help');
-                  setMenuAberto(false);
-                }}
-                className="flex items-center w-full p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                <HelpCircle className="w-4 h-4 mr-2 text-gray-600 dark:text-white transition-colors" />
-                Ajuda
-              </button>
-              <button
-                onClick={() => {
-                  navigate('/settings');
+                  window.history.pushState({}, '', '/settings');
+                  navigate('/settings', { replace: true });
                   setMenuAberto(false);
                 }}
                 className="flex items-center w-full p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
@@ -684,6 +693,7 @@ const DashboardSimples: React.FC = () => {
                 onClick={logout}
                 className="flex items-center w-full p-2 text-red-400 hover:text-red-300 transition-colors"
               >
+                <User className="w-4 h-4 mr-2" />
                 {t('nav.logout')}
               </button>
             </div>
