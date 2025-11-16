@@ -27,6 +27,21 @@ const DashboardCalculadora: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   
+  const [formData, setFormData] = useState({
+    custoProduto: 100,
+    custosAdicionais: 0,
+    moedaOrigem: 'USD',
+    moedaVenda: 'BRL',
+    plataforma: 'mercado-livre',
+    gateway: 'mercado-pago',
+    margemLucro: 30
+  });
+
+  const [result, setResult] = useState<CalculationResult | null>(null);
+  const [exchangeRate, setExchangeRate] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCalculating, setIsCalculating] = useState(false);
+  
   // Log para debug (removido para produção)
   
   useEffect(() => {
@@ -52,21 +67,6 @@ const DashboardCalculadora: React.FC = () => {
       </div>
     );
   }
-  
-  const [formData, setFormData] = useState({
-    custoProduto: 100,
-    custosAdicionais: 0,
-    moedaOrigem: 'USD',
-    moedaVenda: 'BRL',
-    plataforma: 'mercado-livre',
-    gateway: 'mercado-pago',
-    margemLucro: 30
-  });
-
-  const [result, setResult] = useState<CalculationResult | null>(null);
-  const [exchangeRate, setExchangeRate] = useState(0);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isCalculating, setIsCalculating] = useState(false);
 
   // Check if user has premium access
   const hasPremiumAccess = () => {
