@@ -32,7 +32,7 @@ const ForgotPassword: React.FC = () => {
 
     try {
       // Chamar endpoint real do backend
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://dropcalc-backend-production.up.railway.app'}/auth/forgot-password`, {
+  const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://dropcalc-backend-production.up.railway.app'}/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
