@@ -21,12 +21,14 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // ----------------------------------------
-  // ✅ CORS — usando env e permitindo múltiplos domínios
-  // ----------------------------------------
+  // ============================
+  // 🔥 CORS CONFIG (USANDO .ENV)
+  // ============================
   const allowedOrigins = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map(v => v.trim())
+    ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
     : ['http://localhost:3000'];
+
+  console.log('🛑 CORS ORIGINS LOADED:', allowedOrigins);
 
   app.enableCors({
     origin: allowedOrigins,
@@ -35,17 +37,14 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // ----------------------------------------
-  // Porta do Railway
-  // ----------------------------------------
+  // Porta dinâmica do Railway
   const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0');
 
   console.log(`🚀 Backend rodando na porta ${port}`);
-  console.log(`📚 Swagger disponível em: http://localhost:${port}/api/docs`);
-  console.log(`🌍 Ambiente: ${process.env.NODE_ENV}`);
+  console.log(`📚 Swagger docs: http://localhost:${port}/api/docs`);
+  console.log(`🌎 Ambiente: ${process.env.NODE_ENV}`);
   console.log(`🔗 Backend URL: ${process.env.BACKEND_URL}`);
-  console.log(`🛑 CORS permitido para:`, allowedOrigins);
 }
 
 bootstrap();
