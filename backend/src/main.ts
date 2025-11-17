@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // Swagger Configuration
   const config = new DocumentBuilder()
     .setTitle('Calculadora de Preços API')
@@ -17,26 +17,35 @@ async function bootstrap() {
     .addTag('presets', 'Presets de cálculo')
     .addBearerAuth()
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
-  
-  // Enable CORS for frontend connection - RESTRITO PARA PRODUÇÃO
+
+  // ----------------------------------------
+  // ✅ CORS — usando env e permitindo múltiplos domínios
+  // ----------------------------------------
+  const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map(v => v.trim())
+    : ['http://localhost:3000'];
+
   app.enableCors({
-    origin: 'https://app-drop-calc.vercel.app',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'cache-control'],
     credentials: true,
   });
 
-  // Port configuration - Railway provides PORT dynamically
+  // ----------------------------------------
+  // Porta do Railway
+  // ----------------------------------------
   const port = process.env.PORT || 3000;
-  await app.listen(port, '0.0.0.0'); // Listen on all network interfaces
+  await app.listen(port, '0.0.0.0');
+
   console.log(`🚀 Backend rodando na porta ${port}`);
-  console.log(`📚 Swagger documentação disponível em: http://localhost:${port}/api/docs`);
-  
-  // Log environment info
-  console.log(`� Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Backend URL: ${process.env.BACKEND_URL || 'http://localhost:' + port}`);
+  console.log(`📚 Swagger disponível em: http://localhost:${port}/api/docs`);
+  console.log(`🌍 Ambiente: ${process.env.NODE_ENV}`);
+  console.log(`🔗 Backend URL: ${process.env.BACKEND_URL}`);
+  console.log(`🛑 CORS permitido para:`, allowedOrigins);
 }
+
 bootstrap();
