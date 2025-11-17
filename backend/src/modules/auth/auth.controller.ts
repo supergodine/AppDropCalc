@@ -18,6 +18,8 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { MailService } from './mail.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 // import { GoogleAuthGuard } from './guards/google-auth.guard'; // DESATIVADO - USANDO FIREBASE
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -28,7 +30,20 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly mailService: MailService,
+  ) {}
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Solicitar recuperação de senha (envio de e-mail)' })
+  @ApiBody({ type: ForgotPasswordDto })
+  async forgotPassword(@Body() body: ForgotPasswordDto) {
+    // Gerar token simples (ideal: JWT ou UUID)
+    const token = Math.random().toString(36).substring(2) + Date.now();
+    await this.mailService.sendPasswordRecovery(body.email, token);
+    return { message: 'E-mail de recuperação enviado, se o e-mail existir.' };
+  }
 
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
