@@ -5,46 +5,40 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Swagger Configuration
+  // CORS SUPER PERMISSIVO PARA PRODUÇÃO FUNCIONAR
+  app.enableCors({
+    origin: [
+      "https://app-drop-calc.vercel.app",
+      "https://dropcalc-front.vercel.app",
+      "https://*.vercel.app",
+    ],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 200,
+  });
+
+  // Swagger
   const config = new DocumentBuilder()
     .setTitle('Calculadora de Preços API')
     .setDescription('API para calculadora de preços de dropshipping')
     .setVersion('1.0')
-    .addTag('auth', 'Autenticação de usuários')
-    .addTag('calculations', 'Cálculos de preços')
-    .addTag('users', 'Gerenciamento de usuários')
-    .addTag('exchange', 'Taxas de câmbio')
-    .addTag('presets', 'Presets de cálculo')
     .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // ============================
-  // 🔥 CORS CONFIG (USANDO .ENV)
-  // ============================
-  const allowedOrigins = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-    : ['http://localhost:3000'];
+  // Railway PORT
+  await app.listen(process.env.PORT || 3000, "0.0.0.0");
 
-  console.log('🛑 CORS ORIGINS LOADED:', allowedOrigins);
-
-  app.enableCors({
-    origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'cache-control'],
-    credentials: true,
-  });
-
-  // Porta dinâmica do Railway
-  const port = process.env.PORT || 3000;
-  await app.listen(port, '0.0.0.0');
-
-  console.log(`🚀 Backend rodando na porta ${port}`);
-  console.log(`📚 Swagger docs: http://localhost:${port}/api/docs`);
-  console.log(`🌎 Ambiente: ${process.env.NODE_ENV}`);
-  console.log(`🔗 Backend URL: ${process.env.BACKEND_URL}`);
+  console.log("🚀 Backend rodando!");
+  console.log("🌐 CORS habilitado para:", [
+    "https://app-drop-calc.vercel.app",
+    "https://dropcalc-front.vercel.app",
+    "https://*.vercel.app",
+  ]);
 }
 
 bootstrap();
