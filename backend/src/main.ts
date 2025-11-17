@@ -21,9 +21,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
   
-  // Enable CORS for frontend connection - PERMISSIVO PARA DEBUG
+  // Enable CORS for frontend connection - RESTRITO PARA PRODUÇÃO
   app.enableCors({
-    origin: true, // Aceita qualquer origem
+    origin: 'https://app-drop-calc.vercel.app',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'cache-control'],
     credentials: true,
