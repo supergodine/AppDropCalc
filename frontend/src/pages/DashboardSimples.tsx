@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calculator, DollarSign, TrendingUp, Settings, User, Crown, Menu, X, Info } from 'lucide-react';
+import { Calculator, DollarSign, TrendingUp, Settings, User, Crown, Menu, X, Info, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useUserPlan } from '../hooks/useUserPlan';
@@ -587,16 +587,14 @@ const DashboardSimples: React.FC = () => {
                 {plan ? 'Alterar Plano' : 'Escolher Plano'}
               </button>
               
-              {/* Botão Ver Usuários - Apenas para Administradores */}
-              {isAdmin && (
-                <button
-                  onClick={() => navigate('/users')}
-                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-                  title="Ver Usuários (Admin)"
-                >
-                  <User className="w-5 h-5" />
-                </button>
-              )}
+              {/* Botão de Ajuda */}
+              <button
+                onClick={() => navigate('/help')}
+                className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                title="Ajuda"
+              >
+                <HelpCircle className="w-5 h-5" />
+              </button>
               <button
                 onClick={() => {
                   // Força navegação para /settings sem fallback
