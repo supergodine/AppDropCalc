@@ -36,18 +36,27 @@ export class AuthService {
       throw new ConflictException('Email já está em uso');
     }
 
+    // Validação de senha mínima
+    if (!password || password.length < 8) {
+      throw new BadRequestException('A senha deve ter pelo menos 8 caracteres');
+    }
+
     // Hash da senha
     const saltRounds = 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Criar usuário
+    // Criar usuário com status ativo
     const user = this.userRepository.create({
       ...userData,
       email,
       passwordHash,
+      status: UserStatus.ACTIVE,
     });
 
     const savedUser = await this.userRepository.save(user);
+
+    // Log de criação
+    console.log('✅ Usuário criado:', savedUser.email, 'Status:', savedUser.status);
 
     // Gerar token
     return this.generateAuthResponse(savedUser, 'Conta criada com sucesso');
