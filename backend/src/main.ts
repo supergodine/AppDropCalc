@@ -30,6 +30,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
+    // Força novo deploy após instalar TypeScript
   // Railway PORT
   await app.listen(process.env.PORT || 3000, "0.0.0.0");
 
