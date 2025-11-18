@@ -96,7 +96,41 @@ export class AuthService {
       user.plan = UserPlan.PREMIUM;
       user.role = UserRole.ADMIN;
     }
-    return this.generateAuthResponse(user, 'Login realizado com sucesso');
+    // Permitir login social (Google) sem senha
+    if (user.googleId) {
+      // Usuário Google: validar apenas por email/googleId
+      if (!user.email || !user.googleId) {
+        throw new UnauthorizedException('Usuário Google inválido');
+      }
+    } else {
+      // Usuário tradicional: validar status
+      if (user.status !== 'active') {
+        throw new UnauthorizedException('Usuário inativo');
+      }
+    }
+
+    // Gerar token JWT
+    const payload = { sub: user.id, email: user.email };
+    const accessToken = this.jwtService.sign(payload);
+
+    return {
+      accessToken,
+      tokenType: 'Bearer',
+      expiresIn: 604800, // 7 dias em segundos (7 * 24 * 60 * 60)
+      message: 'Login realizado com sucesso',
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        currencyDefault: user.currencyDefault,
+        country: user.country,
+        plan: user.plan,
+        status: user.status,
+        role: user.role,
+        createdAt: user.createdAt,
+        calculationsCount: 0
+      },
+    };
   }
 
   /**
