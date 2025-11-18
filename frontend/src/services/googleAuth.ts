@@ -139,6 +139,15 @@ class GoogleAuthService {
       if (response.ok) {
         const data = await response.json();
         console.log('✅ Usuário criado no backend');
+        // Salvar token JWT e dados do usuário
+        if (data.accessToken) {
+          localStorage.setItem('accessToken', data.accessToken);
+        }
+        if (data.user) {
+          localStorage.setItem('currentUser', JSON.stringify(data.user));
+        }
+        // Redirecionar para a calculadora
+        window.location.href = '/dashboard';
         return data;
       } else {
         console.warn('⚠️ Falha ao criar no backend, continuando...');
