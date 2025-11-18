@@ -133,7 +133,7 @@ const DashboardSimples: React.FC = () => {
   const [menuAberto, setMenuAberto] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // ...existing code...
+  // Força novo deploy após instalar TypeScript no frontend
 
   // Estado para loading do cálculo manual
   const [isCalculating, setIsCalculating] = useState(false);
@@ -587,7 +587,7 @@ const DashboardSimples: React.FC = () => {
                 {plan ? 'Alterar Plano' : 'Escolher Plano'}
               </button>
               
-              {/* Botão de Ajuda */}
+              {/* Botão de Ajuda/help */}
               <button
                 onClick={() => navigate('/help')}
                 className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
