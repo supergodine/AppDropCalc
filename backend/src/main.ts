@@ -13,7 +13,16 @@ async function bootstrap() {
       "https://*.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "Cache-Control"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Accept",
+      "Cache-Control",
+      "X-Requested-With",
+      "Origin",
+      "Referer",
+      "User-Agent"
+    ],
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 200,
