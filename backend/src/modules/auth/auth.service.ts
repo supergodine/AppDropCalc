@@ -15,6 +15,14 @@ import { AuthResponseDto, UserResponseDto } from './dto/auth-response.dto';
 
 @Injectable()
 export class AuthService {
+  // Buscar usuário por email
+  async findUserByEmail(email: string): Promise<User | null> {
+    return await this.userRepository.findOne({ where: { email } });
+  }
+  // Comparar senha com hash
+  async comparePassword(password: string, hash: string): Promise<boolean> {
+    return await bcrypt.compare(password, hash);
+  }
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
