@@ -7,10 +7,17 @@ async function bootstrap() {
 
   // CORS SUPER PERMISSIVO PARA PRODUÇÃO FUNCIONAR
   app.enableCors({
-    origin: [
-      "https://app-drop-calc.vercel.app",
-      "https://dropcalc-front.vercel.app"
-    ],
+    origin: function (origin, callback) {
+      const allowed = [
+        "https://app-drop-calc.vercel.app",
+        "https://dropcalc-front.vercel.app"
+      ];
+      if (!origin || allowed.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
