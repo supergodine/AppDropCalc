@@ -44,7 +44,7 @@ export class AuthController {
     await this.mailService.sendPasswordRecovery(body.email, token);
     return { message: 'E-mail de recuperação enviado, se o e-mail existir.' };
   }
-
+//tteste
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Criar nova conta de usuário' })
@@ -97,32 +97,44 @@ export class AuthController {
   @ApiBody({ type: LoginDto })
   async testLogin(@Body() loginDto: LoginDto): Promise<any> {
     console.log('🧪 Test login chamado com:', loginDto);
-    
     try {
-      const user = await this.authService.validateUser(loginDto.email, loginDto.password);
-      
+  const user = await this.authService.findUserByEmail(loginDto.email);
+      let debugInfo: any = { email: loginDto.email };
       if (!user) {
+        debugInfo.found = false;
         return {
           success: false,
-          message: 'Credenciais inválidas',
-          debug: {
-            email: loginDto.email,
-            found: false
-          }
+          message: 'Usuário não encontrado',
+          debug: debugInfo
         };
       }
-
+      debugInfo.found = true;
+      debugInfo.userId = user.id;
+      debugInfo.status = user.status;
+      debugInfo.passwordHash = user.passwordHash;
+      debugInfo.senhaEnviada = loginDto.password;
+      const isPasswordValid = user.passwordHash ? await this.authService.comparePassword(loginDto.password, user.passwordHash) : false;
+      debugInfo.senhaValida = isPasswordValid;
+      if (!isPasswordValid) {
+        return {
+          success: false,
+          message: 'Senha inválida',
+          debug: debugInfo
+        };
+      }
+      if (user.status !== 'active') {
+        return {
+          success: false,
+          message: 'Usuário não está ativo',
+          debug: debugInfo
+        };
+      }
       const result = await this.authService.login(user);
       return {
         success: true,
         message: 'Login realizado com sucesso',
         data: result,
-        debug: {
-          email: loginDto.email,
-          found: true,
-          userId: user.id,
-          role: user.role
-        }
+        debug: debugInfo
       };
     } catch (error) {
       console.error('❌ Erro no test login:', error);
