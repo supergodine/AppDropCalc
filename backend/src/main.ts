@@ -21,7 +21,8 @@ async function bootstrap() {
       "X-Requested-With",
       "Origin",
       "Referer",
-      "User-Agent"
+      "User-Agent",
+      "Access-Control-Allow-Origin"
     ],
     credentials: true,
     preflightContinue: false,
