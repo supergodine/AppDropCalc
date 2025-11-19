@@ -20,7 +20,7 @@ import { DatabaseConfig } from './config/database.config';
     // Configuração global
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.local', '.env'],
+      envFilePath: ['.env.production', '.env.local', '.env'],
     }),
 
     // Banco de dados
