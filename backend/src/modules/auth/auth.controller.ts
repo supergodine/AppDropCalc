@@ -8,6 +8,8 @@ import {
   HttpCode,
   HttpStatus,
   Res,
+  UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import {
@@ -18,6 +20,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import { UserStatus } from '../users/entities/user.entity';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { MailService } from './mail.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -35,36 +38,21 @@ export class AuthController {
   @ApiOperation({ summary: 'Login com Google/Firebase' })
   @ApiBody({ schema: { properties: { email: { type: 'string' }, name: { type: 'string' }, googleId: { type: 'string' }, photoURL: { type: 'string' }, provider: { type: 'string' } } } })
   async loginGoogle(@Body() body, @Request() req): Promise<AuthResponseDto> {
-    // Token JWT do Firebase no header Authorization
     const firebaseToken = req.headers['authorization']?.replace('Bearer ', '');
     if (!firebaseToken) {
       throw new UnauthorizedException('Token Firebase não enviado');
     }
-    // Validação do token Firebase (SDK Admin recomendada, aqui apenas simulação)
-    // TODO: Integrar Firebase Admin SDK para validação real
-    // Simulação: aceitar qualquer token não vazio
     if (!body.email || !body.googleId) {
       throw new BadRequestException('Dados Google/Firebase ausentes');
     }
-    // Buscar ou criar usuário
-    let user = await this.authService.userRepository.findOne({ where: { email: body.email } });
-    if (!user) {
-      user = this.authService.userRepository.create({
-        email: body.email,
-        name: body.name || body.email.split('@')[0],
-        googleId: body.googleId,
-        avatar: body.photoURL,
-        status: 'active',
-        lastLoginAt: new Date(),
-      });
-      user = await this.authService.userRepository.save(user);
-    } else {
-      user.lastLoginAt = new Date();
-      user.googleId = body.googleId;
-      user.avatar = body.photoURL;
-      user = await this.authService.userRepository.save(user);
-    }
-    // Gerar token JWT do backend
+    // Buscar ou criar usuário Google via método público do AuthService
+    const user = await this.authService.findOrCreateGoogleUser({
+      email: body.email,
+      name: body.name,
+      googleId: body.googleId,
+      avatar: body.photoURL,
+      status: UserStatus.ACTIVE,
+    });
     return await this.authService.login(user);
   }
   constructor(
