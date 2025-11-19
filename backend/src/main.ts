@@ -9,8 +9,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       "https://app-drop-calc.vercel.app",
-      "https://dropcalc-front.vercel.app",
-      "https://*.vercel.app",
+      "https://dropcalc-front.vercel.app"
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
