@@ -15,6 +15,28 @@ import { AuthResponseDto, UserResponseDto } from './dto/auth-response.dto';
 
 @Injectable()
 export class AuthService {
+  // Buscar ou criar usuário Google
+  async findOrCreateGoogleUser({ email, name, googleId, avatar, status }: { email: string, name?: string, googleId: string, avatar?: string, status?: UserStatus }): Promise<User> {
+    let user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      user = this.userRepository.create({
+        email,
+        name: name || email.split('@')[0],
+        googleId,
+        avatar,
+        status: status || UserStatus.ACTIVE,
+        lastLoginAt: new Date(),
+      });
+      user = await this.userRepository.save(user);
+    } else {
+      user.lastLoginAt = new Date();
+      user.googleId = googleId;
+      user.avatar = avatar;
+      user.status = status || UserStatus.ACTIVE;
+      user = await this.userRepository.save(user);
+    }
+    return user;
+  }
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
