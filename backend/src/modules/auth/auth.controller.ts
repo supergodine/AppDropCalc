@@ -30,6 +30,43 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
+  @Post('login-google')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Login com Google/Firebase' })
+  @ApiBody({ schema: { properties: { email: { type: 'string' }, name: { type: 'string' }, googleId: { type: 'string' }, photoURL: { type: 'string' }, provider: { type: 'string' } } } })
+  async loginGoogle(@Body() body, @Request() req): Promise<AuthResponseDto> {
+    // Token JWT do Firebase no header Authorization
+    const firebaseToken = req.headers['authorization']?.replace('Bearer ', '');
+    if (!firebaseToken) {
+      throw new UnauthorizedException('Token Firebase não enviado');
+    }
+    // Validação do token Firebase (SDK Admin recomendada, aqui apenas simulação)
+    // TODO: Integrar Firebase Admin SDK para validação real
+    // Simulação: aceitar qualquer token não vazio
+    if (!body.email || !body.googleId) {
+      throw new BadRequestException('Dados Google/Firebase ausentes');
+    }
+    // Buscar ou criar usuário
+    let user = await this.authService.userRepository.findOne({ where: { email: body.email } });
+    if (!user) {
+      user = this.authService.userRepository.create({
+        email: body.email,
+        name: body.name || body.email.split('@')[0],
+        googleId: body.googleId,
+        avatar: body.photoURL,
+        status: 'active',
+        lastLoginAt: new Date(),
+      });
+      user = await this.authService.userRepository.save(user);
+    } else {
+      user.lastLoginAt = new Date();
+      user.googleId = body.googleId;
+      user.avatar = body.photoURL;
+      user = await this.authService.userRepository.save(user);
+    }
+    // Gerar token JWT do backend
+    return await this.authService.login(user);
+  }
   constructor(
     private readonly authService: AuthService,
     private readonly mailService: MailService,
