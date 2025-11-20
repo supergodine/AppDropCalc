@@ -1,8 +1,23 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { AppDataSource } from './database/data-source';
+
+async function testDatabaseConnectionAndMigrate() {
+  try {
+    await AppDataSource.initialize();
+    console.log('✅ Conectado ao PostgreSQL com sucesso!');
+    await AppDataSource.runMigrations();
+    console.log('✅ Migrações executadas com sucesso!');
+    await AppDataSource.destroy();
+  } catch (error) {
+    console.error('❌ Falha ao conectar ou migrar o banco:', error);
+    process.exit(1);
+  }
+}
 
 async function bootstrap() {
+  await testDatabaseConnectionAndMigrate();
   const app = await NestFactory.create(AppModule);
   // Middleware para logar requests e garantir resposta para preflight
   app.use((req, res, next) => {
@@ -21,7 +36,9 @@ async function bootstrap() {
     origin: function (origin, callback) {
       const allowed = [
         "https://app-drop-calc.vercel.app",
-        "https://dropcalc-front.vercel.app"
+        "https://dropcalc-front.vercel.app",
+        "https://*.vercel.app",
+        "http://localhost:5173"
       ];
       // Permite qualquer subdomínio *.vercel.app
       if (!origin || allowed.includes(origin) || /https:\/\/.+\.vercel\.app$/.test(origin)) {

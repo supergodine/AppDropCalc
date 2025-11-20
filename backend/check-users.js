@@ -2,15 +2,15 @@ const { DataSource } = require('typeorm');
 
 async function checkUsers() {
   const dataSource = new DataSource({
-    type: 'sqlite',
-    database: './database.sqlite',
+  // type: 'postgres',
+  // database: '...' // configure para PostgreSQL
     synchronize: false,
     logging: true
   });
 
   try {
     await dataSource.initialize();
-    console.log('🔍 Conectado ao banco SQLite');
+  // console.log('🔍 Conectado ao banco PostgreSQL');
 
     // Listar todos os usuários
     const users = await dataSource.query('SELECT id, name, email, createdAt FROM users ORDER BY createdAt DESC');

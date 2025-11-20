@@ -4,15 +4,15 @@ const { v4: uuidv4 } = require('uuid');
 
 async function createAdminUser() {
   const dataSource = new DataSource({
-    type: 'sqlite',
-    database: './database.sqlite',
+  // type: 'postgres',
+  // database: '...' // configure para PostgreSQL
     synchronize: false,
     logging: true
   });
 
   try {
     await dataSource.initialize();
-    console.log('🔍 Conectado ao banco SQLite');
+  // console.log('🔍 Conectado ao banco PostgreSQL');
 
     const adminEmail = 'comercial@calientabeauty.com';
     const adminName = 'Usuario Adm';

@@ -35,7 +35,7 @@ export class Gateway {
   primaryType: GatewayType;
 
   @Column({ type: 'text' })
-  supportedTypes: string; // JSON string para SQLite
+  supportedTypes: string;
 
   @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
   feePercent: number; // Taxa percentual padrão
