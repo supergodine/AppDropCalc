@@ -23,7 +23,8 @@ async function bootstrap() {
         "https://app-drop-calc.vercel.app",
         "https://dropcalc-front.vercel.app"
       ];
-      if (!origin || allowed.includes(origin)) {
+      // Permite qualquer subdomínio *.vercel.app
+      if (!origin || allowed.includes(origin) || /https:\/\/.+\.vercel\.app$/.test(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
