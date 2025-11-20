@@ -14,6 +14,22 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
   constructor(private configService: ConfigService) {}
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
+    const isDevelopment = this.configService.get('NODE_ENV') !== 'production';
+    const databaseType = this.configService.get('DATABASE_TYPE', 'sqlite');
+
+    if (databaseType === 'sqlite') {
+      // Usar arquivo SQLite mesmo em produção para persistência
+      const database = this.configService.get('DATABASE_URL', './data/database.sqlite');
+        
+      return {
+        type: 'sqlite',
+        database: database,
+        entities: [User],
+        synchronize: true, // Sempre true para SQLite
+        logging: isDevelopment,
+      };
+    }
+
     return {
       type: 'postgres',
       url: this.configService.get('DATABASE_URL'),
@@ -22,10 +38,10 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
       username: this.configService.get('DATABASE_USERNAME', 'postgres'),
       password: this.configService.get('DATABASE_PASSWORD', 'postgres123'),
       database: this.configService.get('DATABASE_NAME', 'dropcalc'),
-      entities: [__dirname + '/../**/*.entity.{js,ts}'],
+  entities: [User], // User está vinculado à tabela 'users' (plural) pelo decorator @Entity('users')
       migrations: ['dist/database/migrations/*.js'],
-      synchronize: false, // Nunca sincronizar em produção
-  logging: ['query', 'error', 'schema'],
+      synchronize: isDevelopment, // Apenas em desenvolvimento
+      logging: isDevelopment,
       ssl: this.configService.get('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
     };
   }
