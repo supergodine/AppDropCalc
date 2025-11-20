@@ -79,13 +79,13 @@ export class User {
     };
   };
 
-  @Column({ type: process.env.DATABASE_TYPE === 'sqlite' ? 'datetime' : 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   lastLoginAt?: Date;
 
   @Column({ type: 'int', default: 0 })
   calculationsCount: number; // Cache do número de cálculos
 
-  @Column({ type: process.env.DATABASE_TYPE === 'sqlite' ? 'datetime' : 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   planExpiresAt?: Date; // Para planos pagos
 
   @CreateDateColumn()
