@@ -25,7 +25,7 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
       entities: [__dirname + '/../**/*.entity.{js,ts}'],
       migrations: ['dist/database/migrations/*.js'],
       synchronize: false, // Nunca sincronizar em produção
-      logging: this.configService.get('NODE_ENV') !== 'production',
+  logging: ['query', 'error', 'schema'],
       ssl: this.configService.get('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
     };
   }
