@@ -15,21 +15,7 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
     const isDevelopment = this.configService.get('NODE_ENV') !== 'production';
-    const databaseType = this.configService.get('DATABASE_TYPE', 'sqlite');
-
-    if (databaseType === 'sqlite') {
-      // Usar arquivo SQLite mesmo em produção para persistência
-      const database = this.configService.get('DATABASE_URL', './data/database.sqlite');
-        
-      return {
-        type: 'sqlite',
-        database: database,
-        entities: [User],
-        synchronize: true, // Sempre true para SQLite
-        logging: isDevelopment,
-      };
-    }
-
+    // Sempre usar PostgreSQL, nunca SQLite
     return {
       type: 'postgres',
       url: this.configService.get('DATABASE_URL'),
