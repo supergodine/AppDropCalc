@@ -24,7 +24,7 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
       return {
         type: 'sqlite',
         database: database,
-        entities: [User],
+  entities: [__dirname + '/../**/*.entity.{js,ts}'],
         synchronize: true, // Sempre true para SQLite
         logging: isDevelopment,
       };
@@ -38,7 +38,7 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
       username: this.configService.get('DATABASE_USERNAME', 'postgres'),
       password: this.configService.get('DATABASE_PASSWORD', 'postgres123'),
       database: this.configService.get('DATABASE_NAME', 'dropcalc'),
-      entities: [User],
+  entities: [__dirname + '/../**/*.entity.{js,ts}'],
       migrations: ['dist/database/migrations/*.js'],
       synchronize: isDevelopment, // Apenas em desenvolvimento
       logging: isDevelopment,
