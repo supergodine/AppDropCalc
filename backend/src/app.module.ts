@@ -20,12 +20,15 @@ import { DatabaseConfig } from './config/database.config';
     // Configuração global
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.production', '.env.local', '.env'],
+      envFilePath: process.env.NODE_ENV === 'production'
+        ? ['.env.production']
+        : ['.env', '.env.local', '.env.development'],
     }),
 
-    // Banco de dados
     TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
       useClass: DatabaseConfig,
+      inject: [DatabaseConfig],
     }),
 
     // Módulos da aplicação
