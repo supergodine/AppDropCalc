@@ -38,7 +38,11 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
       username: this.configService.get('DATABASE_USERNAME', 'postgres'),
       password: this.configService.get('DATABASE_PASSWORD', 'postgres123'),
       database: this.configService.get('DATABASE_NAME', 'dropcalc'),
-  entities: [User], // User está vinculado à tabela 'users' (plural) pelo decorator @Entity('users')
+      entities: [
+        process.env.NODE_ENV === 'production'
+          ? 'dist/modules/**/entities/*.js'
+          : 'src/modules/**/entities/*.entity.ts',
+      ],
       migrations: ['dist/database/migrations/*.js'],
       synchronize: isDevelopment, // Apenas em desenvolvimento
       logging: isDevelopment,
