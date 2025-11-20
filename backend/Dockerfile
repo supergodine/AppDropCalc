@@ -13,7 +13,6 @@ COPY nest-cli.json ./
 
 # Instalar dependências
 FROM base AS deps
-RUN npm install -g npm@latest
 RUN npm install --legacy-peer-deps --only=production && npm cache clean --force
 
 # Build da aplicação
