@@ -3,6 +3,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
   // Middleware para logar requests e garantir resposta para preflight
   app.use((req, res, next) => {
     if (req.method === 'OPTIONS') {
@@ -14,7 +15,6 @@ async function bootstrap() {
     }
     next();
   });
-  const app = await NestFactory.create(AppModule);
 
   // CORS SUPER PERMISSIVO PARA PRODUÇÃO FUNCIONAR
   app.enableCors({
