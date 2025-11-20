@@ -18,7 +18,6 @@ RUN npm ci --only=production && npm cache clean --force
 # Build da aplicação
 FROM base AS builder
 COPY . .
-RUN npm install --legacy-peer-deps
 RUN npm run build
 
 # Produção
