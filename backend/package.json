@@ -10,9 +10,10 @@
     "node": "18.x"
   },
   "scripts": {
-    "build": "nest build",
-    "start": "node dist/main.js",
-    "start:dev": "nest start",
+  "build": "nest build",
+  "start": "node dist/main.js",
+  "start:prod": "node dist/main.js",
+  "start:dev": "nest start",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -95,5 +96,6 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   },
+  
   "keywords": []
 }
