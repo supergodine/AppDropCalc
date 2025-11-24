@@ -25,13 +25,57 @@ async function bootstrap() {
   // TRUST PROXY - necessário no Railway
   app.getHttpAdapter().getInstance().set('trust proxy', 1);
 
-  // CORS amplo para garantir funcionamento
+  // CORS robusto para frontend Vercel e localhost
   app.enableCors({
-    origin: true, // Aceita qualquer origin para teste
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: '*',
+    origin: [
+      'https://app-drop-calc.vercel.app',
+      'http://localhost:5173'
+    ],
+    methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'Origin',
+      'X-Requested-With'
+    ],
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
+
+  // Handler explícito para OPTIONS (preflight)
+  app.use((req, res, next) => {
+    if (req.method === 'OPTIONS') {
+      // Permitir apenas origens conhecidas
+      const allowedOrigins = [
+        'https://app-drop-calc.vercel.app',
+        'http://localhost:5173'
+      ];
+      const origin = req.headers.origin;
+      if (allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+      }
+      res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Origin, X-Requested-With');
+      return res.sendStatus(204);
+    }
+    next();
+  });
+
+  // Log detalhado para debug de CORS/preflight
+  app.use((req, _, next) => {
+    console.log('CORS DEBUG:', {
+      method: req.method,
+      origin: req.headers.origin,
+      path: req.url,
+      headers: req.headers
+    });
+    next();
+  });
+
+  // ValidationPipe global robusto
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
 
   // VALIDATION PIPE
   app.useGlobalPipes(new ValidationPipe({
