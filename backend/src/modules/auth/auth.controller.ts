@@ -19,6 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { MailService } from './mail.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 // import { GoogleAuthGuard } from './guards/google-auth.guard'; // DESATIVADO - USANDO FIREBASE
@@ -44,6 +45,15 @@ export class AuthController {
     await this.mailService.sendPasswordRecovery(body.email, token);
     return { message: 'E-mail de recuperação enviado, se o e-mail existir.' };
   }
+  
+    @Post('reset-password')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Resetar senha usando token de recuperação' })
+    @ApiBody({ type: ResetPasswordDto })
+    async resetPassword(@Body() body: ResetPasswordDto) {
+      const result = await this.authService.resetPassword(body);
+      return result;
+    }
 //tteste
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)

@@ -1,3 +1,4 @@
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import {
   Injectable,
   ConflictException,
@@ -15,6 +16,32 @@ import { AuthResponseDto, UserResponseDto } from './dto/auth-response.dto';
 
 @Injectable()
 export class AuthService {
+  /**
+   * Resetar senha usando token de recuperação
+   */
+  async resetPassword(dto: ResetPasswordDto): Promise<{ success: boolean; message: string }> {
+    const { token, newPassword } = dto;
+    // Buscar usuário pelo token
+    const user = await this.userRepository.findOne({ where: { passwordResetToken: token } });
+    if (!user) {
+      return { success: false, message: 'Token inválido ou expirado' };
+    }
+    // Verificar expiração
+    if (!user.passwordResetExpires || user.passwordResetExpires < new Date()) {
+      return { success: false, message: 'Token expirado' };
+    }
+    // Validar nova senha
+    if (!newPassword || newPassword.length < 8) {
+      return { success: false, message: 'A senha deve ter pelo menos 8 caracteres' };
+    }
+    // Atualizar senha
+    const saltRounds = 12;
+    user.passwordHash = await bcrypt.hash(newPassword, saltRounds);
+    user.passwordResetToken = null;
+    user.passwordResetExpires = null;
+    await this.userRepository.save(user);
+    return { success: true, message: 'Senha redefinida com sucesso' };
+  }
   // Buscar usuário por email
   async findUserByEmail(email: string): Promise<User | null> {
     return await this.userRepository.findOne({ where: { email } });

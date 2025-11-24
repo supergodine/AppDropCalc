@@ -20,6 +20,11 @@ export class MailService {
       return;
     }
 
+    // Persistir token e expiração (1 hora)
+    user.passwordResetToken = token;
+    user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000);
+    await this.userRepository.save(user);
+
     // Configure o transporter (exemplo: Gmail, SMTP, etc)
     const transporter = nodemailer.createTransport({
       service: 'gmail',
