@@ -23,7 +23,11 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
       username: this.configService.get('DB_USERNAME'),
       password: this.configService.get('DB_PASSWORD'),
       database: this.configService.get('DB_NAME'),
-      entities: [__dirname + '/../modules/**/*.entity.{ts,js}'],
+      entities: [
+        isProduction
+          ? __dirname + '/../modules/**/*.entity.js'
+          : __dirname + '/../modules/**/*.entity.{ts,js}'
+      ],
       migrations: [__dirname + '/../database/migrations/*.{ts,js}'],
       synchronize: !isProduction,
       logging: true,
