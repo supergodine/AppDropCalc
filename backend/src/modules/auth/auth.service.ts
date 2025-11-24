@@ -21,17 +21,22 @@ export class AuthService {
    */
   async resetPassword(dto: ResetPasswordDto): Promise<{ success: boolean; message: string }> {
     const { token, newPassword } = dto;
+    console.log(`[resetPassword] Iniciando reset para token: ${token}`);
     // Buscar usuário pelo token
     const user = await this.userRepository.findOne({ where: { passwordResetToken: token } });
     if (!user) {
+      console.warn(`[resetPassword] Token inválido ou usuário não encontrado: ${token}`);
       return { success: false, message: 'Token inválido ou expirado' };
     }
+    console.log(`[resetPassword] Usuário encontrado: ${user.email}`);
     // Verificar expiração
     if (!user.passwordResetExpires || user.passwordResetExpires < new Date()) {
+      console.warn(`[resetPassword] Token expirado para usuário: ${user.email}`);
       return { success: false, message: 'Token expirado' };
     }
     // Validar nova senha
     if (!newPassword || newPassword.length < 8) {
+      console.warn(`[resetPassword] Nova senha muito curta para usuário: ${user.email}`);
       return { success: false, message: 'A senha deve ter pelo menos 8 caracteres' };
     }
     // Atualizar senha
@@ -40,6 +45,7 @@ export class AuthService {
     user.passwordResetToken = null;
     user.passwordResetExpires = null;
     await this.userRepository.save(user);
+    console.log(`[resetPassword] Senha redefinida com sucesso para usuário: ${user.email}`);
     return { success: true, message: 'Senha redefinida com sucesso' };
   }
   // Buscar usuário por email
