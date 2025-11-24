@@ -36,14 +36,20 @@ export class AuthController {
     private readonly mailService: MailService,
   ) {}
   @Post('forgot-password')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: 'Solicitar recuperação de senha (envio de e-mail)' })
   @ApiBody({ type: ForgotPasswordDto })
-  async forgotPassword(@Body() body: ForgotPasswordDto) {
-    // Gerar token simples (ideal: JWT ou UUID)
-    const token = Math.random().toString(36).substring(2) + Date.now();
-    await this.mailService.sendPasswordRecovery(body.email, token);
-    return { message: 'E-mail de recuperação enviado, se o e-mail existir.' };
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    const { email } = dto;
+    try {
+      await this.authService.requestPasswordReset(email);
+      console.log('[forgot-password] Solicitação recebida para:', email);
+    } catch (err) {
+      // Nunca vazar detalhes para o cliente
+      console.error('[forgot-password] Erro interno:', err, { email });
+    }
+    // Sempre resposta genérica
+    return { message: 'Se existir uma conta com este email, enviaremos instruções.' };
   }
   
     @Post('reset-password')
@@ -54,19 +60,8 @@ export class AuthController {
       const result = await this.authService.resetPassword(body);
       return result;
     }
-//tteste
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Criar nova conta de usuário' })
-  @ApiResponse({
-    status: 201,
-    description: 'Usuário criado com sucesso',
-    type: AuthResponseDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Dados inválidos ou email já existe',
-  })
   @ApiBody({ type: SignUpDto })
   async signUp(@Body() signUpDto: SignUpDto): Promise<AuthResponseDto> {
     return this.authService.signUp(signUpDto);
