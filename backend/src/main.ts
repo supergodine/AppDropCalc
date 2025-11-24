@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AppDataSource } from './database/data-source';
+import { ValidationPipe } from '@nestjs/common';
 
 async function testDatabaseConnectionAndMigrate() {
   try {
@@ -21,60 +22,53 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // TRUST PROXY - necessário no Railway
-  const expressApp = app.getHttpAdapter().getInstance();
-  expressApp.set('trust proxy', 1);
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
 
-  // === CORS CONFIGURATION SIMPLIFICADA E CORRIGIDA ===
+  // === CORS CONFIGURATION CORRIGIDA ===
   const allowedOrigins = [
     'https://app-drop-calc.vercel.app',
-    'https://dropcalc-front.vercel.app',
+    'https://dropcalc-front.vercel.app', 
     'http://localhost:5173',
   ];
 
-  // Middleware CORS manual para tratamento correto do preflight
-  app.use((req: any, res: any, next: any) => {
-    const origin = req.headers.origin;
-    
-    if (allowedOrigins.includes(origin)) {
-      res.header('Access-Control-Allow-Origin', origin);
-    }
-    
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Cache-Control, X-Requested-With');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Max-Age', '86400'); // Cache preflight por 24h
-
-    // Resposta CORRETA para preflight OPTIONS
-    if (req.method === 'OPTIONS') {
-      res.header('Content-Length', '0');
-      res.header('Content-Type', 'text/plain');
-      res.status(204).send();
-      return;
-    }
-
-    next();
-  });
-
-  // === CORS do NestJS como backup (OPCIONAL - pode remover se quiser usar só o middleware) ===
+  // HABILITAR CORS DO NESTJS (PRINCIPAL)
   app.enableCors({
-    origin: (origin, callback) => {
-      // Permitir requests sem origin (como mobile apps ou curl)
+    origin: function (origin, callback) {
+      // Permitir requests sem origin (mobile apps, postman, etc)
       if (!origin) return callback(null, true);
       
-      if (allowedOrigins.includes(origin)) {
+      if (allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
+        console.log('❌ Blocked by CORS:', origin);
         callback(new Error('Not allowed by CORS'));
       }
     },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Cache-Control', 'X-Requested-With'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'Access-Control-Allow-Headers',
+      'Access-Control-Request-Headers',
+      'Access-Control-Allow-Origin',
+      'Cache-Control'
+    ],
+    exposedHeaders: ['Authorization'],
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204
   });
 
-  // === Swagger ===
+  // VALIDATION PIPE
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    transform: true,
+  }));
+
+  // === SWAGGER ===
   const config = new DocumentBuilder()
     .setTitle('Calculadora de Preços API')
     .setDescription('API para calculadora de preços de dropshipping')
@@ -86,10 +80,12 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   // Railway port binding
-  await app.listen(process.env.PORT || 3000, '0.0.0.0');
+  const port = process.env.PORT || 3000;
+  await app.listen(port, '0.0.0.0');
 
-  console.log('🚀 Backend rodando!');
+  console.log('🚀 Backend rodando na porta:', port);
   console.log('📋 CORS configurado para origins:', allowedOrigins);
+  console.log('🔗 Swagger: http://localhost:' + port + '/api/docs');
 }
 
 bootstrap();
