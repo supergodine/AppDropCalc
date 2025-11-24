@@ -31,15 +31,15 @@ async function bootstrap() {
       'https://dropcalc-front.vercel.app',
       'http://localhost:5173',
     ];
-    
+
     const origin = req.headers.origin;
-    
+
     if (allowedOrigins.includes(origin)) {
       res.header('Access-Control-Allow-Origin', origin);
     }
-    
+
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Cache-Control');
     res.header('Access-Control-Allow-Credentials', 'true');
 
     // Responde imediatamente para requisições OPTIONS
@@ -47,7 +47,7 @@ async function bootstrap() {
       res.status(200).end();
       return;
     }
-    
+
     next();
   });
 
@@ -59,7 +59,7 @@ async function bootstrap() {
       'http://localhost:5173',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type,Authorization,Accept',
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Cache-Control'],
     credentials: true,
   });
 
