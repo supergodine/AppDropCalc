@@ -12,27 +12,32 @@ export class MailService {
   ) {}
 
   async sendPasswordRecovery(email: string, token: string): Promise<void> {
+    console.log(`[MailService] Iniciando recuperação de senha para: ${email}`);
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
+      console.log(`[MailService] Usuário não encontrado: ${email}`);
+      // Por segurança, não lançar erro, apenas logar e retornar
+      return;
     }
 
     // Configure o transporter (exemplo: Gmail, SMTP, etc)
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASSWORD,
       },
     });
 
-    const recoveryUrl = `${process.env.FRONTEND_URL || 'https://app-drop-calc-matcqzw7v.vercel.app'}/reset-password?token=${token}`;
+    const recoveryUrl = `${process.env.FRONTEND_URL || 'https://app-drop-calc.vercel.app'}/reset-password?token=${token}`;
+    console.log(`[MailService] Enviando e-mail de recuperação para: ${email} com link: ${recoveryUrl}`);
 
     await transporter.sendMail({
-      from: `DropCalc <${process.env.SMTP_USER}>`,
+      from: `DropCalc <${process.env.GMAIL_USER}>`,
       to: email,
       subject: 'Recuperação de senha - DropCalc',
       html: `<p>Olá,</p><p>Recebemos uma solicitação para redefinir sua senha. Clique no link abaixo para continuar:</p><p><a href="${recoveryUrl}">${recoveryUrl}</a></p><p>Se você não solicitou, ignore este e-mail.</p>`
     });
+    console.log(`[MailService] E-mail enviado para: ${email}`);
   }
 }
