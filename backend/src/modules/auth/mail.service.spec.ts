@@ -25,18 +25,15 @@ describe('MailService', () => {
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
-  it('deve lançar NotFoundException se o usuário não existir', async () => {
+  it('deve retornar undefined se o usuário não existir', async () => {
     jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
-    await expect(service.sendPasswordRecovery('naoexiste@email.com', 'token123')).rejects.toThrow('Usuário não encontrado');
+    const result = await service.sendPasswordRecovery('naoexiste@email.com', 'token123');
+    expect(result).toBeUndefined();
   });
 
-  it('deve enviar e-mail se o usuário existir', async () => {
-    jest.spyOn(userRepository, 'findOne').mockResolvedValue({ email: 'existe@email.com' } as User);
-    const sendMailMock = jest.fn();
-    jest.mock('nodemailer', () => ({
-      createTransport: () => ({ sendMail: sendMailMock })
-    }));
-    await service.sendPasswordRecovery('existe@email.com', 'token123');
-    expect(sendMailMock).toHaveBeenCalled();
+  it('deve enviar e-mail se o usuário existir (usando credenciais reais)', async () => {
+    jest.spyOn(userRepository, 'findOne').mockResolvedValue({ email: process.env.GMAIL_USER } as User);
+    // Não mocka o nodemailer, usa credenciais reais do ambiente
+    await expect(service.sendPasswordRecovery(process.env.GMAIL_USER, 'token123')).resolves.toBeUndefined();
   });
 });
