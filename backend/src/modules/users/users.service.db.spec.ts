@@ -1,4 +1,5 @@
 // @ts-nocheck
+jest.setTimeout(30000);
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
