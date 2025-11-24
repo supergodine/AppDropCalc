@@ -24,32 +24,6 @@ async function bootstrap() {
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.set('trust proxy', 1);
 
-  // === MIDDLEWARE CORS MANUAL ===
-  app.use((req: any, res: any, next: any) => {
-    const allowedOrigins = [
-      'https://app-drop-calc.vercel.app',
-      'https://dropcalc-front.vercel.app',
-      'http://localhost:5173',
-    ];
-
-    const origin = req.headers.origin;
-
-    if (allowedOrigins.includes(origin)) {
-      res.header('Access-Control-Allow-Origin', origin);
-    }
-
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Cache-Control');
-    res.header('Access-Control-Allow-Credentials', 'true');
-
-    // Responde imediatamente para requisições OPTIONS
-    if (req.method === 'OPTIONS') {
-      res.status(200).end();
-      return;
-    }
-
-    next();
-  });
 
   // === CORS do NestJS como backup ===
   app.enableCors({
