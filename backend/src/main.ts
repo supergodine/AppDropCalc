@@ -21,50 +21,24 @@ async function bootstrap() {
   await testDatabaseConnectionAndMigrate();
   const app = await NestFactory.create(AppModule);
 
-  // TRUST PROXY - necessário no Render
+  // TRUST PROXY - necessário no Render/Railway
   app.getHttpAdapter().getInstance().set('trust proxy', 1);
 
-  // === CORS CONFIGURATION CORRIGIDA ===
-  const allowedOrigins = [
-    'https://app-drop-calc.vercel.app',
-    'https://dropcalc-front.vercel.app',
-    'http://localhost:5173',
-    'https://appdropcalc-backend.onrender.com',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://localhost:4200',
-    'http://localhost:3333'
-  ];
-
-  // HABILITAR CORS DO NESTJS (PRINCIPAL)
+  // CORS amplo para garantir funcionamento
   app.enableCors({
-    origin: function (origin, callback) {
-      // Permitir requests sem origin (mobile apps, postman, etc)
-      if (!origin) return callback(null, true);
-      
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        console.log('❌ Blocked by CORS:', origin);
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: [
-      'Origin',
-      'X-Requested-With',
-      'Content-Type',
-      'Accept',
-      'Authorization',
-      'Access-Control-Allow-Headers',
-      'Access-Control-Request-Headers',
-      'Access-Control-Allow-Origin',
-      'Cache-Control'
-    ],
-    exposedHeaders: ['Authorization'],
+    origin: true, // Aceita qualquer origin para teste
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: '*',
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204
+  });
+  app.enableCors({
+    origin: true, // Aceita qualquer origin para teste
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: '*',
+    credentials: true,
+  // VALIDATION PIPE
   });
 
   // VALIDATION PIPE
@@ -89,8 +63,7 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
 
   console.log('🚀 Backend rodando na porta:', port);
-  console.log('📋 CORS configurado para origins:', allowedOrigins);
-  console.log('🔗 Swagger: http://localhost:' + port + '/api/docs');
+  console.log(' Swagger: http://localhost:' + port + '/api/docs');
 }
 
 bootstrap();
