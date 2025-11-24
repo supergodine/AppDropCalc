@@ -26,14 +26,27 @@ async function bootstrap() {
 
   // === CORS CORRETO E LIMPO ===
   app.enableCors({
-    origin: [
-      'https://app-drop-calc.vercel.app',
-      'https://dropcalc-front.vercel.app',
-      'http://localhost:5173',
-    ],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type,Authorization,Accept',
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'https://app-drop-calc.vercel.app',
+        'https://dropcalc-front.vercel.app',
+        'http://localhost:5173',
+      ];
+
+      // Permite requests sem origin (como mobile apps ou curl)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   });
 
   // === Swagger ===
