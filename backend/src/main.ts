@@ -24,29 +24,43 @@ async function bootstrap() {
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.set('trust proxy', 1);
 
-  // === CORS CORRETO E LIMPO ===
+  // === MIDDLEWARE CORS MANUAL ===
+  app.use((req: any, res: any, next: any) => {
+    const allowedOrigins = [
+      'https://app-drop-calc.vercel.app',
+      'https://dropcalc-front.vercel.app',
+      'http://localhost:5173',
+    ];
+    
+    const origin = req.headers.origin;
+    
+    if (allowedOrigins.includes(origin)) {
+      res.header('Access-Control-Allow-Origin', origin);
+    }
+    
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+    res.header('Access-Control-Allow-Credentials', 'true');
+
+    // Responde imediatamente para requisições OPTIONS
+    if (req.method === 'OPTIONS') {
+      res.status(200).end();
+      return;
+    }
+    
+    next();
+  });
+
+  // === CORS do NestJS como backup ===
   app.enableCors({
-    origin: (origin, callback) => {
-      const allowedOrigins = [
-        'https://app-drop-calc.vercel.app',
-        'https://dropcalc-front.vercel.app',
-        'http://localhost:5173',
-      ];
-
-      // Permite requests sem origin (como mobile apps ou curl)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+    origin: [
+      'https://app-drop-calc.vercel.app',
+      'https://dropcalc-front.vercel.app',
+      'http://localhost:5173',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization,Accept',
     credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204
   });
 
   // === Swagger ===
