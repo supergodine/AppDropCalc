@@ -24,17 +24,54 @@ async function bootstrap() {
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.set('trust proxy', 1);
 
+  // === CORS CONFIGURATION SIMPLIFICADA E CORRIGIDA ===
+  const allowedOrigins = [
+    'https://app-drop-calc.vercel.app',
+    'https://dropcalc-front.vercel.app',
+    'http://localhost:5173',
+  ];
 
-  // === CORS do NestJS como backup ===
+  // Middleware CORS manual para tratamento correto do preflight
+  app.use((req: any, res: any, next: any) => {
+    const origin = req.headers.origin;
+    
+    if (allowedOrigins.includes(origin)) {
+      res.header('Access-Control-Allow-Origin', origin);
+    }
+    
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Cache-Control, X-Requested-With');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Max-Age', '86400'); // Cache preflight por 24h
+
+    // Resposta CORRETA para preflight OPTIONS
+    if (req.method === 'OPTIONS') {
+      res.header('Content-Length', '0');
+      res.header('Content-Type', 'text/plain');
+      res.status(204).send();
+      return;
+    }
+
+    next();
+  });
+
+  // === CORS do NestJS como backup (OPCIONAL - pode remover se quiser usar só o middleware) ===
   app.enableCors({
-    origin: [
-      'https://app-drop-calc.vercel.app',
-      'https://dropcalc-front.vercel.app',
-      'http://localhost:5173',
-    ],
+    origin: (origin, callback) => {
+      // Permitir requests sem origin (como mobile apps ou curl)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Cache-Control'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Cache-Control', 'X-Requested-With'],
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   });
 
   // === Swagger ===
@@ -52,6 +89,7 @@ async function bootstrap() {
   await app.listen(process.env.PORT || 3000, '0.0.0.0');
 
   console.log('🚀 Backend rodando!');
+  console.log('📋 CORS configurado para origins:', allowedOrigins);
 }
 
 bootstrap();
