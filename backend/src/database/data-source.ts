@@ -14,7 +14,9 @@ export const AppDataSource = new DataSource({
 
   // ==== CAMINHO DEFINITIVO (FUNCIONA EM DIST E EM DEV) ====
   entities: [
-    __dirname + '/../modules/**/*.entity.{js,ts}',
+    process.env.NODE_ENV === 'production'
+      ? __dirname + '/../modules/**/*.entity.js'
+      : __dirname + '/../modules/**/*.entity.{js,ts}'
   ],
 
   migrations: [
