@@ -1,15 +1,3 @@
-  // Handler global para OPTIONS (CORS preflight)
-  const expressApp = app.getHttpAdapter().getInstance();
-  expressApp.use((req, res, next) => {
-    if (req.method === 'OPTIONS') {
-      res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-      res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
-      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control');
-      res.header('Access-Control-Allow-Credentials', 'true');
-      return res.sendStatus(200);
-    }
-    next();
-  });
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
