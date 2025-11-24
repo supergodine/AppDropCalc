@@ -59,7 +59,7 @@ async function bootstrap() {
     exposedHeaders: ['Authorization'],
     credentials: true,
     preflightContinue: false,
-    optionsSuccessStatus: 204
+  optionsSuccessStatus: 200
   });
 
   // VALIDATION PIPE
