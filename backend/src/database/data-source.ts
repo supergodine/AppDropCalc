@@ -14,9 +14,10 @@ export const AppDataSource = new DataSource({
 
   // ==== CAMINHO DEFINITIVO (FUNCIONA EM DIST E EM DEV) ====
   entities: [
-    process.env.NODE_ENV === 'production'
-      ? __dirname + '/../modules/**/*.entity.js'
-      : __dirname + '/../modules/**/*.entity.{js,ts}'
+    require('../modules/users/entities/user.entity').User,
+    require('../modules/calculations/entities/calculation.entity').Calculation,
+    require('../modules/presets/entities/preset-platform.entity').PresetPlatform,
+    require('../modules/presets/entities/gateway.entity').Gateway,
   ],
 
   migrations: [
