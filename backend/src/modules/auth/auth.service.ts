@@ -107,34 +107,33 @@ export class AuthService {
    * Validar credenciais para login local
    */
   async validateUser(email: string, password: string): Promise<User | null> {
-    console.log('🔍 Validando usuário:', email);
-    
-    const user = await this.userRepository.findOne({
-      where: { email },
-    });
+    try {
+      console.log('🔍 Validando usuário:', email);
+      const user = await this.userRepository.findOne({ where: { email } });
 
-    console.log('👤 Usuário encontrado:', user ? 'Sim' : 'Não');
+      if (!user) {
+        console.warn('Usuário não encontrado:', email);
+        return null;
+      }
+      if (!user.passwordHash) {
+        console.warn('Usuário sem senha cadastrada:', email);
+        return null;
+      }
 
-    if (!user || !user.passwordHash) {
-      console.log('❌ Usuário não encontrado ou sem senha');
-      return null;
+      const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+      if (!isPasswordValid) {
+        console.warn('Senha inválida para usuário:', email);
+        return null;
+      }
+
+      // Atualizar último login
+      await this.userRepository.update(user.id, { lastLoginAt: new Date() });
+      console.log('✅ Login validado com sucesso para:', email);
+      return user;
+    } catch (error) {
+      console.error('Erro ao validar usuário:', error);
+      throw new Error('Erro interno na validação de login');
     }
-
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-    console.log('🔑 Senha válida:', isPasswordValid);
-    
-    if (!isPasswordValid) {
-      console.log('❌ Senha inválida');
-      return null;
-    }
-
-    // Atualizar último login
-    await this.userRepository.update(user.id, {
-      lastLoginAt: new Date(),
-    });
-
-    console.log('✅ Login validado com sucesso');
-    return user;
   }
 
   /**
