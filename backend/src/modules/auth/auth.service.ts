@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import {
   Injectable,
@@ -11,11 +12,41 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import { User, UserRole, UserPlan, UserStatus } from '../users/entities/user.entity';
+import { MailService } from './mail.service';
 import { SignUpDto } from './dto/signup.dto';
 import { AuthResponseDto, UserResponseDto } from './dto/auth-response.dto';
 
 @Injectable()
 export class AuthService {
+  /**
+   * Solicitar recuperação de senha (não vaza existência de e-mail)
+   */
+  async requestPasswordReset(email: string): Promise<void> {
+    try {
+      const user = await this.userRepository.findOne({ where: { email } });
+      if (user) {
+        // Gerar token seguro
+        const token = crypto.randomBytes(32).toString('hex');
+        user.passwordResetToken = token;
+        user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1h
+        await this.userRepository.save(user);
+        // Enviar e-mail (simular envio se falhar)
+        try {
+          await this.mailService.sendPasswordRecovery(email, token);
+          console.log(`[requestPasswordReset] Token gerado e e-mail enviado para: ${email}`);
+        } catch (mailErr) {
+          console.error(`[requestPasswordReset] Falha ao enviar e-mail:`, mailErr);
+        }
+      } else {
+        // Log interno, mas não vaza para o cliente
+        console.log(`[requestPasswordReset] E-mail não cadastrado: ${email}`);
+      }
+    } catch (err) {
+      // Log interno
+      console.error(`[requestPasswordReset] Erro interno:`, err, { email });
+    }
+    // Sempre retorna void para controller responder mensagem genérica
+  }
   /**
    * Resetar senha usando token de recuperação
    */
@@ -60,6 +91,7 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   /**
