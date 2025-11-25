@@ -29,7 +29,8 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'https://app-drop-calc.vercel.app',
-      'http://localhost:5173'
+      'http://localhost:5173',
+      'https://dropcalc-backend-production.up.railway.app'
     ],
     methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
     allowedHeaders: [
