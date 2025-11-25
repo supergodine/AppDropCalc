@@ -45,24 +45,6 @@ async function bootstrap() {
     optionsSuccessStatus: 204,
   });
 
-  // Handler explícito para OPTIONS (preflight)
-  app.use((req, res, next) => {
-    if (req.method === 'OPTIONS') {
-      // Permitir apenas origens conhecidas
-      const allowedOrigins = [
-        'https://app-drop-calc.vercel.app',
-        'http://localhost:5173'
-      ];
-      const origin = req.headers.origin;
-      if (allowedOrigins.includes(origin)) {
-        res.header('Access-Control-Allow-Origin', origin);
-      }
-      res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Origin, X-Requested-With');
-      return res.sendStatus(204);
-    }
-    next();
-  });
 
   // Log detalhado para debug de CORS/preflight
   app.use((req, _, next) => {
