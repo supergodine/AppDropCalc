@@ -3,7 +3,8 @@ console.log('🔥 Testando comunicação com Railway...');
 
 const testAPI = async () => {
     try {
-        const response = await fetch('https://appdropcalc-production.up.railway.app/calc/platforms');
+    const response = await fetch('https://appdropcalc.onrender.com/calc/platforms');
+    // const response = await fetch('https://appdropcalc-production.up.railway.app/calc/platforms'); // antigo Railway
         console.log('✅ Status:', response.status);
         
         if (response.ok) {

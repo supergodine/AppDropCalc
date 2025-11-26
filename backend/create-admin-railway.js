@@ -1,7 +1,8 @@
 const axios = require('axios');
 
 async function createAdminViaAPI() {
-  const BASE_URL = 'https://appdropcalc-production.up.railway.app';
+  const BASE_URL = 'https://appdropcalc.onrender.com';
+  // const BASE_URL = 'https://appdropcalc-production.up.railway.app'; // antigo Railway
   
   try {
     console.log('🔍 Tentando criar usuário admin via API...');
