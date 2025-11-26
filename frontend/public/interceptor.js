@@ -60,9 +60,10 @@
             (finalUrl.includes('vercel.app:') && finalUrl.includes('/auth/'))) {
             console.warn('🚨 XHR URL PROBLEMÁTICA:', finalUrl);
             finalUrl = finalUrl
-                .replace(/http:\/\/.*?:3002/g, 'https://appdropcalc-production.up.railway.app')
-                .replace(/http:\/\/localhost:\d+/g, 'https://appdropcalc-production.up.railway.app')
-                .replace(/http:\/\/.*\.vercel\.app:\d+/g, 'https://appdropcalc-production.up.railway.app');
+                .replace(/http:\/\/.*?:3002/g, 'https://appdropcalc.onrender.com')
+                .replace(/http:\/\/localhost:\d+/g, 'https://appdropcalc.onrender.com')
+                .replace(/http:\/\/.*\.vercel\.app:\d+/g, 'https://appdropcalc.onrender.com');
+// .replace(/http:\/\/.*?:3002/g, 'https://appdropcalc-production.up.railway.app') // antigo Railway
             console.log('✅ XHR CORRIGIDA:', finalUrl);
         }
         

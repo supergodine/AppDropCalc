@@ -4,7 +4,8 @@ export const API_CONFIG = {
   getBaseURL(): string {
     // SEMPRE FORÇAR RAILWAY HTTPS - NUNCA LOCALHOST
     console.log('🔴 FORÇANDO SEMPRE RAILWAY HTTPS - NUNCA LOCALHOST');
-    return 'https://appdropcalc-production.up.railway.app';
+  return 'https://appdropcalc.onrender.com';
+  // return 'https://appdropcalc-production.up.railway.app'; // antigo Railway
     
     // CÓDIGO COMENTADO - NÃO USAR LOCALHOST
     /*
