@@ -6,8 +6,8 @@
   "description": "DropCalc - Frontend da Calculadora de Precificacao para Dropshipping",
   "scripts": {
     "dev": "vite",
-  "build": "vite build",
-  "postinstall": "npm install vite"
+    "build": "vite build",
+    "postinstall": "npm install vite",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "type-check": "tsc --noEmit"
