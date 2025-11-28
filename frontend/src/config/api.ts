@@ -2,27 +2,8 @@
 export const API_CONFIG = {
   // URL base da API
   getBaseURL(): string {
-    // SEMPRE FORÇAR RAILWAY HTTPS - NUNCA LOCALHOST
-    console.log('🔴 FORÇANDO SEMPRE RAILWAY HTTPS - NUNCA LOCALHOST');
-  return 'https://appdropcalc.onrender.com';
-  // return 'https://appdropcalc.onrender.com'; // Render
-    
-    // CÓDIGO COMENTADO - NÃO USAR LOCALHOST
-    /*
-    const isProduction = window.location.hostname !== 'localhost' && 
-                        window.location.hostname !== '127.0.0.1' &&
-                        !window.location.hostname.includes('localhost');
-    
-    // Em desenvolvimento: localhost
-    if (!isProduction) {
-      console.log('🟡 AMBIENTE: DESENVOLVIMENTO - usando localhost:3001');
-      return 'http://localhost:3001';
-    }
-    
-    // EM PRODUÇÃO: SEMPRE RAILWAY HTTPS - NUNCA VERCEL COM PORTA
-    console.log('🟢 AMBIENTE: PRODUÇÃO - forçando Railway HTTPS');
-  return 'https://appdropcalc.onrender.com';
-    */
+    // Sempre usar variável de ambiente ou fallback para Render
+    return import.meta.env.VITE_API_URL || 'https://appdropcalc.onrender.com';
   },
 
   // URLs específicas da API
@@ -68,27 +49,10 @@ export const API_CONFIG = {
 };
 
 // Log da configuração para debug
-console.log('🔧 API_CONFIG INICIALIZADO (SEMPRE RAILWAY):', {
+console.log('🔧 API_CONFIG INICIALIZADO:', {
   hostname: window.location.hostname,
-  forceProduction: true,
   baseURL: API_CONFIG.getBaseURL(),
   authSignup: API_CONFIG.auth.signup
 });
 
-// VALIDAÇÃO EXTRA: Verificar se há URLs problemáticas
-const validateUrls = () => {
-  const problematicPatterns = [':3002', 'vercel.app:3002', 'localhost:', ':3001', ':3000'];
-  const urls = [API_CONFIG.auth.signup, API_CONFIG.auth.login];
-  
-  urls.forEach(url => {
-    problematicPatterns.forEach(pattern => {
-      if (url.includes(pattern)) {
-        console.error('🚨 URL PROBLEMÁTICA DETECTADA:', url);
-        console.error('🚨 PADRÃO PROBLEMÁTICO:', pattern);
-        console.error('🚨 DEVE SER SEMPRE RAILWAY HTTPS!');
-      }
-    });
-  });
-};
-
-validateUrls();
+// ...existing code...
