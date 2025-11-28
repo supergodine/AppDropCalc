@@ -1,5 +1,5 @@
-// Teste de comunicação com o backend Railway
-console.log('🔥 Testando comunicação com Railway...');
+// Teste de comunicação com o backend Render
+console.log('🔥 Testando comunicação com Render...');
 
 const testAPI = async () => {
     try {
@@ -12,7 +12,7 @@ const testAPI = async () => {
             console.log('✅ Dados recebidos:', data);
             document.body.innerHTML = `
                 <h1>✅ SUCESSO!</h1>
-                <p>Backend Railway respondeu corretamente!</p>
+                <p>Backend Render respondeu corretamente!</p>
                 <p>Status: ${response.status}</p>
                 <p>Endpoints funcionando: /calc/platforms</p>
                 <h3>Plataformas disponíveis:</h3>
