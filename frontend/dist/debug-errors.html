@@ -110,7 +110,7 @@ Desenvolvimento: ${window.location.hostname === 'localhost'}
                 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                     return 'http://localhost:3001';
                 }
-                return 'https://appdropcalc-production.up.railway.app';
+                return 'https://appdropcalc.onrender.com';
             },
             get auth() {
                 const base = this.getBaseURL();
