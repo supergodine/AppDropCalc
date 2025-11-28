@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "type": "module",
   "description": "DropCalc - Frontend da Calculadora de Precificacao para Dropshipping",
-
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -12,7 +11,6 @@
     "preview": "vite preview",
     "type-check": "tsc --noEmit"
   },
-
   "dependencies": {
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
@@ -36,11 +34,9 @@
     "react-router-dom": "^6.30.1",
     "react-select": "^5.7.7",
     "recharts": "^2.8.0",
-    "sqlite3": "^5.1.7",
     "tailwind-merge": "^1.14.0",
     "zod": "^4.1.12"
   },
-
   "devDependencies": {
     "@types/js-cookie": "^3.0.5",
     "@types/react": "^18.3.26",
