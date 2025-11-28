@@ -21,14 +21,19 @@ async function bootstrap() {
   await testDatabaseConnectionAndMigrate();
   const app = await NestFactory.create(AppModule);
 
-  // TRUST PROXY - necessário no Railway
+  // TRUST PROXY - necessário no Render
   app.getHttpAdapter().getInstance().set('trust proxy', 1);
 
   // === CORS CONFIGURATION CORRIGIDA ===
   const allowedOrigins = [
     'https://app-drop-calc.vercel.app',
-    'https://dropcalc-front.vercel.app', 
+    'https://dropcalc-front.vercel.app',
     'http://localhost:5173',
+    'https://appdropcalc-backend.onrender.com',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:4200',
+    'http://localhost:3333'
   ];
 
   // HABILITAR CORS DO NESTJS (PRINCIPAL)

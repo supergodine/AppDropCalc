@@ -4,6 +4,7 @@ const core_1 = require("@nestjs/core");
 const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
 const data_source_1 = require("./database/data-source");
+const common_1 = require("@nestjs/common");
 async function testDatabaseConnectionAndMigrate() {
     try {
         await data_source_1.AppDataSource.initialize();
@@ -20,37 +21,45 @@ async function testDatabaseConnectionAndMigrate() {
 async function bootstrap() {
     await testDatabaseConnectionAndMigrate();
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
-    const expressApp = app.getHttpAdapter().getInstance();
-    expressApp.set('trust proxy', 1);
-    app.use((req, res, next) => {
-        const allowedOrigins = [
-            'https://app-drop-calc.vercel.app',
-            'https://dropcalc-front.vercel.app',
-            'http://localhost:5173',
-        ];
-        const origin = req.headers.origin;
-        if (allowedOrigins.includes(origin)) {
-            res.header('Access-Control-Allow-Origin', origin);
-        }
-        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Cache-Control');
-        res.header('Access-Control-Allow-Credentials', 'true');
-        if (req.method === 'OPTIONS') {
-            res.status(200).end();
-            return;
-        }
-        next();
-    });
+    app.getHttpAdapter().getInstance().set('trust proxy', 1);
+    const allowedOrigins = [
+        'https://app-drop-calc.vercel.app',
+        'https://dropcalc-front.vercel.app',
+        'http://localhost:5173',
+    ];
     app.enableCors({
-        origin: [
-            'https://app-drop-calc.vercel.app',
-            'https://dropcalc-front.vercel.app',
-            'http://localhost:5173',
+        origin: function (origin, callback) {
+            if (!origin)
+                return callback(null, true);
+            if (allowedOrigins.indexOf(origin) !== -1) {
+                callback(null, true);
+            }
+            else {
+                console.log('❌ Blocked by CORS:', origin);
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: [
+            'Origin',
+            'X-Requested-With',
+            'Content-Type',
+            'Accept',
+            'Authorization',
+            'Access-Control-Allow-Headers',
+            'Access-Control-Request-Headers',
+            'Access-Control-Allow-Origin',
+            'Cache-Control'
         ],
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-        allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Cache-Control'],
+        exposedHeaders: ['Authorization'],
         credentials: true,
+        preflightContinue: false,
+        optionsSuccessStatus: 204
     });
+    app.useGlobalPipes(new common_1.ValidationPipe({
+        whitelist: true,
+        transform: true,
+    }));
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Calculadora de Preços API')
         .setDescription('API para calculadora de preços de dropshipping')
@@ -59,8 +68,11 @@ async function bootstrap() {
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     swagger_1.SwaggerModule.setup('api/docs', app, document);
-    await app.listen(process.env.PORT || 3000, '0.0.0.0');
-    console.log('🚀 Backend rodando!');
+    const port = process.env.PORT || 3000;
+    await app.listen(port, '0.0.0.0');
+    console.log('🚀 Backend rodando na porta:', port);
+    console.log('📋 CORS configurado para origins:', allowedOrigins);
+    console.log('🔗 Swagger: http://localhost:' + port + '/api/docs');
 }
 bootstrap();
 //# sourceMappingURL=main.js.map
