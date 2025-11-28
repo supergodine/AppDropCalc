@@ -13,15 +13,10 @@ import type {
 } from '../types';
 
 // Usando sempre a variável de ambiente VITE_API_URL
-const API_BASE_URL = 'https://appdropcalc.onrender.com';
-//const API_BASE_URL = 'https://appdropcalc.onrender.com'; // Render
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-// Debug SEMPRE ativo
-console.clear();
-console.log('🔥 API.TS - VERSÃO FORÇADA - API_BASE_URL:', API_BASE_URL);
-console.log('🔥 ENV VITE_API_URL (ignorado):', import.meta.env.VITE_API_URL);
-console.log('🔥 Timestamp:', new Date().toISOString());
-console.log('🔥 URL atual:', window.location.href);
+// Debug: mostrar base da API
+console.log('🔥 API_BASE_URL:', API_BASE_URL);
 
 // Create axios instance
 const api = axios.create({
@@ -53,7 +48,7 @@ api.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-        const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+  const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
           refreshToken,
         });
 

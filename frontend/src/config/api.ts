@@ -2,8 +2,8 @@
 export const API_CONFIG = {
   // URL base da API
   getBaseURL(): string {
-    // Sempre usar variável de ambiente ou fallback para Render
-    return import.meta.env.VITE_API_URL || 'https://appdropcalc.onrender.com';
+    // Sempre usar variável de ambiente VITE_API_URL, fallback correto
+    return import.meta.env.VITE_API_URL || 'https://dropcalc-backend.onrender.com';
   },
 
   // URLs específicas da API
