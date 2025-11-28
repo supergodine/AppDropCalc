@@ -13,7 +13,7 @@ const Debug: React.FC = () => {
   const [results, setResults] = useState<TestResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://appdropcalc-production.up.railway.app';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://appdropcalc.onrender.com';
 
   const updateResult = (testName: string, status: 'success' | 'error', message: string, details?: any) => {
     setResults(prev => prev.map(result => 

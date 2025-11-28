@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const API_BASE = 'https://appdropcalc.onrender.com/api';
-// const API_BASE = 'https://appdropcalc-production.up.railway.app/api'; // antigo Railway
+// const API_BASE = 'https://appdropcalc.onrender.com/api'; // Render
 
 function App() {
   const [formData, setFormData] = useState({

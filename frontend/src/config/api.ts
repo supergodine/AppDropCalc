@@ -5,7 +5,7 @@ export const API_CONFIG = {
     // SEMPRE FORÇAR RAILWAY HTTPS - NUNCA LOCALHOST
     console.log('🔴 FORÇANDO SEMPRE RAILWAY HTTPS - NUNCA LOCALHOST');
   return 'https://appdropcalc.onrender.com';
-  // return 'https://appdropcalc-production.up.railway.app'; // antigo Railway
+  // return 'https://appdropcalc.onrender.com'; // Render
     
     // CÓDIGO COMENTADO - NÃO USAR LOCALHOST
     /*
@@ -21,7 +21,7 @@ export const API_CONFIG = {
     
     // EM PRODUÇÃO: SEMPRE RAILWAY HTTPS - NUNCA VERCEL COM PORTA
     console.log('🟢 AMBIENTE: PRODUÇÃO - forçando Railway HTTPS');
-    return 'https://appdropcalc-production.up.railway.app';
+  return 'https://appdropcalc.onrender.com';
     */
   },
 
