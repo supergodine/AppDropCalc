@@ -1,15 +1,15 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
+  "installCommand": "cd frontend && npm install",
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/dist",
   "framework": "vite",
   "env": {
-  "VITE_API_URL": "https://dropcalc-backend.onrender.com"
+    "VITE_API_URL": "https://dropcalc-backend.onrender.com"
   },
   "build": {
     "env": {
-  "VITE_API_URL": "https://dropcalc-backend.onrender.com"
+      "VITE_API_URL": "https://dropcalc-backend.onrender.com"
     }
   },
   "rewrites": [
