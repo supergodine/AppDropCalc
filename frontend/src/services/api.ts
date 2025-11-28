@@ -12,7 +12,7 @@ import type {
   CalculationResult,
 } from '../types';
 
-// SOLUÇÃO DEFINITIVA - FORÇA URL DO RAILWAY
+// Usando sempre a variável de ambiente VITE_API_URL
 const API_BASE_URL = 'https://appdropcalc.onrender.com';
 //const API_BASE_URL = 'https://appdropcalc.onrender.com'; // Render
 

@@ -5,11 +5,11 @@
   "installCommand": "npm install",
   "framework": "vite",
   "env": {
-    "VITE_API_URL": "https://dropcalc-backend-production.up.railway.app"
+  "VITE_API_URL": "https://dropcalc-backend.onrender.com"
   },
   "build": {
     "env": {
-      "VITE_API_URL": "https://dropcalc-backend-production.up.railway.app"
+  "VITE_API_URL": "https://dropcalc-backend.onrender.com"
     }
   },
   "rewrites": [
