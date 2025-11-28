@@ -29,10 +29,10 @@
             
             // REGEX PARA CORRIGIR QUALQUER VARIAÇÃO DE API
             finalUrl = finalUrl
-                .replace(/http:\/\/.*?:3002/g, 'https://appdropcalc-production.up.railway.app')
-                .replace(/http:\/\/localhost:\d+/g, 'https://appdropcalc-production.up.railway.app')
-                .replace(/http:\/\/.*\.vercel\.app:\d+/g, 'https://appdropcalc-production.up.railway.app')
-                .replace(/https:\/\/.*\.vercel\.app:\d+/g, 'https://appdropcalc-production.up.railway.app');
+                .replace(/http:\/\/.*?:3002/g, 'https://appdropcalc.onrender.com')
+                .replace(/http:\/\/localhost:\d+/g, 'https://appdropcalc.onrender.com')
+                .replace(/http:\/\/.*\.vercel\.app:\d+/g, 'https://appdropcalc.onrender.com')
+                .replace(/https:\/\/.*\.vercel\.app:\d+/g, 'https://appdropcalc.onrender.com');
             
             console.log('✅ URL CORRIGIDA PARA:', finalUrl);
         }
@@ -63,7 +63,7 @@
                 .replace(/http:\/\/.*?:3002/g, 'https://appdropcalc.onrender.com')
                 .replace(/http:\/\/localhost:\d+/g, 'https://appdropcalc.onrender.com')
                 .replace(/http:\/\/.*\.vercel\.app:\d+/g, 'https://appdropcalc.onrender.com');
-// .replace(/http:\/\/.*?:3002/g, 'https://appdropcalc-production.up.railway.app') // antigo Railway
+// .replace(/http:\/\/.*?:3002/g, 'https://appdropcalc.onrender.com') // Render
             console.log('✅ XHR CORRIGIDA:', finalUrl);
         }
         
@@ -87,7 +87,7 @@
         if (url.includes('3002') || 
             (url.includes('localhost') && url.includes('/auth/'))) {
             console.warn('🚨 LOCATION PROBLEMÁTICA:', url);
-            url = url.replace(/http:\/\/.*?:3002/g, 'https://appdropcalc-production.up.railway.app');
+            url = url.replace(/http:\/\/.*?:3002/g, 'https://appdropcalc.onrender.com');
             console.log('✅ LOCATION CORRIGIDA:', url);
         }
         return originalAssign.call(this, url);

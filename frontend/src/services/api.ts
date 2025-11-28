@@ -14,7 +14,7 @@ import type {
 
 // SOLUÇÃO DEFINITIVA - FORÇA URL DO RAILWAY
 const API_BASE_URL = 'https://appdropcalc.onrender.com';
-//const API_BASE_URL = 'https://appdropcalc-production.up.railway.app'; // antigo Railway
+//const API_BASE_URL = 'https://appdropcalc.onrender.com'; // Render
 
 // Debug SEMPRE ativo
 console.clear();
