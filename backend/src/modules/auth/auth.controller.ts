@@ -63,8 +63,15 @@ export class AuthController {
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: SignUpDto })
-  async signUp(@Body() signUpDto: SignUpDto): Promise<AuthResponseDto> {
-    return this.authService.signUp(signUpDto);
+  async signUp(@Body() signUpDto: SignUpDto, @Res() res: Response) {
+    console.log('REQ RECEBIDA: POST /auth/signup', signUpDto);
+    try {
+      const result = await this.authService.signUp(signUpDto);
+      return res.status(201).json(result || { success: true });
+    } catch (error) {
+      console.error('❌ Erro no signup:', error);
+      return res.status(400).json({ success: false, message: error.message || 'Erro ao criar conta' });
+    }
   }
 
   @Post('login')
@@ -81,17 +88,15 @@ export class AuthController {
     description: 'Credenciais inválidas',
   })
   @ApiBody({ type: LoginDto })
-  async login(@Request() req): Promise<AuthResponseDto> {
-    console.log('🚀 Login controller chamado');
-    console.log('📝 Dados do usuário:', req.user);
-    
+  async login(@Request() req, @Res() res: Response) {
+    console.log('REQ RECEBIDA: POST /auth/login', req.body);
     try {
       const result = await this.authService.login(req.user);
       console.log('✅ Login service retornou:', result);
-      return result;
+      return res.status(200).json(result || { success: true });
     } catch (error) {
       console.error('❌ Erro no login service:', error);
-      throw error;
+      return res.status(401).json({ success: false, message: error.message || 'Credenciais inválidas' });
     }
   }
 
@@ -192,8 +197,8 @@ export class AuthController {
   }
 
   private getFrontendURL(req?: any): string {
-    // Usar a URL do frontend no Vercel
-    return 'https://app-drop-calc-matcqzw7v.vercel.app';
+    // Usar variável de ambiente FRONTEND_URL
+    return process.env.FRONTEND_URL || 'https://app-drop-calc.vercel.app';
   }
   */
 
@@ -209,11 +214,12 @@ export class AuthController {
     status: 401,
     description: 'Token inválido ou expirado',
   })
-  async getProfile(@Request() req) {
-    return {
-      user: req.user,
-      message: 'Perfil carregado com sucesso',
-    };
+  async getProfile(@Request() req, @Res() res: Response) {
+    console.log('REQ RECEBIDA: GET /auth/profile');
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Token inválido ou expirado' });
+    }
+    return res.status(200).json({ user: req.user, message: 'Perfil carregado com sucesso' });
   }
 
   @Post('refresh')
@@ -225,8 +231,15 @@ export class AuthController {
     description: 'Token renovado com sucesso',
     type: AuthResponseDto,
   })
-  async refresh(@Request() req): Promise<AuthResponseDto> {
-    return this.authService.refresh(req.user);
+  async refresh(@Request() req, @Res() res: Response) {
+    console.log('REQ RECEBIDA: POST /auth/refresh');
+    try {
+      const result = await this.authService.refresh(req.user);
+      return res.status(200).json(result || { success: true });
+    } catch (error) {
+      console.error('❌ Erro no refresh:', error);
+      return res.status(401).json({ success: false, message: error.message || 'Erro ao renovar token' });
+    }
   }
 
   @Post('logout')
@@ -238,11 +251,9 @@ export class AuthController {
     status: 200,
     description: 'Logout realizado com sucesso',
   })
-  async logout(@Request() req) {
-    return {
-      message: 'Logout realizado com sucesso',
-      timestamp: new Date().toISOString(),
-    };
+  async logout(@Request() req, @Res() res: Response) {
+  console.log('REQ RECEBIDA: POST /auth/logout');
+  return res.status(200).json({ message: 'Logout realizado com sucesso', timestamp: new Date().toISOString(), success: true });
   }
 
   @Post('create-admin')
