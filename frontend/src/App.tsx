@@ -20,6 +20,7 @@ function App() {
     NODE_ENV: import.meta.env.MODE,
     location: window.location.href
   });
+    console.log('🚀 Deploy trigger: Alteração realizada em 29/11/2025 para forçar deploy automático no Vercel.');
   // Log do commit (se disponível)
   if (import.meta.env.VITE_COMMIT) {
     console.log('🔎 Commit atual:', import.meta.env.VITE_COMMIT);
