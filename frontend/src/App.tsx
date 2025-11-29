@@ -13,6 +13,17 @@ interface Gateway {
 
 function App() {
   const API_BASE = API_CONFIG.getBaseURL();
+  // Log de ambiente e branch
+  console.log('🔎 Ambiente VITE:', {
+    VITE_API_URL: import.meta.env.VITE_API_URL,
+    VITE_BRANCH: import.meta.env.VITE_BRANCH,
+    NODE_ENV: import.meta.env.MODE,
+    location: window.location.href
+  });
+  // Log do commit (se disponível)
+  if (import.meta.env.VITE_COMMIT) {
+    console.log('🔎 Commit atual:', import.meta.env.VITE_COMMIT);
+  }
   
   const [formData, setFormData] = useState({
     custoProduto: 100,
@@ -67,7 +78,11 @@ function App() {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+      console.log('🔄 Iniciando carregamento de dados das APIs:', {
+        currencies: `${API_BASE}/currencies`,
+        platforms: `${API_BASE}/presets/platforms`,
+        gateways: `${API_BASE}/presets/gateways`
+      });
       // Carregar todas as APIs em paralelo
       const [currenciesRes, platformsRes, gatewaysRes] = await Promise.all([
         fetch(`${API_BASE}/currencies`),
@@ -82,8 +97,9 @@ function App() {
       setCurrencies(currenciesData);
       setPlatforms(platformsData);
       setGateways(gatewaysData);
+      console.log('✅ Dados das APIs carregados com sucesso');
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
+      console.error('❌ Erro ao carregar dados das APIs:', error);
       // Fallback com dados padrão se API falhar
       setCurrencies({
         USD: 'US Dollar',
@@ -109,25 +125,37 @@ function App() {
         'stone': { nome: 'Stone', taxa: 3.99 },
         'cielo': { nome: 'Cielo', taxa: 4.5 }
       });
+      console.warn('⚠️ Usando dados padrão devido a erro nas APIs');
     } finally {
       setLoading(false);
+      console.log('🔄 Carregamento de dados finalizado');
     }
   };
 
   const fetchExchangeRate = async () => {
     try {
+      console.log('🔄 Buscando taxa de câmbio:', {
+        from: formData.moedaOrigem,
+        to: formData.moedaVenda,
+        url: `${API_BASE}/exchange-rate?from=${formData.moedaOrigem}&to=${formData.moedaVenda}`
+      });
       const response = await fetch(`${API_BASE}/exchange-rate?from=${formData.moedaOrigem}&to=${formData.moedaVenda}`);
       const data = await response.json();
-      console.log('Taxa de câmbio recebida:', data);
+      console.log('✅ Taxa de câmbio recebida:', data);
       setExchangeRate(data.rate); // Manter precisão completa
     } catch (error) {
-      console.error('Erro ao obter taxa de câmbio:', error);
+      console.error('❌ Erro ao obter taxa de câmbio:', error);
       setExchangeRate(5.5); // Fallback rate
+      console.warn('⚠️ Usando taxa de câmbio padrão 5.5');
     }
   };
 
   const calculatePrice = async () => {
     try {
+      console.log('🔄 Iniciando cálculo de preço:', {
+        url: `${API_BASE}/calc`,
+        payload: formData
+      });
       const response = await fetch(`${API_BASE}/calc`, {
         method: 'POST',
         headers: {
@@ -135,12 +163,11 @@ function App() {
         },
         body: JSON.stringify(formData)
       });
-      
       const data = await response.json();
-      console.log('Resultado do cálculo:', data);
+      console.log('✅ Resultado do cálculo:', data);
       setResult(data); // Usar dados com precisão completa
     } catch (error) {
-      console.error('Erro no cálculo:', error);
+      console.error('❌ Erro no cálculo:', error);
     }
   };
 
