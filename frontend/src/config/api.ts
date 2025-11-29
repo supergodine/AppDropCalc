@@ -3,6 +3,8 @@
 // Configuração centralizada de URLs da API
 const BASE_URL = "https://appdropcalc.onrender.com";
 
+// trigger: deploy Vercel 2025-11-29
+
 export const AUTH_URLS = {
   login: `${BASE_URL}/auth/login`,
   signup: `${BASE_URL}/auth/signup`,
