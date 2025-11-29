@@ -24,58 +24,37 @@ async function bootstrap() {
   // TRUST PROXY - necessário no Render/Railway
   app.getHttpAdapter().getInstance().set('trust proxy', 1);
 
-  // CORS robusto para frontend Vercel e localhost
+  // CORS: PRIMEIRO MIDDLEWARE, SEM DUPLICIDADE
   app.enableCors({
-    origin: [
-      'https://app-drop-calc.vercel.app',
-      'http://localhost:5173',
-      'https://dropcalc-front.vercel.app',
-      'https://appdropcalc-backend.onrender.com',
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-      'http://localhost:4200',
-      'http://localhost:3333'
-    ],
-    methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'Accept',
-      'Origin',
-      'X-Requested-With',
-      '*'
-    ],
+    origin: 'https://app-drop-calc.vercel.app',
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     preflightContinue: false,
-    optionsSuccessStatus: 204
+    optionsSuccessStatus: 200
   });
 
-  // Handler explícito para OPTIONS (preflight)
+  // Handler global para OPTIONS (preflight) - SEM corpo vazio
   app.use((req, res, next) => {
     if (req.method === 'OPTIONS') {
-      // Permitir apenas origens conhecidas
-      const allowedOrigins = [
-        'https://app-drop-calc.vercel.app',
-        'http://localhost:5173'
-      ];
-      const origin = req.headers.origin;
-      if (allowedOrigins.includes(origin)) {
-        res.header('Access-Control-Allow-Origin', origin);
-      }
-      res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Origin, X-Requested-With');
-      return res.sendStatus(204);
+      res.header('Access-Control-Allow-Origin', 'https://app-drop-calc.vercel.app');
+      res.header('Access-Control-Allow-Credentials', 'true');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+      console.log('OPTIONS preflight:', req.url, req.headers);
+      return res.status(200).json({ ok: true });
     }
     next();
   });
 
-  // Log detalhado para debug de CORS/preflight
-  app.use((req, _, next) => {
-    console.log('CORS DEBUG:', {
+  // Log detalhado de requisição para debug Render
+  app.use((req, res, next) => {
+    console.log('REQ DEBUG:', {
       method: req.method,
+      url: req.url,
       origin: req.headers.origin,
-      path: req.url,
-      headers: req.headers
+      headers: req.headers,
+      time: new Date().toISOString()
     });
     next();
   });
