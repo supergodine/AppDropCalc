@@ -1,3 +1,5 @@
+
+// Deploy Vercel forçado em 28/11/2025
 import React, { useState, useEffect } from 'react';
 
 const API_BASE = import.meta.env.VITE_API_URL + '/api';
