@@ -39,23 +39,21 @@
     "react-select": "^5.7.7",
     "recharts": "^2.8.0",
     "tailwind-merge": "^1.14.0",
+    "tailwindcss": "^3.3.5",
     "vite": "^7.2.4",
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@types/js-cookie": "^3.0.5",
-    "@types/react": "^18.3.26",
-    "@types/react-dom": "^18.3.7",
-    "@typescript-eslint/eslint-plugin": "^6.9.1",
-    "@typescript-eslint/parser": "^6.9.1",
-    "autoprefixer": "^10.4.22",
-    "eslint": "^8.52.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.4",
-    "postcss": "^8.4.31",
-    "tailwindcss": "^3.4.18",
-    "typescript": "^5.9.3",
-    "vite-plugin-pwa": "^1.2.0",
-    "workbox-window": "^7.3.0"
+  "@types/js-cookie": "^3.0.5",
+  "@types/react": "^18.3.26",
+  "@types/react-dom": "^18.3.7",
+  "@typescript-eslint/eslint-plugin": "^6.9.1",
+  "@typescript-eslint/parser": "^6.9.1",
+  "eslint": "^8.52.0",
+  "eslint-plugin-react-hooks": "^4.6.0",
+  "eslint-plugin-react-refresh": "^0.4.4",
+  "typescript": "^5.9.3",
+  "vite-plugin-pwa": "^1.2.0",
+  "workbox-window": "^7.3.0"
   }
 }
