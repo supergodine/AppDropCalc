@@ -1,49 +1,40 @@
+// Trigger deploy Vercel: 2025-11-29 - commit para garantir uso da VITE_API_URL correta
+// Deploy sem impacto funcional - forçar build Vercel
 // Configuração centralizada de URLs da API
+const BASE_URL = "https://appdropcalc.onrender.com";
+
+export const AUTH_URLS = {
+  login: `${BASE_URL}/auth/login`,
+  signup: `${BASE_URL}/auth/signup`,
+  refresh: `${BASE_URL}/auth/refresh`,
+  logout: `${BASE_URL}/auth/logout`,
+  profile: `${BASE_URL}/auth/profile`,
+};
+
 export const API_CONFIG = {
-  // URL base da API
   getBaseURL(): string {
-    // Sempre usar variável de ambiente VITE_API_URL, fallback correto
-    return import.meta.env.VITE_API_URL || 'https://dropcalc-backend.onrender.com';
+    return BASE_URL;
   },
-
-  // URLs específicas da API
   get auth() {
-    const base = this.getBaseURL();
-    const urls = {
-      login: `${base}/auth/login`,
-      signup: `${base}/auth/signup`,
-      refresh: `${base}/auth/refresh`,
-      logout: `${base}/auth/logout`,
-      profile: `${base}/auth/profile`,
-    };
-    
-    // Log das URLs para debug
-    console.log('🔐 AUTH URLs:', urls);
-    return urls;
+    return AUTH_URLS;
   },
-
   get users() {
-    const base = this.getBaseURL();
     return {
-      profile: `${base}/users/profile`,
-      list: `${base}/users/list`,
+      profile: `${BASE_URL}/users/profile`,
+      list: `${BASE_URL}/users/list`,
     };
   },
-
   get calc() {
-    const base = this.getBaseURL();
     return {
-      calculate: `${base}/calc/calcular`,
-      platforms: `${base}/calc/platforms`,
-      gateways: `${base}/calc/gateways`,
+      calculate: `${BASE_URL}/calc/calcular`,
+      platforms: `${BASE_URL}/calc/platforms`,
+      gateways: `${BASE_URL}/calc/gateways`,
     };
   },
-
   get exchange() {
-    const base = this.getBaseURL();
     return {
-      rate: `${base}/exchange/rate`,
-      currencies: `${base}/exchange/currencies`,
+      rate: `${BASE_URL}/exchange/rate`,
+      currencies: `${BASE_URL}/exchange/currencies`,
     };
   }
 };
