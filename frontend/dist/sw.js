@@ -1,1 +1,103 @@
-if(!self.define){let e,i={};const s=(s,r)=>(s=new URL(s+".js",r).href,i[s]||new Promise(i=>{if("document"in self){const e=document.createElement("script");e.src=s,e.onload=i,document.head.appendChild(e)}else e=s,importScripts(s),i()}).then(()=>{let e=i[s];if(!e)throw new Error(`Module ${s} didn’t register its module`);return e}));self.define=(r,n)=>{const t=e||("document"in self?document.currentScript.src:"")||location.href;if(i[t])return;let l={};const o=e=>s(e,t),c={module:{uri:t},exports:l,require:o};i[t]=Promise.all(r.map(e=>c[e]||o(e))).then(e=>(n(...e),l))}}define(["./workbox-66610c77"],function(e){"use strict";self.skipWaiting(),e.clientsClaim(),e.precacheAndRoute([{url:"test.html",revision:"b13f16fb166274bb2c703154d2c4b221"},{url:"test-config-urls.html",revision:"470b3df26c424701cc8118d588538c10"},{url:"registerSW.js",revision:"1872c500de691dce40960bb85481de07"},{url:"pwa-512x512.png",revision:"f8538a5960065204d8b25a028df16629"},{url:"pwa-192x192.png",revision:"f8538a5960065204d8b25a028df16629"},{url:"interceptor.js",revision:"9d2193342307534842c214354884f68e"},{url:"index.html",revision:"c53cfa979c58b7165590d99f22453b31"},{url:"icon.svg",revision:"f8538a5960065204d8b25a028df16629"},{url:"icon-512x512.svg",revision:"4fe40f70354f241989b90aedaea5becf"},{url:"generate-icons.html",revision:"0b6149f0e284f14edea3cc8710dbc35d"},{url:"debug-login.html",revision:"d41d8cd98f00b204e9800998ecf8427e"},{url:"debug-errors.html",revision:"fc1399d5f831eb12fa9bc480733b7f75"},{url:"clean-storage.html",revision:"213f1f461de03285515c6d6c5511e819"},{url:"assets/vendor-QYCSsVv3-1764378663863.js",revision:null},{url:"assets/ui-B1XHjnLN-1764378663863.js",revision:null},{url:"assets/router-B-Xuc73D-1764378663863.js",revision:null},{url:"assets/index-miTkHfTt-1764378663863.js",revision:null},{url:"assets/index-CWJbnfS9-1764378663863.css",revision:null},{url:"pwa-192x192.png",revision:"f8538a5960065204d8b25a028df16629"},{url:"pwa-512x512.png",revision:"f8538a5960065204d8b25a028df16629"},{url:"manifest.webmanifest",revision:"c90a49f15490e70f413b70a538496f85"}],{}),e.cleanupOutdatedCaches(),e.registerRoute(new e.NavigationRoute(e.createHandlerBoundToURL("index.html"))),e.registerRoute(/^https:\/\/api\.exchangerate-api\.com\//,new e.CacheFirst({cacheName:"exchange-rates",plugins:[new e.ExpirationPlugin({maxEntries:10,maxAgeSeconds:86400})]}),"GET")});
+const CACHE_NAME = 'dropcalc-v1.0.0';
+const urlsToCache = [
+  '/',
+  '/dashboard',
+  '/login',
+  '/settings',
+  '/static/js/bundle.js',
+  '/static/css/main.css',
+  '/icon-192x192.png',
+  '/icon-512x512.png'
+];
+
+// Instalar Service Worker
+self.addEventListener('install', (event) => {
+  console.log('DropCalc PWA: Service Worker instalado');
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log('DropCalc PWA: Cache aberto');
+        return cache.addAll(urlsToCache);
+      })
+      .catch((error) => {
+        console.log('DropCalc PWA: Erro ao cachear:', error);
+      })
+  );
+});
+
+// Interceptar requisições de rede
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // Retorna do cache se disponível
+        if (response) {
+          return response;
+        }
+        
+        // Senão, busca da rede
+        return fetch(event.request)
+          .then((response) => {
+            // Verifica se é uma resposta válida
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+              return response;
+            }
+
+            // Clona a resposta
+            const responseToCache = response.clone();
+
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(event.request, responseToCache);
+              });
+
+            return response;
+          })
+          .catch((error) => {
+            console.log('Fetch failed silently:', error);
+            // Fallback para página offline
+            if (event.request.destination === 'document') {
+              return caches.match('/');
+            }
+            // Para outros recursos, retorna uma resposta vazia
+            return new Response('', { status: 200 });
+          });
+      })
+  );
+});
+
+// Ativar Service Worker
+self.addEventListener('activate', (event) => {
+  console.log('DropCalc PWA: Service Worker ativado');
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('DropCalc PWA: Removendo cache antigo:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
+
+// Push notifications (futuro)
+self.addEventListener('push', (event) => {
+  console.log('DropCalc PWA: Push notification recebida');
+  const options = {
+    body: event.data ? event.data.text() : 'Nova notificação do DropCalc',
+    icon: '/icon-192x192.png',
+    badge: '/icon-72x72.png',
+    vibrate: [100, 50, 100],
+    data: {
+      dateOfArrival: Date.now(),
+      primaryKey: 1
+    }
+  };
+
+  event.waitUntil(
+    self.registration.showNotification('DropCalc', options)
+  );
+});
