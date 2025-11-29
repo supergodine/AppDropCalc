@@ -1,10 +1,6 @@
-import tailwindcss from 'tailwindcss'
-import autoprefixer from 'autoprefixer'
-
-// Updating to ensure compatibility with Vercel and Tailwind
-export default {
+module.exports = {
   plugins: {
-    tailwindcss,
-    autoprefixer,
+    tailwindcss: {},
+    autoprefixer: {},
   },
 }
