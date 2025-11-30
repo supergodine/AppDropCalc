@@ -1,7 +1,8 @@
+// trigger build Vercel 2025-11-29
 // Trigger deploy Vercel: 2025-11-29 - commit para garantir uso da VITE_API_URL correta
 // Deploy sem impacto funcional - forçar build Vercel
 // Configuração centralizada de URLs da API
-const BASE_URL = "https://appdropcalc.onrender.com";
+const BASE_URL = import.meta.env.VITE_API_URL || "https://appdropcalc.onrender.com";
 
 // trigger: deploy Vercel 2025-11-29
 
