@@ -29,7 +29,8 @@ async function bootstrap() {
     'https://app-drop-calc.vercel.app',
     'https://dropcalc-front.vercel.app',
     'http://localhost:5173',
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'https://appdropcalc.onrender.com'
   ];
 
   app.enableCors({
