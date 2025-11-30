@@ -1,0 +1,277 @@
+# Estrutura do Projeto
+
+Raiz do projeto:
+- android/
+- backend/
+- DropCalcApp/
+- frontend/
+- legal/
+- ... (demais arquivos e pastas conforme listagem)
+
+android/: arquivos e configs do app Android
+backend/: API NestJS, banco, configs, scripts
+DropCalcApp/: app híbrido (Cordova/Ionic)
+frontend/: app web React/Vite
+legal/: políticas e termos
+
+---
+
+## backend/src/main.ts
+```typescript
+import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AppModule } from './app.module';
+import { AppDataSource } from './database/data-source';
+import { ValidationPipe } from '@nestjs/common';
+
+async function testDatabaseConnectionAndMigrate() {
+  try {
+    await AppDataSource.initialize();
+    console.log('✅ Conectado ao PostgreSQL com sucesso!');
+    await AppDataSource.runMigrations();
+    console.log('✅ Migrações executadas com sucesso!');
+    await AppDataSource.destroy();
+  } catch (error) {
+    console.error('❌ Falha ao conectar ou migrar o banco:', error);
+    process.exit(1);
+  }
+}
+
+async function bootstrap() {
+  await testDatabaseConnectionAndMigrate();
+  const app = await NestFactory.create(AppModule);
+
+  // TRUST PROXY (necessário em Render / Railway)
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
+
+  // CORS ORIGINS
+  const originsFromEnv = process.env.CORS_ORIGINS;
+
+  const allowedOrigins = originsFromEnv
+    ? originsFromEnv.split(',').map((o) => o.trim())
+    : [
+        'https://app-drop-calc.vercel.app',
+        'https://dropcalc-front.vercel.app',
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://appdropcalc.onrender.com', // ← IMPORTANTE!
+      ];
+
+  console.log('🌐 CORS ORIGINS ATIVADOS:', allowedOrigins);
+
+  app.enableCors({
+    origin: allowedOrigins,
+    credentials: true,
+  });
+
+  // ValidationPipe global
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  // SWAGGER
+  const config = new DocumentBuilder()
+    .setTitle('Calculadora de Preços API')
+    .setDescription('API para calculadora de preços de dropshipping')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
+
+  // Porta do servidor (Render usa variável PORT)
+  const port = process.env.PORT || 3000;
+
+  await app.listen(port, '0.0.0.0');
+
+  console.log(`🚀 Backend rodando na porta: ${port}`);
+  console.log('📘 Swagger:', `http://localhost:${port}/api/docs`);
+}
+
+bootstrap();
+```
+
+---
+
+## backend/.env.production
+```dotenv
+##############################################
+# DATABASE (PostgreSQL Render - PRODUCTION)
+##############################################
+
+DB_HOST=dpg-d4kphmgdl3ps73fk0ci0-a
+DB_PORT=5432
+DB_USERNAME=diego
+DB_PASSWORD=P6XhjDqhdOIgPcTCG7WKJjmjVFYYwr9M
+DB_NAME=appdb_xyim
+DATABASE_URL=postgresql://diego:P6XhjDqhdOIgPcTCG7WKJjmjVFYYwr9M@dpg-d4kphmgdl3ps73fk0ci0-a/appdb_xyim
+DATABASE_URL_EXTERNAL=postgresql://diego:P6XhjDqhdOIgPcTCG7WKJjmjVFYYwr9M@dpg-d4kphmgdl3ps73fk0ci0-a.oregon-postgres.render.com/appdb_xyim
+PSQL_COMMAND=PGPASSWORD=P6XhjDqhdOIgPcTCG7WKJjmjVFYYwr9M psql -h dpg-d4kphmgdl3ps73fk0ci0-a.oregon-postgres.render.com -U diego appdb_xyim
+# --------------------------------------------
+# JWT
+# --------------------------------------------
+JWT_SECRET="b7f8e2c1-4a9d-4e2a-9c3b-8f7d2e1c4a9b!@#2025$%&*"
+JWT_EXPIRATION="7d"
+
+# --------------------------------------------
+# Email (GMAIL) - usado no forgot-password
+# --------------------------------------------
+GMAIL_USER="massuplas@gmail.com"
+GMAIL_PASSWORD="enep rsbt yvjx xpja"
+
+# --------------------------------------------
+# Exchange Rate APIs
+# --------------------------------------------
+EXCHANGE_API_KEY="your-openexchangerates-api-key"
+EXCHANGE_API_BASE_URL="https://openexchangerates.org/api"
+EXCHANGERATE_API_BASE_URL="https://api.exchangerate-api.com/v4"
+
+##############################################
+# Aplicação
+##############################################
+NODE_ENV=production
+BACKEND_URL="https://appdropcalc.onrender.com"
+#BACKEND_URL="https://appdropcalc-production.up.railway.app"  # antigo Railway
+API_PREFIX=api
+
+# --------------------------------------------
+# CORS 
+# --------------------------------------------
+CORS_ORIGIN="https://app-drop-calc.vercel.app"
+
+# --------------------------------------------
+# Rate Limiting
+# --------------------------------------------
+THROTTLE_TTL=60
+THROTTLE_LIMIT=30
+
+# --------------------------------------------
+# Upload
+# --------------------------------------------
+MAX_FILE_SIZE=5242880
+UPLOAD_DEST="./uploads"
+
+# --------------------------------------------
+# Segurança
+# --------------------------------------------
+BCRYPT_ROUNDS=12
+SESSION_SECRET="your-session-secret-change-in-production"
+
+# --------------------------------------------
+# Logging
+# --------------------------------------------
+LOG_LEVEL="info"
+LOG_FILE="logs/dropcalc.log"
+
+# --------------------------------------------
+# Redis (não utilizado, deixar vazio se não tiver)
+```
+
+---
+
+## frontend/src/App.tsx
+```tsx
+import React, { useState, useEffect } from 'react';
+import { API_CONFIG } from './config/api';
+
+interface Platform {
+  nome: string;
+  taxa: number;
+}
+
+interface Gateway {
+  nome: string;
+  taxa: number;
+}
+
+function App() {
+  const API_BASE = API_CONFIG.getBaseURL();
+  // Log de ambiente e branch
+  console.log('🔎 Ambiente VITE:', {
+    VITE_API_URL: import.meta.env.VITE_API_URL,
+    VITE_BRANCH: import.meta.env.VITE_BRANCH,
+    NODE_ENV: import.meta.env.MODE,
+    location: window.location.href
+  });
+    console.log('🚀 Deploy trigger: Alteração realizada em 29/11/2025 para forçar deploy automático no Vercel.');
+  // Log do commit (se disponível)
+  if (import.meta.env.VITE_COMMIT) {
+    console.log('🔎 Commit atual:', import.meta.env.VITE_COMMIT);
+  }
+  
+  const [formData, setFormData] = useState({
+    custoProduto: 100,
+    custosAdicionais: 0,
+    moedaOrigem: 'USD',
+    moedaVenda: 'BRL',
+    plataforma: 'mercado-livre',
+    gateway: 'mercado-pago',
+    margemLucro: 30
+  });
+
+  const [result, setResult] = useState({
+    precoVenda: 0,
+    detalhes: {
+      custoProduto: 0,
+      custosAdicionais: 0,
+      taxaCambio: 0,
+      custoConvertido: 0,
+      taxaPlataforma: 0,
+      taxaGateway: 0,
+      taxaTotal: 0,
+      margemLucro: 0,
+      valorMargemBRL: 0
+    }
+  });
+
+  const [currencies, setCurrencies] = useState<Record<string, string>>({});
+  const [platforms, setPlatforms] = useState<Record<string, Platform>>({});
+  const [gateways, setGateways] = useState<Record<string, Gateway>>({});
+  const [loading, setLoading] = useState(false);
+  const [exchangeRate, setExchangeRate] = useState(0);
+
+  // Carregar dados das APIs ao inicializar
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  // Atualizar taxa de câmbio quando mudar moedas
+  useEffect(() => {
+    if (formData.moedaOrigem && formData.moedaVenda) {
+      fetchExchangeRate();
+    }
+  }, [formData.moedaOrigem, formData.moedaVenda]);
+```
+
+---
+
+## frontend/src/main.tsx
+```tsx
+import ReactDOM from 'react-dom/client'
+import { LanguageProvider } from './contexts/LanguageContext'
+import App from './AppWithAuth'
+import './index.css'
+import './utils/pwa'
+
+console.log('=== main.tsx carregando AppWithAuth com sistema de idiomas ===');
+
+const root = ReactDOM.createRoot(document.getElementById('root')!);
+root.render(
+  <LanguageProvider>
+    <App />
+  </LanguageProvider>
+);
+```
+
+---
+
+(Estrutura completa das pastas e arquivos principais incluída no início do arquivo)
+
+---
+
+Obs: Se precisar de mais arquivos ou trechos, peça pelo nome do arquivo ou pasta.
