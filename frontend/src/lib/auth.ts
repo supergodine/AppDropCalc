@@ -1,4 +1,5 @@
 // trigger deploy Vercel 2025-11-29
+// commit forçar build Vercel
 import { API_CONFIG } from '../config/api';
 import { googleAuthService } from '../services/googleAuth';
 
