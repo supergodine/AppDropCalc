@@ -24,9 +24,16 @@ async function bootstrap() {
   // TRUST PROXY - necessário no Render/Railway
   app.getHttpAdapter().getInstance().set('trust proxy', 1);
 
-  // CORS: PRIMEIRO MIDDLEWARE, SEM DUPLICIDADE
+  // Detecta ambiente local
+  const allowedOrigins = [
+    'https://app-drop-calc.vercel.app',
+    'https://dropcalc-front.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:3000'
+  ];
+
   app.enableCors({
-    origin: 'https://app-drop-calc.vercel.app',
+    origin: allowedOrigins,
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -34,10 +41,13 @@ async function bootstrap() {
     optionsSuccessStatus: 200
   });
 
-  // Handler global para OPTIONS (preflight) - SEM corpo vazio
+  // Handler global para OPTIONS (preflight)
   app.use((req, res, next) => {
     if (req.method === 'OPTIONS') {
-      res.header('Access-Control-Allow-Origin', 'https://app-drop-calc.vercel.app');
+      const origin = req.headers.origin;
+      if (allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+      }
       res.header('Access-Control-Allow-Credentials', 'true');
       res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
       res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
