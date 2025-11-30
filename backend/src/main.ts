@@ -32,7 +32,8 @@ async function bootstrap() {
     'http://localhost:3000',
     'https://appdropcalc.onrender.com'
   ];
-  console.log('DEBUG ORIGINS:', allowedOrigins);
+  // Log detalhado dos origins permitidos para CORS
+  console.log('CORS ORIGINS ATIVADOS:', allowedOrigins);
 
   app.enableCors({
     origin: allowedOrigins,
@@ -96,6 +97,7 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
 
   console.log('🚀 Backend rodando na porta:', port);
+  console.log('CORS ORIGINS ATIVADOS:', allowedOrigins);
   console.log(' Swagger: http://localhost:' + port + '/api/docs');
 }
 
