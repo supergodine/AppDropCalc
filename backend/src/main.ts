@@ -25,13 +25,16 @@ async function bootstrap() {
   app.getHttpAdapter().getInstance().set('trust proxy', 1);
 
   // Detecta ambiente local
-  const allowedOrigins = [
-    'https://app-drop-calc.vercel.app',
-    'https://dropcalc-front.vercel.app',
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'https://appdropcalc.onrender.com'
-  ];
+  const originsFromEnv = process.env.CORS_ORIGINS;
+  const allowedOrigins = originsFromEnv
+    ? originsFromEnv.split(',')
+    : [
+        'https://app-drop-calc.vercel.app',
+        'https://dropcalc-front.vercel.app',
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://appdropcalc.onrender.com',
+      ];
   // Log detalhado dos origins permitidos para CORS
   console.log('CORS ORIGINS ATIVADOS:', allowedOrigins);
 
