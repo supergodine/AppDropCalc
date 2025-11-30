@@ -52,6 +52,15 @@ export class User {
   @Column({ name: 'country', type: 'varchar', length: 5, default: 'BR' })
   country: string; // ISO 3166-1 alpha-2 country code
 
+  @Column({ type: 'varchar', length: 50, default: 'free' })
+  plan: UserPlan;
+
+  @Column({ type: 'varchar', length: 50, default: 'active' })
+  status: UserStatus;
+
+  @Column({ type: 'varchar', length: 20, default: 'user' })
+  role: UserRole;
+
   @Column({ name: 'googleid', type: 'varchar', length: 255, nullable: true })
   googleId?: string;
 
