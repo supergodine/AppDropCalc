@@ -32,6 +32,7 @@ async function bootstrap() {
     'http://localhost:3000',
     'https://appdropcalc.onrender.com'
   ];
+  console.log('DEBUG ORIGINS:', allowedOrigins);
 
   app.enableCors({
     origin: allowedOrigins,
