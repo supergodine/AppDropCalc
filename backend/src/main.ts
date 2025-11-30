@@ -41,48 +41,10 @@ async function bootstrap() {
   app.enableCors({
     origin: allowedOrigins,
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    preflightContinue: false,
-    optionsSuccessStatus: 200
-  });
-
-  // Handler global para OPTIONS (preflight)
-  app.use((req, res, next) => {
-    if (req.method === 'OPTIONS') {
-      const origin = req.headers.origin;
-      if (allowedOrigins.includes(origin)) {
-        res.header('Access-Control-Allow-Origin', origin);
-      }
-      res.header('Access-Control-Allow-Credentials', 'true');
-      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-      console.log('OPTIONS preflight:', req.url, req.headers);
-      return res.status(200).json({ ok: true });
-    }
-    next();
-  });
-
-  // Log detalhado de requisição para debug Render
-  app.use((req, res, next) => {
-    console.log('REQ DEBUG:', {
-      method: req.method,
-      url: req.url,
-      origin: req.headers.origin,
-      headers: req.headers,
-      time: new Date().toISOString()
-    });
-    next();
   });
 
   // ValidationPipe global robusto
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
-
-  // VALIDATION PIPE
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
 
   // === SWAGGER ===
   const config = new DocumentBuilder()
