@@ -46,28 +46,19 @@ export class User {
   @Exclude()
   passwordHash?: string;
 
-  @Column({ type: 'varchar', length: 10, default: 'BRL' })
+  @Column({ name: 'currencydefault', type: 'varchar', length: 10, default: 'BRL' })
   currencyDefault: string; // ISO 4217 currency code
 
-  @Column({ type: 'varchar', length: 5, default: 'BR' })
+  @Column({ name: 'country', type: 'varchar', length: 5, default: 'BR' })
   country: string; // ISO 3166-1 alpha-2 country code
 
-  @Column({ type: 'varchar', length: 50, default: 'free' })
-  plan: UserPlan;
-
-  @Column({ type: 'varchar', length: 50, default: 'active' })
-  status: UserStatus;
-
-  @Column({ type: 'varchar', length: 20, default: 'user' })
-  role: UserRole;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ name: 'googleid', type: 'varchar', length: 255, nullable: true })
   googleId?: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ name: 'avatar', type: 'varchar', length: 255, nullable: true })
   avatar?: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
+  @Column({ name: 'phone', type: 'varchar', length: 20, nullable: true })
   phone?: string;
 
   @Column({ type: 'text', nullable: true })
