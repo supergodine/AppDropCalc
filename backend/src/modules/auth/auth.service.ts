@@ -99,40 +99,37 @@ export class AuthService {
    */
   async signUp(signUpDto: SignUpDto): Promise<AuthResponseDto> {
     const { email, password, ...userData } = signUpDto;
-
-    // Verificar se email já existe
-    const existingUser = await this.userRepository.findOne({
-      where: { email },
-    });
-
-    if (existingUser) {
-      throw new ConflictException('Email já está em uso');
+    try {
+      // Verificar se email já existe
+      const existingUser = await this.userRepository.findOne({
+        where: { email },
+      });
+      if (existingUser) {
+        throw new ConflictException('Email já está em uso');
+      }
+      // Validação de senha mínima
+      if (!password || password.length < 8) {
+        throw new BadRequestException('A senha deve ter pelo menos 8 caracteres');
+      }
+      // Hash da senha
+      const saltRounds = 12;
+      const passwordHash = await bcrypt.hash(password, saltRounds);
+      // Criar usuário com status ativo
+      const user = this.userRepository.create({
+        ...userData,
+        email,
+        passwordHash,
+        status: UserStatus.ACTIVE,
+      });
+      const savedUser = await this.userRepository.save(user);
+      // Log de criação
+      console.log('✅ Usuário criado:', savedUser.email, 'Status:', savedUser.status);
+      // Gerar token
+      return this.generateAuthResponse(savedUser, 'Conta criada com sucesso');
+    } catch (error) {
+      console.error('❌ Erro interno no signUp:', error);
+      throw error;
     }
-
-    // Validação de senha mínima
-    if (!password || password.length < 8) {
-      throw new BadRequestException('A senha deve ter pelo menos 8 caracteres');
-    }
-
-    // Hash da senha
-    const saltRounds = 12;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
-
-    // Criar usuário com status ativo
-    const user = this.userRepository.create({
-      ...userData,
-      email,
-      passwordHash,
-      status: UserStatus.ACTIVE,
-    });
-
-    const savedUser = await this.userRepository.save(user);
-
-    // Log de criação
-    console.log('✅ Usuário criado:', savedUser.email, 'Status:', savedUser.status);
-
-    // Gerar token
-    return this.generateAuthResponse(savedUser, 'Conta criada com sucesso');
   }
 
   /**
@@ -172,46 +169,49 @@ export class AuthService {
    * Login do usuário
    */
   async login(user: User): Promise<AuthResponseDto> {
-    // Forçar plano premium para o usuário Diego
-    if (user.email === 'massuplas@gmail.com') {
-      user.plan = UserPlan.PREMIUM;
-      user.role = UserRole.ADMIN;
-    }
-    // Permitir login social (Google) sem senha
-    if (user.googleId) {
-      // Usuário Google: validar apenas por email/googleId
-      if (!user.email || !user.googleId) {
-        throw new UnauthorizedException('Usuário Google inválido');
+    try {
+      // Forçar plano premium para o usuário Diego
+      if (user.email === 'massuplas@gmail.com') {
+        user.plan = UserPlan.PREMIUM;
+        user.role = UserRole.ADMIN;
       }
-    } else {
-      // Usuário tradicional: validar status
-      if (user.status !== 'active') {
-        throw new UnauthorizedException('Usuário inativo');
+      // Permitir login social (Google) sem senha
+      if (user.googleId) {
+        // Usuário Google: validar apenas por email/googleId
+        if (!user.email || !user.googleId) {
+          throw new UnauthorizedException('Usuário Google inválido');
+        }
+      } else {
+        // Usuário tradicional: validar status
+        if (user.status !== 'active') {
+          throw new UnauthorizedException('Usuário inativo');
+        }
       }
+      // Gerar token JWT
+      const payload = { sub: user.id, email: user.email };
+      const accessToken = this.jwtService.sign(payload);
+      return {
+        accessToken,
+        tokenType: 'Bearer',
+        expiresIn: 604800, // 7 dias em segundos (7 * 24 * 60 * 60)
+        message: 'Login realizado com sucesso',
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          currencyDefault: user.currencyDefault,
+          country: user.country,
+          plan: user.plan,
+          status: user.status,
+          role: user.role,
+          createdAt: user.createdAt,
+          calculationsCount: 0
+        },
+      };
+    } catch (error) {
+      console.error('❌ Erro interno no login:', error);
+      throw error;
     }
-
-    // Gerar token JWT
-    const payload = { sub: user.id, email: user.email };
-    const accessToken = this.jwtService.sign(payload);
-
-    return {
-      accessToken,
-      tokenType: 'Bearer',
-      expiresIn: 604800, // 7 dias em segundos (7 * 24 * 60 * 60)
-      message: 'Login realizado com sucesso',
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        currencyDefault: user.currencyDefault,
-        country: user.country,
-        plan: user.plan,
-        status: user.status,
-        role: user.role,
-        createdAt: user.createdAt,
-        calculationsCount: 0
-      },
-    };
   }
 
   /**

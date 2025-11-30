@@ -57,6 +57,46 @@ const ForgotPassword: React.FC = () => {
     navigate('/login');
   };
 
+  const [timer, setTimer] = useState(60);
+  const [canResend, setCanResend] = useState(false);
+
+  React.useEffect(() => {
+    if (!emailSent) return;
+    if (timer === 0) {
+      setCanResend(true);
+      return;
+    }
+    const interval = setInterval(() => {
+      setTimer((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [emailSent, timer]);
+
+  const handleResend = async () => {
+    setIsLoading(true);
+    setCanResend(false);
+    setTimer(60);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      if (response.ok) {
+        toast.success('Email reenviado com sucesso!');
+      } else {
+        const data = await response.json();
+        toast.error(data.message || 'Erro ao reenviar email de recuperação');
+      }
+    } catch (error) {
+      toast.error('Erro ao reenviar email de recuperação');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (emailSent) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center p-4">
@@ -75,16 +115,13 @@ const ForgotPassword: React.FC = () => {
             >
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
             </motion.div>
-            
             <h1 className="text-2xl font-bold text-white mb-4">
               Email Enviado!
             </h1>
-            
             <p className="text-gray-300 mb-6">
               Enviamos um link de recuperação para <strong>{email}</strong>. 
               Verifique sua caixa de entrada e siga as instruções para redefinir sua senha.
             </p>
-            
             <div className="space-y-4">
               <Button
                 onClick={handleBackToLogin}
@@ -94,23 +131,22 @@ const ForgotPassword: React.FC = () => {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Voltar ao Login
               </Button>
-              
               <p className="text-sm text-gray-400">
                 Não recebeu o email? Verifique sua pasta de spam ou tente novamente em alguns minutos.
               </p>
-              
-              {/* Link para demonstração - remover em produção */}
-              <div className="mt-4 p-3 bg-blue-900/30 rounded-lg border border-blue-700">
-                <p className="text-xs text-blue-300 mb-2">
-                  <strong>Demonstração:</strong> Clique no link abaixo para simular o acesso via email
+              {!canResend ? (
+                <p className="text-xs text-blue-300 mt-2">
+                  Você poderá reenviar o email em {timer} segundos.
                 </p>
-                <button
-                  onClick={() => navigate('/reset-password?token=demo-token-123')}
-                  className="text-blue-400 hover:text-blue-300 font-medium transition-colors text-sm underline"
+              ) : (
+                <Button
+                  onClick={handleResend}
+                  disabled={isLoading}
+                  className="w-full mt-2"
                 >
-                  Redefinir Senha (Demo)
-                </button>
-              </div>
+                  Reenviar Email de Recuperação
+                </Button>
+              )}
             </div>
           </Card>
         </motion.div>

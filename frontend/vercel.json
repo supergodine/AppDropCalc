@@ -5,11 +5,14 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "env": {
-    "VITE_API_URL": "https://dropcalc-backend.onrender.com"
+  "VITE_API_URL": "https://appdropcalc.onrender.com"
+  },
+  "git": {
+    "branch": "feat/login-recuperacao-senha"
   },
   "build": {
     "env": {
-      "VITE_API_URL": "https://dropcalc-backend.onrender.com"
+  "VITE_API_URL": "https://appdropcalc.onrender.com"
     }
   },
   "rewrites": [
