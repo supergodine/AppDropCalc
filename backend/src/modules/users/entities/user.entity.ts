@@ -28,13 +28,12 @@ export enum UserRole {
 
 @Entity('users')
 export class User {
-  @Column({ type: 'varchar', length: 255, nullable: true })
-    @Column({ name: 'passwordresettoken', type: 'varchar', length: 255, nullable: true })
-    passwordResetToken?: string;
+  @Column({ name: 'passwordresettoken', type: 'varchar', length: 255, nullable: true })
+  passwordResetToken?: string;
 
-  @Column({ type: 'timestamp', nullable: true })
-    @Column({ name: 'passwordresetexpires', type: 'timestamp', nullable: true })
-    passwordResetExpires?: Date;
+  @Column({ name: 'passwordresetexpires', type: 'timestamp', nullable: true })
+  passwordResetExpires?: Date;
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -44,7 +43,7 @@ export class User {
   @Column({ type: 'varchar', length: 255, unique: true })
   email: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ name: 'passwordhash', type: 'varchar', length: 255, nullable: true })
   @Exclude()
   passwordHash?: string;
 
