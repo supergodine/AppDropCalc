@@ -1,5 +1,6 @@
 import * as crypto from 'crypto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+// [FORCE COMMIT] Alteração forçada para garantir atualização do arquivo no git
 import {
   Injectable,
   ConflictException,
