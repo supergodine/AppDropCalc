@@ -6,16 +6,16 @@ export class AddPasswordResetFieldsToUsersTable implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       ALTER TABLE "users"
-      ADD COLUMN "passwordResetToken" varchar(255) NULL,
-      ADD COLUMN "passwordResetExpires" timestamp NULL
+      ADD COLUMN "passwordresettoken" varchar(255) NULL,
+      ADD COLUMN "passwordresetexpires" timestamp NULL
     `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       ALTER TABLE "users"
-      DROP COLUMN "passwordResetToken",
-      DROP COLUMN "passwordResetExpires"
+      DROP COLUMN "passwordresettoken",
+      DROP COLUMN "passwordresetexpires"
     `);
   }
 }
