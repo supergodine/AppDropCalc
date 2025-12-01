@@ -54,7 +54,8 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/main.js",
     "start:prod": "node dist/main.js",
-    "start:dev": "nodemon --exec ts-node src/main.ts"
+    "start:dev": "nodemon --exec ts-node src/main.ts",
+    "typeorm:migration:run": "npx ts-node ./node_modules/typeorm/cli.js migration:run --dataSource src/database/data-source.ts"
   },
   "devDependencies": {
     "@nestjs/testing": "^10.4.20",
