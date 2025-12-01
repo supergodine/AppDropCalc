@@ -6,11 +6,17 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function testDatabaseConnectionAndMigrate() {
   try {
+    console.log('🔎 [DEBUG] DATABASE_URL:', process.env.DATABASE_URL);
+    console.log('🔎 [DEBUG] NODE_ENV:', process.env.NODE_ENV);
+    console.log('🔎 [DEBUG] PORT:', process.env.PORT);
+    console.log('🔎 [DEBUG] Iniciando conexão com o banco...');
     await AppDataSource.initialize();
     console.log('✅ Conectado ao PostgreSQL com sucesso!');
+    console.log('🔎 [DEBUG] Executando migrações...');
     await AppDataSource.runMigrations();
     console.log('✅ Migrações executadas com sucesso!');
     await AppDataSource.destroy();
+    console.log('🔎 [DEBUG] Migrações finalizadas, seguindo para bootstrap do app...');
   } catch (error) {
     console.error('❌ Falha ao conectar ou migrar o banco:', error);
     process.exit(1);
@@ -18,7 +24,9 @@ async function testDatabaseConnectionAndMigrate() {
 }
 
 async function bootstrap() {
+  console.log('🔎 [DEBUG] Iniciando bootstrap do backend...');
   await testDatabaseConnectionAndMigrate();
+  console.log('🔎 [DEBUG] Migração concluída, criando app NestJS...');
   const app = await NestFactory.create(AppModule);
 
   // TRUST PROXY (necessário em Render / Railway)
@@ -71,6 +79,7 @@ async function bootstrap() {
 
   console.log(`🚀 Backend rodando na porta: ${port}`);
   console.log('📘 Swagger:', `http://localhost:${port}/api/docs`);
+  console.log('🔎 [DEBUG] Backend inicializado com sucesso!');
 }
 
 bootstrap();
