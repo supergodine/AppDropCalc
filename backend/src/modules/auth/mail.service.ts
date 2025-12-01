@@ -21,8 +21,8 @@ export class MailService {
     }
 
     // Persistir token e expiração (1 hora)
-    user.passwordResetToken = token;
-    user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000);
+    user.passwordresettoken = token;
+    user.passwordresetexpires = new Date(Date.now() + 60 * 60 * 1000);
     await this.userRepository.save(user);
 
     // Configure o transporter (exemplo: Gmail, SMTP, etc)
