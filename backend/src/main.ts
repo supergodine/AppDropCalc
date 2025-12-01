@@ -25,8 +25,8 @@ async function testDatabaseConnectionAndMigrate() {
 
 async function bootstrap() {
   console.log('🔎 [DEBUG] Iniciando bootstrap do backend...');
-  await testDatabaseConnectionAndMigrate();
-  console.log('🔎 [DEBUG] Migração concluída, criando app NestJS...');
+  // Removido testDatabaseConnectionAndMigrate para evitar conflito de conexão
+  console.log('🔎 [DEBUG] Criando app NestJS...');
   const app = await NestFactory.create(AppModule);
 
   // TRUST PROXY (necessário em Render / Railway)
