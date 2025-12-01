@@ -4,16 +4,16 @@ export class AddPasswordResetFieldsToUser1700840000000 implements MigrationInter
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
             ALTER TABLE "users"
-            ADD COLUMN IF NOT EXISTS "passwordResetToken" varchar(255),
-            ADD COLUMN IF NOT EXISTS "passwordResetExpires" timestamp;
+            ADD COLUMN IF NOT EXISTS "passwordresettoken" varchar(255),
+            ADD COLUMN IF NOT EXISTS "passwordresetexpires" timestamp;
         `);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
             ALTER TABLE "users"
-            DROP COLUMN IF EXISTS "passwordResetToken",
-            DROP COLUMN IF EXISTS "passwordResetExpires";
+            DROP COLUMN IF EXISTS "passwordresettoken",
+            DROP COLUMN IF EXISTS "passwordresetexpires";
         `);
     }
 }
