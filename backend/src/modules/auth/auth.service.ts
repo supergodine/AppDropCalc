@@ -27,8 +27,8 @@ export class AuthService {
       if (user) {
         // Gerar token seguro
         const token = crypto.randomBytes(32).toString('hex');
-        user.passwordResetToken = token;
-        user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1h
+        user.passwordresettoken = token;
+        user.passwordresetexpires = new Date(Date.now() + 60 * 60 * 1000); // 1h
         await this.userRepository.save(user);
         // Enviar e-mail (simular envio se falhar)
         try {
@@ -54,14 +54,14 @@ export class AuthService {
     const { token, newPassword } = dto;
     console.log(`[resetPassword] Iniciando reset para token: ${token}`);
     // Buscar usuário pelo token
-    const user = await this.userRepository.findOne({ where: { passwordResetToken: token } });
+    const user = await this.userRepository.findOne({ where: { passwordresettoken: token } });
     if (!user) {
       console.warn(`[resetPassword] Token inválido ou usuário não encontrado: ${token}`);
       return { success: false, message: 'Token inválido ou expirado' };
     }
     console.log(`[resetPassword] Usuário encontrado: ${user.email}`);
     // Verificar expiração
-    if (!user.passwordResetExpires || user.passwordResetExpires < new Date()) {
+    if (!user.passwordresetexpires || user.passwordresetexpires < new Date()) {
       console.warn(`[resetPassword] Token expirado para usuário: ${user.email}`);
       return { success: false, message: 'Token expirado' };
     }
@@ -73,8 +73,8 @@ export class AuthService {
     // Atualizar senha
     const saltRounds = 12;
     user.passwordHash = await bcrypt.hash(newPassword, saltRounds);
-    user.passwordResetToken = null;
-    user.passwordResetExpires = null;
+    user.passwordresettoken = null;
+    user.passwordresetexpires = null;
     await this.userRepository.save(user);
     console.log(`[resetPassword] Senha redefinida com sucesso para usuário: ${user.email}`);
     return { success: true, message: 'Senha redefinida com sucesso' };

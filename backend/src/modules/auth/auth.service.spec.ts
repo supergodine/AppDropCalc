@@ -10,8 +10,8 @@ const mockUser = {
   email: 'test@example.com',
   passwordHash: '$2b$12$abcdefghijklmnopqrstuv',
   status: 'active',
-  passwordResetToken: 'token123',
-  passwordResetExpires: new Date(Date.now() + 60 * 60 * 1000),
+  passwordresettoken: 'token123',
+  passwordresetexpires: new Date(Date.now() + 60 * 60 * 1000),
 };
 
 const userRepositoryMock = {
@@ -61,7 +61,7 @@ describe('AuthService', () => {
     });
 
     it('deve falhar se o token estiver expirado', async () => {
-      userRepositoryMock.findOne.mockResolvedValue({ ...mockUser, passwordResetExpires: new Date(Date.now() - 1000) });
+      userRepositoryMock.findOne.mockResolvedValue({ ...mockUser, passwordresetexpires: new Date(Date.now() - 1000) });
       const dto: ResetPasswordDto = {
         token: 'token123',
         newPassword: 'novaSenhaSegura',

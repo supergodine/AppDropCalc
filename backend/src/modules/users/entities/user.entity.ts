@@ -29,10 +29,10 @@ export enum UserRole {
 @Entity('users')
 export class User {
   @Column({ type: 'varchar', length: 255, nullable: true })
-  passwordResetToken?: string;
+  passwordresettoken?: string;
 
   @Column({ type: 'timestamp', nullable: true })
-  passwordResetExpires?: Date;
+  passwordresetexpires?: Date;
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
