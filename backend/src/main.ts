@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { AppDataSource } from './database/data-source';
+import AppDataSource from './database/data-source';
 import { ValidationPipe } from '@nestjs/common';
 
 async function testDatabaseConnectionAndMigrate() {
