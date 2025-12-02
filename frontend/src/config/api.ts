@@ -7,11 +7,11 @@ const BASE_URL = import.meta.env.VITE_API_URL || "https://appdropcalc.onrender.c
 // trigger: deploy Vercel 2025-11-29
 
 export const AUTH_URLS = {
-  login: `${BASE_URL}/auth/login`,
-  signup: `${BASE_URL}/auth/signup`,
-  refresh: `${BASE_URL}/auth/refresh`,
-  logout: `${BASE_URL}/auth/logout`,
-  profile: `${BASE_URL}/auth/profile`,
+  login: `${BASE_URL}/api/auth/login`,
+  signup: `${BASE_URL}/api/auth/signup`,
+  refresh: `${BASE_URL}/api/auth/refresh`,
+  logout: `${BASE_URL}/api/auth/logout`,
+  profile: `${BASE_URL}/api/auth/profile`,
 };
 
 export const API_CONFIG = {
