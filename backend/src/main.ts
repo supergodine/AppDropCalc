@@ -29,6 +29,11 @@ async function bootstrap() {
   console.log('🔎 [DEBUG] Criando app NestJS...');
   const app = await NestFactory.create(AppModule);
 
+
+  // Prefixo global da API
+  const apiPrefix = process.env.API_PREFIX || 'api';
+  app.setGlobalPrefix(apiPrefix);
+
   // TRUST PROXY (necessário em Render / Railway)
   app.getHttpAdapter().getInstance().set('trust proxy', 1);
 
