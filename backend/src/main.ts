@@ -31,8 +31,7 @@ async function bootstrap() {
 
 
   // Prefixo global da API
-  const apiPrefix = process.env.API_PREFIX || 'api';
-  app.setGlobalPrefix(apiPrefix);
+  app.setGlobalPrefix('api');
 
   // TRUST PROXY (necessário em Render / Railway)
   app.getHttpAdapter().getInstance().set('trust proxy', 1);
