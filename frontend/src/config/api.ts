@@ -12,6 +12,7 @@ export const AUTH_URLS = {
   refresh: `${BASE_URL}/api/auth/refresh`,
   logout: `${BASE_URL}/api/auth/logout`,
   profile: `${BASE_URL}/api/auth/profile`,
+  forgotPassword: `${BASE_URL}/api/auth/forgot-password`,
 };
 
 export const API_CONFIG = {
