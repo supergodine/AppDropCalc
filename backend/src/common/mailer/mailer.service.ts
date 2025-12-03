@@ -15,6 +15,12 @@ export class MailerService {
       HOSTINGER_SMTP_PASS,
     } = process.env;
 
+    this.logger.log(`SMTP ENV HOST: ${HOSTINGER_SMTP_HOST}`);
+    this.logger.log(`SMTP ENV PORT: ${HOSTINGER_SMTP_PORT}`);
+    this.logger.log(`SMTP ENV SECURE: ${HOSTINGER_SMTP_SECURE}`);
+    this.logger.log(`SMTP ENV USER: ${HOSTINGER_SMTP_USER}`);
+    // Não logar senha em produção
+
     if (
       !HOSTINGER_SMTP_HOST ||
       !HOSTINGER_SMTP_PORT ||
@@ -25,10 +31,12 @@ export class MailerService {
       return;
     }
 
+    this.logger.log(`Configurando transporter: host=${HOSTINGER_SMTP_HOST}, port=${HOSTINGER_SMTP_PORT}, secure=${HOSTINGER_SMTP_SECURE}`);
+
     this.transporter = nodemailer.createTransport({
       host: HOSTINGER_SMTP_HOST,
       port: Number(HOSTINGER_SMTP_PORT),
-      secure: HOSTINGER_SMTP_SECURE === 'true', // true for 465, false for 587
+      secure: HOSTINGER_SMTP_SECURE === 'true', // true para 465, false para 587
       auth: {
         user: HOSTINGER_SMTP_USER,
         pass: HOSTINGER_SMTP_PASS,
