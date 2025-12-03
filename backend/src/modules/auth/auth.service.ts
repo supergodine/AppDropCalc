@@ -13,7 +13,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import { User, UserRole, UserPlan, UserStatus } from '../users/entities/user.entity';
-import { MailService } from './mail.service';
+import { MailerService } from '../../common/mailer/mailer.service';
 import { SignUpDto } from './dto/signup.dto';
 import { AuthResponseDto, UserResponseDto } from './dto/auth-response.dto';
 
@@ -33,7 +33,13 @@ export class AuthService {
         await this.userRepository.save(user);
         // Enviar e-mail (simular envio se falhar)
         try {
-          await this.mailService.sendPasswordRecovery(email, token);
+          const recoveryUrl = `${process.env.FRONTEND_URL || 'https://app-drop-calc.vercel.app'}/reset-password?token=${token}`;
+          await this.mailerService.sendMail({
+            to: email,
+            subject: 'Recuperação de senha - DropCalc',
+            html: `<p>Olá,</p><p>Recebemos uma solicitação para redefinir sua senha. Clique no link abaixo para continuar:</p><p><a href="${recoveryUrl}">${recoveryUrl}</a></p><p>Se você não solicitou, ignore este e-mail.</p>`,
+            text: `Olá,\nRecebemos uma solicitação para redefinir sua senha. Acesse: ${recoveryUrl}`,
+          });
           console.log(`[requestPasswordReset] Token gerado e e-mail enviado para: ${email}`);
         } catch (mailErr) {
           console.error(`[requestPasswordReset] Falha ao enviar e-mail:`, mailErr);
@@ -92,7 +98,7 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
-    private readonly mailService: MailService,
+    private readonly mailerService: MailerService,
   ) {}
 
   /**
@@ -241,7 +247,22 @@ export class AuthService {
       }
       user.lastLoginAt = new Date();
       
-      return await this.userRepository.save(user);
+            // Envio de e-mail via SMTP
+            // O token precisa estar definido no escopo. Se não existir, gere um novo ou recupere do usuário.
+            let recoveryToken = user.passwordResetToken;
+            if (!recoveryToken) {
+              recoveryToken = crypto.randomBytes(32).toString('hex');
+              user.passwordResetToken = recoveryToken;
+              user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000);
+              await this.userRepository.save(user);
+            }
+            const recoveryUrl = `${process.env.FRONTEND_URL || 'https://app-drop-calc.vercel.app'}/reset-password?token=${recoveryToken}`;
+            await this.mailerService.sendMail({
+              to: email,
+              subject: 'Recuperação de senha - DropCalc',
+              html: `<p>Olá,</p><p>Recebemos uma solicitação para redefinir sua senha. Clique no link abaixo para continuar:</p><p><a href="${recoveryUrl}">${recoveryUrl}</a></p><p>Se você não solicitou, ignore este e-mail.</p>`,
+              text: `Olá,\nRecebemos uma solicitação para redefinir sua senha. Acesse: ${recoveryUrl}`,
+            });
     }
 
     // Criar novo usuário
