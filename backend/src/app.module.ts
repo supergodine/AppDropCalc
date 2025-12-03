@@ -11,6 +11,7 @@ import { CalcModule } from './calc/calc.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { ExchangeModule } from './modules/exchange/exchange.module';
+import { MailerModule } from './common/mailer/mailer.module';
 
 // Config
 import { DatabaseConfig } from './config/database.config';
@@ -36,6 +37,7 @@ import { DatabaseConfig } from './config/database.config';
     AuthModule,
     UsersModule,
     ExchangeModule,
+    MailerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
