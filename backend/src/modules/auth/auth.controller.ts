@@ -20,7 +20,7 @@ import {
 import { AuthService } from './auth.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { MailService } from './mail.service';
+// Removido MailService antigo. MailerService é global.
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 // import { GoogleAuthGuard } from './guards/google-auth.guard'; // DESATIVADO - USANDO FIREBASE
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -33,7 +33,7 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly mailService: MailService,
+    // Removido mailService. MailerService é global via módulo.
   ) {}
   @Post('forgot-password')
   @HttpCode(HttpStatus.ACCEPTED)

@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
-import * as sgMail from '@sendgrid/mail';
+// Removido SendGrid. Serviço migrado para src/common/mailer/mailer.service.ts
 
 @Injectable()
 export class MailService {
@@ -25,18 +25,6 @@ export class MailService {
     user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000);
     await this.userRepository.save(user);
 
-    // Configurar SendGrid
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    const recoveryUrl = `${process.env.FRONTEND_URL || 'https://app-drop-calc.vercel.app'}/reset-password?token=${token}`;
-    console.log(`[MailService] Enviando e-mail de recuperação para: ${email} com link: ${recoveryUrl}`);
-
-    const msg = {
-      to: email,
-      from: process.env.FROM_EMAIL || 'noreply@dropcalc.app',
-      subject: 'Recuperação de senha - DropCalc',
-      html: `<p>Olá,</p><p>Recebemos uma solicitação para redefinir sua senha. Clique no link abaixo para continuar:</p><p><a href="${recoveryUrl}">${recoveryUrl}</a></p><p>Se você não solicitou, ignore este e-mail.</p>`
-    };
-    await sgMail.send(msg);
-    console.log(`[MailService] E-mail enviado para: ${email}`);
+    // Removido. Use MailerService via SMTP.
   }
 }
