@@ -19,6 +19,13 @@ import { AuthResponseDto, UserResponseDto } from './dto/auth-response.dto';
 
 @Injectable()
 export class AuthService {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly jwtService: JwtService,
+    private readonly mailerService: MailerService,
+  ) {}
+
   /**
    * Solicitar recuperação de senha (não vaza existência de e-mail)
    */
