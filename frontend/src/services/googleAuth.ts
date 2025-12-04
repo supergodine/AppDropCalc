@@ -103,15 +103,80 @@ class GoogleAuthService {
 
       if (!response.ok) {
         // Se usuário não existe, tentar criar
-        return this.createUserInBackend(googleUser);
+        const created = await this.createUserInBackend(googleUser);
+        if (created && created.accessToken && created.user) {
+          localStorage.setItem('accessToken', created.accessToken);
+          localStorage.setItem('currentUser', JSON.stringify(created.user));
+          return created;
+        }
+        // Backend não retornou token; usar token do Firebase como fallback
+        if (token) {
+          try {
+            localStorage.setItem('accessToken', token);
+            localStorage.setItem('currentUser', JSON.stringify({
+              id: googleUser.id,
+              email: googleUser.email,
+              name: googleUser.name,
+              photoURL: googleUser.photoURL,
+              provider: 'google'
+            }));
+            console.log('🔑 Usando token Firebase como fallback para accessToken');
+            return { accessToken: token, user: googleUser };
+          } catch (e) {
+            console.warn('⚠️ Falha ao salvar token de fallback:', e);
+          }
+        }
+        return googleUser;
       }
 
       const data = await response.json();
-      console.log('✅ Usuário sincronizado com backend');
-      return data;
+      if (data && data.accessToken && data.user) {
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('currentUser', JSON.stringify(data.user));
+        console.log('✅ Usuário sincronizado com backend');
+        return data;
+      }
+      // Backend não retornou accessToken — usar token Firebase como fallback
+      if (token) {
+        try {
+          localStorage.setItem('accessToken', token);
+          localStorage.setItem('currentUser', JSON.stringify({
+            id: googleUser.id,
+            email: googleUser.email,
+            name: googleUser.name,
+            photoURL: googleUser.photoURL,
+            provider: 'google'
+          }));
+          console.log('🔑 Usando token Firebase como fallback para accessToken (sem dados do backend)');
+          return { accessToken: token, user: googleUser };
+        } catch (e) {
+          console.warn('⚠️ Falha ao salvar token de fallback:', e);
+        }
+      }
+      console.warn('⚠️ Backend não retornou dados válidos, login Google incompleto');
+      return googleUser;
     } catch (error) {
       console.error('❌ Erro na sincronização:', error);
       // Continuar mesmo se backend falhar
+      // Se tivermos token Firebase, usar como fallback
+      const currentUser = auth.currentUser;
+      const token = currentUser ? await currentUser.getIdToken() : null;
+      if (token) {
+        try {
+          localStorage.setItem('accessToken', token);
+          localStorage.setItem('currentUser', JSON.stringify({
+            id: googleUser.id,
+            email: googleUser.email,
+            name: googleUser.name,
+            photoURL: googleUser.photoURL,
+            provider: 'google'
+          }));
+          console.log('🔑 Usando token Firebase como fallback (catch)');
+          return { accessToken: token, user: googleUser };
+        } catch (e) {
+          console.warn('⚠️ Falha ao salvar token de fallback no catch:', e);
+        }
+      }
       return googleUser;
     }
   }
