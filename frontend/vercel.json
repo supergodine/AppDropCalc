@@ -1,4 +1,4 @@
-// trigger deploy Vercel
+{
 {
   "version": 2,
   "installCommand": "npm install",
