@@ -1,3 +1,5 @@
+// deploy trigger - comentário no final
+// trigger deploy Vercel - comentário técnico, não afeta funcionalidade
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Mail, Send, CheckCircle } from 'lucide-react';
@@ -32,7 +34,7 @@ const ForgotPassword: React.FC = () => {
 
     try {
       // Chamar endpoint real do backend
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +79,7 @@ const ForgotPassword: React.FC = () => {
     setCanResend(false);
     setTimer(60);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

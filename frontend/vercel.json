@@ -1,3 +1,4 @@
+// trigger deploy Vercel
 {
   "version": 2,
   "installCommand": "npm install",
@@ -16,6 +17,10 @@
     }
   },
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://appdropcalc.onrender.com/api/$1"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
