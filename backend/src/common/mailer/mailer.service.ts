@@ -53,9 +53,12 @@ export class MailerService {
       throw new Error('SMTP transporter not initialized');
     }
 
-    const from = process.env.MAIL_FROM || 'Equipe Procura Certa <suporte@procuracerta.com>';
+    const from = process.env.MAIL_FROM || 'Equipe DropCalc <suporte@procuracerta.com>';
 
     try {
+      this.logger.log(`[MailerService] Enviando e-mail para: ${to}`);
+      this.logger.log(`[MailerService] Assunto: ${subject}`);
+      this.logger.log(`[MailerService] Conteúdo: ${html ? '[HTML]' : '[TEXT]'} (não exibido por segurança)`);
       const info = await this.transporter.sendMail({
         from,
         to,
@@ -63,10 +66,14 @@ export class MailerService {
         html,
         text,
       });
-      this.logger.log(`E-mail enviado: ${info.messageId}`);
+      this.logger.log(`[MailerService] E-mail enviado com sucesso! messageId: ${info.messageId}`);
       return info;
     } catch (err) {
-      this.logger.error(`Erro ao enviar e-mail: ${err.message}`, err.response);
+      this.logger.error(`[MailerService] Falha ao enviar e-mail: ${err.message}`);
+      this.logger.error(`[MailerService] Erro completo:`, err);
+      if (err.response) {
+        this.logger.error(`[MailerService] Resposta do servidor SMTP:`, err.response);
+      }
       throw err;
     }
   }
