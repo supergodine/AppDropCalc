@@ -32,6 +32,12 @@ const Login: React.FC = () => {
         if (user) {
           console.log('✅ Login Google por redirect:', user);
           toast.success(`Bem-vindo, ${user.name}! 🎉`);
+          // Atualizar estado global de auth antes de navegar
+          try {
+            refreshAuth();
+          } catch (e) {
+            console.warn('⚠️ refreshAuth falhou após redirect:', e);
+          }
           navigate('/dashboard');
           return;
         }
@@ -166,9 +172,15 @@ const Login: React.FC = () => {
       toast.success(`Bem-vindo, ${user.name}! 🎉`);
       
       console.log('✅ Login Google realizado:', user);
-      
-      // Redirecionar para dashboard
-      navigate('/dashboard');
+        // Atualizar estado global de auth antes de navegar
+        try {
+          refreshAuth();
+        } catch (e) {
+          console.warn('⚠️ refreshAuth falhou após loginWithGoogle:', e);
+        }
+
+        // Redirecionar para dashboard
+        navigate('/dashboard');
       
     } catch (error: any) {
       console.error('❌ Erro no login Google:', error);
