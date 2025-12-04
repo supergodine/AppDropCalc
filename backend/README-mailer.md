@@ -8,7 +8,7 @@ HOSTINGER_SMTP_PORT=587
 HOSTINGER_SMTP_SECURE=false
 HOSTINGER_SMTP_USER=seu-email@dominio.com
 HOSTINGER_SMTP_PASS=sua-senha
-MAIL_FROM="Equipe Procura Certa <suporte@procuracerta.com>"
+MAIL_FROM="Equipe DropCalc <suporte@procuracerta.com>"
 ```
 
 ## 2. Instale as dependências

@@ -27,7 +27,12 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
       migrations: [__dirname + '/../database/migrations/*.{ts,js}'],
       synchronize: !isProduction,
       logging: true,
-      ssl: isProduction ? { rejectUnauthorized: false } : false,
+      ssl: true,
+      extra: {
+        ssl: {
+          rejectUnauthorized: false
+        }
+      },
     };
   }
 }
