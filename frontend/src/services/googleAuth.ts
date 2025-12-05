@@ -86,7 +86,9 @@ class GoogleAuthService {
       const currentUser = auth.currentUser;
       const token = currentUser ? await currentUser.getIdToken() : null;
 
-      const response = await fetch(API_CONFIG.auth.login, {
+      // If provider is google, use social endpoint; keep email/password flow using login
+      const endpoint = API_CONFIG.auth.social || API_CONFIG.auth.login;
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

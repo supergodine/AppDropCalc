@@ -9,6 +9,7 @@ const BASE_URL = import.meta.env.VITE_API_URL || "https://appdropcalc.onrender.c
 export const AUTH_URLS = {
   login: `${BASE_URL}/api/auth/login`,
   signup: `${BASE_URL}/api/auth/signup`,
+  social: `${BASE_URL}/api/auth/social`,
   refresh: `${BASE_URL}/api/auth/refresh`,
   logout: `${BASE_URL}/api/auth/logout`,
   profile: `${BASE_URL}/api/auth/profile`,
