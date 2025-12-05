@@ -100,6 +100,34 @@ export class AuthController {
     }
   }
 
+  // Endpoint para login via provedores sociais (ex: Google) usando token enviado pelo frontend
+  @Post('social')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Login com provedores sociais (Google) - aceita dados do frontend' })
+  async socialLogin(@Body() body: any, @Res() res: Response) {
+    console.log('REQ RECEBIDA: POST /auth/social', { provider: body?.provider, email: body?.email });
+    try {
+      // Atualmente suportamos apenas 'google'
+      if (!body || body.provider !== 'google') {
+        return res.status(400).json({ success: false, message: 'Provider não suportado' });
+      }
+
+      // Esperamos receber: email, name, googleId, photoURL
+      const googleUser = {
+        id: body.googleId || body.googleId || null,
+        email: body.email,
+        name: body.name,
+        photoURL: body.photoURL,
+      };
+
+      const result = await this.authService.handleGoogleLogin(googleUser);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('❌ Erro no social login:', error);
+      return res.status(500).json({ success: false, message: 'Erro no login social' });
+    }
+  }
+
   // Endpoint de teste para debug
   @Post('test-login')
   @HttpCode(HttpStatus.OK)
