@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { MailService } from './mail.service';
 import { MailerModule } from '../../common/mailer/mailer.module';
 import { UsersModule } from '../users/users.module';
 import { User } from '../users/entities/user.entity';
