@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import Mailjet from 'node-mailjet';
 import * as nodemailer from 'nodemailer';
 
 type MailPayload = {
@@ -19,8 +18,17 @@ export class MailerService {
   constructor() {
     const { MAILJET_API_KEY, MAILJET_SECRET_KEY, MAILJET_SENDER_EMAIL, HOSTINGER_SMTP_HOST, HOSTINGER_SMTP_PORT, HOSTINGER_SMTP_SECURE, HOSTINGER_SMTP_USER, HOSTINGER_SMTP_PASS } = process.env;
 
-    // Prefer Mailjet when configured
-    if (MAILJET_API_KEY && MAILJET_SECRET_KEY && MAILJET_SENDER_EMAIL) {
+    // Try to load Mailjet dynamically to avoid crashing when the native require is missing
+    let Mailjet: any = null;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      Mailjet = require('node-mailjet');
+    } catch (e) {
+      this.logger.warn('node-mailjet package not available at runtime. Mailjet will be disabled.');
+    }
+
+    // Prefer Mailjet when configured and available
+    if (Mailjet && MAILJET_API_KEY && MAILJET_SECRET_KEY && MAILJET_SENDER_EMAIL) {
       try {
         this.client = Mailjet.apiConnect(MAILJET_API_KEY, MAILJET_SECRET_KEY);
         this.mode = 'mailjet';
