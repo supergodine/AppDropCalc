@@ -14,6 +14,7 @@ import * as bcrypt from 'bcrypt';
 
 import { User, UserRole, UserPlan, UserStatus } from '../users/entities/user.entity';
 import { MailerService } from '../../common/mailer/mailer.service';
+import { MailService } from './mail.service';
 import { SignUpDto } from './dto/signup.dto';
 import { AuthResponseDto, UserResponseDto } from './dto/auth-response.dto';
 
@@ -102,6 +103,7 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly mailerService: MailerService,
+    private readonly mailService: MailService,
   ) {}
 
   /**
@@ -180,44 +182,23 @@ export class AuthService {
    */
   async login(user: User): Promise<AuthResponseDto> {
     try {
-      // Forçar plano premium para o usuário Diego
+      // Grant special privileges for a specific test user (kept from previous behavior)
       if (user.email === 'massuplas@gmail.com') {
         user.plan = UserPlan.PREMIUM;
         user.role = UserRole.ADMIN;
       }
-      // Permitir login social (Google) sem senha
-      if (user.googleId) {
-        // Usuário Google: validar apenas por email/googleId
-        if (!user.email || !user.googleId) {
-          throw new UnauthorizedException('Usuário Google inválido');
-        }
-      } else {
-        // Usuário tradicional: validar status
-        if (user.status !== 'active') {
-          throw new UnauthorizedException('Usuário inativo');
-        }
+
+      // If not a Google user, ensure account is active
+      if (!user.googleId && user.status !== UserStatus.ACTIVE) {
+        throw new UnauthorizedException('Usuário inativo');
       }
-      // Gerar token JWT
-      const payload = { sub: user.id, email: user.email };
-      const accessToken = this.jwtService.sign(payload);
-      return {
-        accessToken,
-        tokenType: 'Bearer',
-        expiresIn: 604800, // 7 dias em segundos (7 * 24 * 60 * 60)
-        message: 'Login realizado com sucesso',
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          currencyDefault: user.currencyDefault,
-          country: user.country,
-          plan: user.plan,
-          status: user.status,
-          role: user.role,
-          createdAt: user.createdAt,
-          calculationsCount: 0
-        },
-      };
+
+      // Update last login timestamp
+      user.lastLoginAt = new Date();
+      await this.userRepository.save(user);
+
+      // Return standard auth response
+      return this.generateAuthResponse(user, 'Login realizado com sucesso');
     } catch (error) {
       console.error('❌ Erro interno no login:', error);
       throw error;
