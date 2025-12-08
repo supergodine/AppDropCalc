@@ -103,7 +103,6 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly mailerService: MailerService,
-    private readonly mailService: MailService,
   ) {}
 
   /**
