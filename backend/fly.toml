@@ -1,4 +1,5 @@
 app = "backend-holy-fog-6984"
+primary_region = "gru"
 
 [build]
   dockerfile = "Dockerfile"
@@ -27,6 +28,12 @@ app = "backend-holy-fog-6984"
   [services.http_checks]
     path = "/api/health"
     method = "get"
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "10s"
+    restart_limit = 0
+
+  [services.tcp_checks]
     interval = "15s"
     timeout = "2s"
     grace_period = "10s"
