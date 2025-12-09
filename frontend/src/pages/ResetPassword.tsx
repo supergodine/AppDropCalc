@@ -22,28 +22,12 @@ const ResetPassword: React.FC = () => {
   const token = searchParams.get('token');
 
   useEffect(() => {
-    // Verificar se o token é válido consultando o backend
+    // Não fazer qualquer requisição à API na montagem.
+    // Apenas marcar token como inválido se o parâmetro estiver ausente.
     console.log('ResetPassword mounted, token=', token);
-    const checkToken = async () => {
-      if (!token) {
-        setIsValidToken(false);
-        toast.error('Token de recuperação inválido ou expirado');
-        return;
-      }
-      try {
-        const res = await authApi.validateResetToken(token);
-        if (!res || !res.valid) {
-          setIsValidToken(false);
-          toast.error(res?.message || 'Token de recuperação inválido ou expirado');
-        }
-      } catch (err: any) {
-        console.error('Erro ao validar token de reset:', err?.response?.data || err);
-        setIsValidToken(false);
-        toast.error('Erro ao validar token de recuperação');
-      }
-    };
-
-    checkToken();
+    if (!token) {
+      setIsValidToken(false);
+    }
   }, [token]);
 
   const validatePassword = (password: string) => {
@@ -93,8 +77,15 @@ const ResetPassword: React.FC = () => {
       toast.success(result?.message || 'Senha redefinida com sucesso!');
     } catch (error: any) {
       console.error('ResetPassword submit error:', error?.response?.data || error);
+      const status = error?.response?.status;
       const msg = error?.response?.data?.message || error?.message || 'Erro ao redefinir senha. Tente novamente';
-      toast.error(msg);
+      // Se o backend retornar 400 ou 404, considerar token inválido/expirado
+      if (status === 400 || status === 404) {
+        setIsValidToken(false);
+        console.warn('ResetPassword: backend returned status indicating invalid token:', status, msg);
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setIsLoading(false);
     }
