@@ -15,9 +15,14 @@ import Settings from '@/pages/Settings';
 
 const App: React.FC = () => {
   const { loading, user } = useAuth();
+  const location = window.location?.pathname + window.location?.search;
+  React.useEffect(() => {
+    console.log('AppWithAuth: current location =', location);
+  }, [location]);
   
   console.log('=== AppWithAuth carregando ===');
   console.log('Loading:', loading, 'User:', user);
+  console.log('AppWithAuth: user state changed. current user =', user);
 
   if (loading) {
     return (
