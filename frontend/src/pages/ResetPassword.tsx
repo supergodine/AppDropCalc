@@ -22,28 +22,14 @@ const ResetPassword: React.FC = () => {
   const token = searchParams.get('token');
 
   useEffect(() => {
-    // Verificar se o token é válido consultando o backend
+    // Apenas verificar se o token está presente no link.
+    // A validação efetiva do token (inválido/expirado) é feita pelo backend
+    // quando o usuário submete o formulário (POST /auth/reset-password).
     console.log('ResetPassword mounted, token=', token);
-    const checkToken = async () => {
-      if (!token) {
-        setIsValidToken(false);
-        toast.error('Token de recuperação inválido ou expirado');
-        return;
-      }
-      try {
-        const res = await authApi.validateResetToken(token);
-        if (!res || !res.valid) {
-          setIsValidToken(false);
-          toast.error(res?.message || 'Token de recuperação inválido ou expirado');
-        }
-      } catch (err: any) {
-        console.error('Erro ao validar token de reset:', err?.response?.data || err);
-        setIsValidToken(false);
-        toast.error('Erro ao validar token de recuperação');
-      }
-    };
-
-    checkToken();
+    if (!token) {
+      setIsValidToken(false);
+      toast.error('Token de recuperação inválido ou expirado');
+    }
   }, [token]);
 
   const validatePassword = (password: string) => {
@@ -94,7 +80,15 @@ const ResetPassword: React.FC = () => {
     } catch (error: any) {
       console.error('ResetPassword submit error:', error?.response?.data || error);
       const msg = error?.response?.data?.message || error?.message || 'Erro ao redefinir senha. Tente novamente';
-      toast.error(msg);
+      // Se o backend indicar que o token é inválido ou expirou, exibir a tela de token inválido
+      const lower = (msg || '').toString().toLowerCase();
+      if (lower.includes('token') || lower.includes('inválid') || lower.includes('expir')) {
+        setIsValidToken(false);
+        // Log para diagnóstico; a UI de token inválido será exibida
+        console.warn('ResetPassword: token inválido sinalizado pelo backend:', msg);
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setIsLoading(false);
     }
