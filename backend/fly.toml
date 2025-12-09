@@ -1,0 +1,67 @@
+app = "appdropcalc-backend"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[machines]
+  auto_start_machines = true
+  auto_stop_machines = true
+  min_machines_running = 1
+
+[[services]]
+  internal_port = 10000
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls","http"]
+
+  # Optional: expose internal port directly
+  [[services.ports]]
+    port = 10000
+    handlers = ["http"]
+
+  [services.http_checks]
+    path = "/api/health"
+    method = "get"
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "10s"
+    restart_limit = 0
+
+  [services.tcp_checks]
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "10s"
+    restart_limit = 0
+
+  [services.concurrency]
+    type = "connections"
+    soft_limit = 25
+    hard_limit = 50
+# fly.toml app configuration file generated for backend-holy-fog-6984 on 2025-12-08T21:25:24-03:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'backend-holy-fog-6984'
+primary_region = 'gru'
+
+[build]
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
