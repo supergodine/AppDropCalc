@@ -27,6 +27,7 @@ const ResetPassword: React.FC = () => {
       setIsValidToken(false);
       toast.error('Token de recuperação inválido ou expirado');
     }
+    console.log('ResetPassword mounted, token=', token);
   }, [token]);
 
   const validatePassword = (password: string) => {
