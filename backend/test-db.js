@@ -1,6 +1,11 @@
 const { Client } = require('pg');
+const connectionString = process.env.DATABASE_URL || process.env.CONNECTION_STRING || '';
+if (!connectionString) {
+  console.error('Please set DATABASE_URL in environment to run this test.');
+  process.exit(1);
+}
 const client = new Client({
-  connectionString: 'postgresql://diego:P6XhjDqhdOIgPcTCG7WKJjmjVFYYwr9M@dpg-d4kphmgdl3ps73fk0ci0-a.oregon-postgres.render.com/appdb_xyim',
+  connectionString,
   ssl: { rejectUnauthorized: false }
 });
 client.connect()
