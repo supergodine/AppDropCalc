@@ -9,7 +9,17 @@ export const API_BASE_URL: string = import.meta.env.VITE_API_URL;
 
 // Normalize API root so callers won't accidentally create duplicate `/api/api` paths.
 const _base = API_BASE_URL ? API_BASE_URL.replace(/\/$/, '') : API_BASE_URL;
-export const API_ROOT = _base?.endsWith('/api') ? _base : `${_base}/api`;
+// Ensure API_ROOT always ends with a single '/api' and avoid duplicate '/api/api'
+let computedRoot = _base;
+if (!computedRoot) {
+  computedRoot = API_BASE_URL;
+}
+if (computedRoot && !computedRoot.endsWith('/api')) {
+  computedRoot = `${computedRoot}/api`;
+}
+// Defensive: collapse any accidental '/api/api' to '/api'
+computedRoot = computedRoot.replace(/\/api\/api+/g, '/api');
+export const API_ROOT = computedRoot;
 
 export const AUTH_URLS = {
   login: `${API_ROOT}/auth/login`,
@@ -30,21 +40,21 @@ export const API_CONFIG = {
   },
   get users() {
     return {
-      profile: `${API_BASE_URL}/users/profile`,
-      list: `${API_BASE_URL}/users/list`,
+      profile: `${API_ROOT}/users/profile`,
+      list: `${API_ROOT}/users/list`,
     };
   },
   get calc() {
     return {
-      calculate: `${API_BASE_URL}/calc/calcular`,
-      platforms: `${API_BASE_URL}/calc/platforms`,
-      gateways: `${API_BASE_URL}/calc/gateways`,
+      calculate: `${API_ROOT}/calc/calcular`,
+      platforms: `${API_ROOT}/calc/platforms`,
+      gateways: `${API_ROOT}/calc/gateways`,
     };
   },
   get exchange() {
     return {
-      rate: `${API_BASE_URL}/exchange/rate`,
-      currencies: `${API_BASE_URL}/exchange/currencies`,
+      rate: `${API_ROOT}/exchange/rate`,
+      currencies: `${API_ROOT}/exchange/currencies`,
     };
   }
 };
