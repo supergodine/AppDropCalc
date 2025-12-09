@@ -14,7 +14,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "destination": "https://backend-holy-fog-6984.fly.dev/api/$1"
     },
     {
       "source": "/assets/(.*)",
