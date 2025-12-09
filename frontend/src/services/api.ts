@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { API_BASE_URL } from '../config/api';
+import { API_BASE_URL, API_ROOT } from '../config/api';
 import type {
   // LoginResponse, // COMENTADO - não mais usado (Firebase Auth)
   User,
@@ -15,11 +15,11 @@ import type {
 
 // Usando exclusivamente a constante exportada `API_BASE_URL` (vinda de VITE_API_URL)
 // Debug: mostrar base da API
-console.log('🔥 API_BASE_URL:', API_BASE_URL);
+console.log('🔥 API_BASE_URL:', API_BASE_URL, '🔥 API_ROOT:', API_ROOT);
 
 // Create axios instance
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_ROOT || API_BASE_URL,
   timeout: 10000,
 });
 
