@@ -6,6 +6,7 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { toast } from 'react-hot-toast';
+import { authApi } from '@/services/api';
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -66,13 +67,16 @@ const ResetPassword: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Simular redefinição de senha
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      if (!token) {
+        throw new Error('Token ausente');
+      }
+
+      const result = await authApi.resetPassword(token, password);
       setPasswordReset(true);
-      toast.success('Senha redefinida com sucesso!');
-    } catch (error) {
-      toast.error('Erro ao redefinir senha. Tente novamente');
+      toast.success(result?.message || 'Senha redefinida com sucesso!');
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || error?.message || 'Erro ao redefinir senha. Tente novamente';
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
