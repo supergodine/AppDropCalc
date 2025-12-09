@@ -8,13 +8,13 @@ export const API_BASE_URL: string = import.meta.env.VITE_API_URL;
 // trigger: deploy Vercel 2025-11-29
 
 export const AUTH_URLS = {
-  login: `${BASE_URL}/api/auth/login`,
-  signup: `${BASE_URL}/api/auth/signup`,
-  social: `${BASE_URL}/api/auth/social`,
-  refresh: `${BASE_URL}/api/auth/refresh`,
-  logout: `${BASE_URL}/api/auth/logout`,
-  profile: `${BASE_URL}/api/auth/profile`,
-  forgotPassword: `${BASE_URL}/api/auth/forgot-password`,
+  login: `${API_BASE_URL}/api/auth/login`,
+  signup: `${API_BASE_URL}/api/auth/signup`,
+  social: `${API_BASE_URL}/api/auth/social`,
+  refresh: `${API_BASE_URL}/api/auth/refresh`,
+  logout: `${API_BASE_URL}/api/auth/logout`,
+  profile: `${API_BASE_URL}/api/auth/profile`,
+  forgotPassword: `${API_BASE_URL}/api/auth/forgot-password`,
 };
 
 export const API_CONFIG = {
