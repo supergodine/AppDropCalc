@@ -7,19 +7,23 @@ export const API_BASE_URL: string = import.meta.env.VITE_API_URL;
 
 // trigger: deploy Vercel 2025-11-29
 
+// Normalize API root so callers won't accidentally create duplicate `/api/api` paths.
+const _base = API_BASE_URL ? API_BASE_URL.replace(/\/$/, '') : API_BASE_URL;
+export const API_ROOT = _base?.endsWith('/api') ? _base : `${_base}/api`;
+
 export const AUTH_URLS = {
-  login: `${API_BASE_URL}/api/auth/login`,
-  signup: `${API_BASE_URL}/api/auth/signup`,
-  social: `${API_BASE_URL}/api/auth/social`,
-  refresh: `${API_BASE_URL}/api/auth/refresh`,
-  logout: `${API_BASE_URL}/api/auth/logout`,
-  profile: `${API_BASE_URL}/api/auth/profile`,
-  forgotPassword: `${API_BASE_URL}/api/auth/forgot-password`,
+  login: `${API_ROOT}/auth/login`,
+  signup: `${API_ROOT}/auth/signup`,
+  social: `${API_ROOT}/auth/social`,
+  refresh: `${API_ROOT}/auth/refresh`,
+  logout: `${API_ROOT}/auth/logout`,
+  profile: `${API_ROOT}/auth/profile`,
+  forgotPassword: `${API_ROOT}/auth/forgot-password`,
 };
 
 export const API_CONFIG = {
   getBaseURL(): string {
-    return API_BASE_URL;
+    return API_ROOT || API_BASE_URL;
   },
   get auth() {
     return AUTH_URLS;
