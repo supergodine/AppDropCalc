@@ -60,13 +60,14 @@ self.addEventListener('fetch', (event) => {
           // Only cache successful responses and typical static types
           if (!networkResponse || !networkResponse.ok) return networkResponse;
           const contentType = networkResponse.headers.get('content-type') || '';
-          if (
+          // Only cache GET requests for static content
+          if (req.method === 'GET' && (
             contentType.includes('javascript') ||
             contentType.includes('text/css') ||
             contentType.includes('image/') ||
             contentType.includes('font/') ||
             contentType.includes('application/json')
-          ) {
+          )) {
             try {
               const respClone = networkResponse.clone();
               caches.open(CACHE_NAME).then((cache) => cache.put(req, respClone));
