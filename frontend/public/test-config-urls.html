@@ -24,14 +24,8 @@
         // Simular import da configuração
         const API_CONFIG = {
             getBaseURL() {
-                // Em desenvolvimento: localhost
-                if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-                    return 'http://localhost:3001';
-                }
-                
-                // Em produção: Render
-                return 'https://appdropcalc.onrender.com';
-                // return 'https://appdropcalc.onrender.com'; // Render
+                // Use exclusivamente VITE_API_URL definido no build
+                return import.meta.env.VITE_API_URL;
             },
 
             get auth() {

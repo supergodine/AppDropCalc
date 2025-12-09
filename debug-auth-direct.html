@@ -31,11 +31,11 @@
     <script>
         // URLs possíveis
         const urls = {
-            'Railway HTTPS': 'https://appdropcalc-production.up.railway.app',
-            'Railway HTTP': 'http://appdropcalc-production.up.railway.app', 
+            'Prod HTTPS': 'https://api.seu-dominio.com',
+            'Prod HTTP': 'http://api.seu-dominio.com', 
             'Localhost 3001': 'http://localhost:3001',
             'Localhost 3002': 'http://localhost:3002',
-            'Vercel com 3002': 'http://app-drop-calc-matcqzw7v.vercel.app:3002'
+            'Vercel com 3002': 'http://app-drop-calc.example.com:3002'
         };
 
         // Exibir URLs
@@ -48,8 +48,8 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const correctUrl = 'https://appdropcalc-production.up.railway.app';
-            
+            const correctUrl = 'https://api.seu-dominio.com';
+
             console.log('🔍 Testando registro com URL:', correctUrl);
 
             try {

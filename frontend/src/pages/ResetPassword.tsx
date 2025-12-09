@@ -6,6 +6,7 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { toast } from 'react-hot-toast';
+import { authApi } from '@/services/api';
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -21,11 +22,28 @@ const ResetPassword: React.FC = () => {
   const token = searchParams.get('token');
 
   useEffect(() => {
-    // Verificar se o token é válido (simulação)
-    if (!token) {
-      setIsValidToken(false);
-      toast.error('Token de recuperação inválido ou expirado');
-    }
+    // Verificar se o token é válido consultando o backend
+    console.log('ResetPassword mounted, token=', token);
+    const checkToken = async () => {
+      if (!token) {
+        setIsValidToken(false);
+        toast.error('Token de recuperação inválido ou expirado');
+        return;
+      }
+      try {
+        const res = await authApi.validateResetToken(token);
+        if (!res || !res.valid) {
+          setIsValidToken(false);
+          toast.error(res?.message || 'Token de recuperação inválido ou expirado');
+        }
+      } catch (err: any) {
+        console.error('Erro ao validar token de reset:', err?.response?.data || err);
+        setIsValidToken(false);
+        toast.error('Erro ao validar token de recuperação');
+      }
+    };
+
+    checkToken();
   }, [token]);
 
   const validatePassword = (password: string) => {
@@ -66,13 +84,17 @@ const ResetPassword: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Simular redefinição de senha
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      if (!token) {
+        throw new Error('Token ausente');
+      }
+
+      const result = await authApi.resetPassword(token, password);
       setPasswordReset(true);
-      toast.success('Senha redefinida com sucesso!');
-    } catch (error) {
-      toast.error('Erro ao redefinir senha. Tente novamente');
+      toast.success(result?.message || 'Senha redefinida com sucesso!');
+    } catch (error: any) {
+      console.error('ResetPassword submit error:', error?.response?.data || error);
+      const msg = error?.response?.data?.message || error?.message || 'Erro ao redefinir senha. Tente novamente';
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }

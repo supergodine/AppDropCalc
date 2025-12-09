@@ -1,3 +1,4 @@
+// [FORCE COMMIT] Alteração forçada para garantir atualização do arquivo no git
 import {
   Entity,
   PrimaryGeneratedColumn,

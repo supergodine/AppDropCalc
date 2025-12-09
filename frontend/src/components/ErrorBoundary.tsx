@@ -1,5 +1,7 @@
 import React from 'react';
 
+// Nota: comentário inofensivo adicionado apenas para forçar um commit/deploy.
+
 interface ErrorBoundaryState {
   hasError: boolean;
   error?: Error;

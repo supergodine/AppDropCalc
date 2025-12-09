@@ -38,7 +38,9 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "firebase-admin": "^11.10.0",
     "helmet": "^7.1.0",
+    "node-mailjet": "^6.0.11",
     "nodemailer": "^7.0.10",
     "passport": "^0.6.0",
     "passport-google-oauth20": "^2.0.0",
@@ -58,6 +60,7 @@
     "typeorm:migration:run": "npx ts-node ./node_modules/typeorm/cli.js migration:run --dataSource src/database/data-source.ts"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.7.10",
     "@nestjs/testing": "^10.4.20",
     "@types/jest": "^30.0.0",
     "@typescript-eslint/eslint-plugin": "^6.9.1",
