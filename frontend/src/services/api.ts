@@ -97,6 +97,21 @@ export const authApi = {
     const response = await api.post('/auth/refresh', { refreshToken });
     return response.data;
   },
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const response: AxiosResponse<{ message: string }> = await api.post('/auth/forgot-password', {
+      email,
+    });
+    return response.data;
+  },
+
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    const response: AxiosResponse<{ message: string }> = await api.post('/auth/reset-password', {
+      token,
+      newPassword,
+    });
+    return response.data;
+  },
 };
 
 // Calculations API
