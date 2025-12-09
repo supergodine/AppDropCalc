@@ -1,13 +1,11 @@
-const CACHE_NAME = 'dropcalc-v1.0.0';
+// Use a timestamped cache name to force clients to fetch the new service worker
+const CACHE_NAME = 'dropcalc-cache-' + Date.now();
 const urlsToCache = [
-  '/',
-  '/dashboard',
-  '/login',
-  '/settings',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/icon-192x192.png',
-  '/icon-512x512.png'
+  '/index.html',
+  '/assets/',
+  '/pwa-192x192.png',
+  '/pwa-512x512.png',
+  '/icon.svg',
 ];
 
 // Instalar Service Worker
@@ -27,42 +25,64 @@ self.addEventListener('install', (event) => {
 
 // Interceptar requisições de rede
 self.addEventListener('fetch', (event) => {
+  const req = event.request;
+
+  // Ignore non-http/https requests (chrome-extension:, data:, etc.)
+  if (!req || !req.url || !(req.url.startsWith('http://') || req.url.startsWith('https://'))) {
+    return;
+  }
+
+  // Navigation requests (single-page app navigations) -> Network first, fallback to cache
+  if (req.mode === 'navigate') {
+    event.respondWith(
+      fetch(req)
+        .then((networkResponse) => {
+          // Update cache for index.html only
+          if (networkResponse && networkResponse.ok) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put('/index.html', clone);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
+
+  // For other requests (scripts, styles, images) -> Cache first, then network fallback
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Retorna do cache se disponível
-        if (response) {
-          return response;
-        }
-        
-        // Senão, busca da rede
-        return fetch(event.request)
-          .then((response) => {
-            // Verifica se é uma resposta válida
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
+    caches.match(req).then((cached) => {
+      if (cached) return cached;
+      return fetch(req)
+        .then((networkResponse) => {
+          // Only cache successful responses and typical static types
+          if (!networkResponse || !networkResponse.ok) return networkResponse;
+          const contentType = networkResponse.headers.get('content-type') || '';
+          // Only cache GET requests for static content
+          if (req.method === 'GET' && (
+            contentType.includes('javascript') ||
+            contentType.includes('text/css') ||
+            contentType.includes('image/') ||
+            contentType.includes('font/') ||
+            contentType.includes('application/json')
+          )) {
+            try {
+              const respClone = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(req, respClone));
+            } catch (err) {
+              console.warn('ServiceWorker cache put failed', err);
             }
-
-            // Clona a resposta
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          })
-          .catch((error) => {
-            console.log('Fetch failed silently:', error);
-            // Fallback para página offline
-            if (event.request.destination === 'document') {
-              return caches.match('/');
-            }
-            // Para outros recursos, retorna uma resposta vazia
-            return new Response('', { status: 200 });
-          });
-      })
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // If request is a document and offline, serve cached index
+          if (req.destination === 'document') return caches.match('/index.html');
+          return new Response('', { status: 200 });
+        });
+    })
   );
 });
 

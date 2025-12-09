@@ -45,10 +45,10 @@
                 // Mostrar stack trace para identificar origem
                 console.trace('🔍 Stack trace da URL problemática:');
                 
-                // Substituir URL problemática
-                const fixedUrl = fullUrl.replace(/vercel\.app:3002/, 'appdropcalc-production.up.railway.app');
+                // Substituir URL problemática por endpoint de produção configurado
+                const fixedUrl = fullUrl.replace(/vercel\.app:3002/, 'https://api.seu-dominio.com');
                 addLog(`🔧 URL CORRIGIDA: ${fixedUrl}`, 'warning');
-                
+
                 return originalFetch(fixedUrl, options);
             }
             
@@ -56,15 +56,15 @@
                 addLog(`⚠️ LOCALHOST DETECTADO: ${fullUrl}`, 'warning');
             }
             
-            if (fullUrl.includes('railway.app')) {
-                addLog(`✅ RAILWAY OK: ${fullUrl}`, 'success');
+            if (fullUrl.includes('provedor-deploy')) {
+                addLog(`✅ PROVEDOR-DE-DEPLOY OK: ${fullUrl}`, 'success');
             }
             
             return originalFetch(url, options);
         };
         
         addLog('🎯 Interceptador de fetch ativado!', 'success');
-        addLog('Agora vá para: https://app-drop-calc-matcqzw7v.vercel.app/login', 'log');
+        addLog('Agora vá para: https://app-drop-calc.example.com/login', 'log');
         addLog('E tente criar uma conta. Todas as URLs serão logadas aqui.', 'log');
     </script>
 </body>

@@ -17,6 +17,13 @@ console.log('🔥 Firebase Config:', {
   projectId: firebaseConfig.projectId
 });
 
+// Log da origem da aplicação para ajudar no debugging de domínios autorizados
+try {
+  console.log('🌐 App origin:', window.location.origin);
+} catch (e) {
+  console.warn('⚠️ Não foi possível ler window.location.origin:', e);
+}
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 

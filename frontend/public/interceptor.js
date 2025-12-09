@@ -27,14 +27,8 @@
             (finalUrl.includes('vercel.app:') && finalUrl.includes('/auth/'))) {
             console.warn('🚨 URL PROBLEMÁTICA DETECTADA:', finalUrl);
             
-            // REGEX PARA CORRIGIR QUALQUER VARIAÇÃO DE API
-            finalUrl = finalUrl
-                .replace(/http:\/\/.*?:3002/g, 'https://appdropcalc.onrender.com')
-                .replace(/http:\/\/localhost:\d+/g, 'https://appdropcalc.onrender.com')
-                .replace(/http:\/\/.*\.vercel\.app:\d+/g, 'https://appdropcalc.onrender.com')
-                .replace(/https:\/\/.*\.vercel\.app:\d+/g, 'https://appdropcalc.onrender.com');
-            
-            console.log('✅ URL CORRIGIDA PARA:', finalUrl);
+            // Interceptor antigo removido — use VITE_API_URL no build e configure URLs apropriadas no código fonte.
+            console.log('ℹ Interceptor desativado: não serão feitas correções automáticas de URL.');
         }
         
         return originalFetch(finalUrl, options);
@@ -55,16 +49,14 @@
             return originalXHROpen.call(this, method, finalUrl, ...args);
         }
         
-        if (finalUrl.includes('3002') || 
+            if (finalUrl.includes('3002') || 
             (finalUrl.includes('localhost') && finalUrl.includes('/auth/')) ||
             (finalUrl.includes('vercel.app:') && finalUrl.includes('/auth/'))) {
             console.warn('🚨 XHR URL PROBLEMÁTICA:', finalUrl);
-            finalUrl = finalUrl
-                .replace(/http:\/\/.*?:3002/g, 'https://appdropcalc.onrender.com')
-                .replace(/http:\/\/localhost:\d+/g, 'https://appdropcalc.onrender.com')
-                .replace(/http:\/\/.*\.vercel\.app:\d+/g, 'https://appdropcalc.onrender.com');
-// .replace(/http:\/\/.*?:3002/g, 'https://appdropcalc.onrender.com') // Render
-            console.log('✅ XHR CORRIGIDA:', finalUrl);
+            // Não realizar correções automáticas aqui. Garanta que o código use import.meta.env.VITE_API_URL.
+            console.log('ℹ XHR detectada — não realizada alteração automática.');
+            
+            }
         }
         
         return originalXHROpen.call(this, method, finalUrl, ...args);
@@ -84,11 +76,11 @@
             return originalAssign.call(this, url);
         }
         
-        if (url.includes('3002') || 
+            if (url.includes('3002') || 
             (url.includes('localhost') && url.includes('/auth/'))) {
             console.warn('🚨 LOCATION PROBLEMÁTICA:', url);
-            url = url.replace(/http:\/\/.*?:3002/g, 'https://appdropcalc.onrender.com');
-            console.log('✅ LOCATION CORRIGIDA:', url);
+            // Não realizar correções automáticas. Use VITE_API_URL no build.
+            console.log('ℹ Location problemática detectada — não alterada.');
         }
         return originalAssign.call(this, url);
     };

@@ -223,12 +223,12 @@ docker-compose -f docker-compose.prod.yml up -d
 git push origin main
 ```
 
-### Railway/Heroku (Backend)
+### Fly.io (Backend)
 
 ```bash
-# Configurar variáveis de ambiente no painel
-# Fazer deploy via Git
-git push railway main
+# Configure secrets on Fly: DATABASE_URL, JWT_SECRET, etc.
+# Build and deploy (from backend folder):
+flyctl deploy --remote-only
 ```
 
 ## 🔐 Segurança
