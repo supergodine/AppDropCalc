@@ -1,5 +1,5 @@
 const axios = require('axios');
-const BASE_URL = 'https://appdropcalc.onrender.com';
+const BASE_URL = process.env.BACKEND_URL || 'http://localhost:10000';
 
 async function updateAdminRole() {
     // Teste de login e chamada autenticada ao endpoint /users/create-admin

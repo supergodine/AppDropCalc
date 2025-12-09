@@ -18,6 +18,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import admin from '../../common/firebase-admin';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 // Removido MailService antigo. MailerService é global.
@@ -104,7 +105,7 @@ export class AuthController {
   @Post('social')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login com provedores sociais (Google) - aceita dados do frontend' })
-  async socialLogin(@Body() body: any, @Res() res: Response) {
+  async socialLogin(@Body() body: any, @Request() req, @Res() res: Response) {
     console.log('REQ RECEBIDA: POST /auth/social', { provider: body?.provider, email: body?.email });
     try {
       // Atualmente suportamos apenas 'google'
@@ -112,12 +113,32 @@ export class AuthController {
         return res.status(400).json({ success: false, message: 'Provider não suportado' });
       }
 
-      // Esperamos receber: email, name, googleId, photoURL
+      // Esperamos receber: idToken (Firebase ID token) enviado pelo frontend
+      let idToken = body.idToken;
+      // Se não veio no body, aceitar token pelo header Authorization: Bearer <idToken>
+      const authHeader = req?.headers?.authorization || req?.headers?.Authorization;
+      if (!idToken && authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+        idToken = authHeader.slice(7);
+      }
+      if (!idToken) {
+        return res.status(400).json({ success: false, message: 'idToken ausente' });
+      }
+
+      // Verificar token com Firebase Admin
+      let decoded: any;
+      try {
+        decoded = await admin.auth().verifyIdToken(idToken);
+      } catch (verifyErr) {
+        console.error('[socialLogin] Falha ao verificar idToken:', verifyErr?.message || verifyErr);
+        return res.status(401).json({ success: false, message: 'Token Firebase inválido' });
+      }
+
+      // Construir objeto do usuário a partir do token verificado
       const googleUser = {
-        id: body.googleId || body.googleId || null,
-        email: body.email,
-        name: body.name,
-        photoURL: body.photoURL,
+        id: decoded.uid,
+        email: decoded.email,
+        name: decoded.name || body.name || decoded.email?.split('@')[0],
+        photoURL: decoded.picture || body.photoURL,
       };
 
       const result = await this.authService.handleGoogleLogin(googleUser);

@@ -33,9 +33,6 @@ async function bootstrap() {
   // Prefixo global da API
   app.setGlobalPrefix('api');
 
-  // TRUST PROXY (necessário em Render / Railway)
-  app.getHttpAdapter().getInstance().set('trust proxy', 1);
-
   // CORS ORIGINS
   const originsFromEnv = process.env.CORS_ORIGINS;
 
@@ -46,7 +43,6 @@ async function bootstrap() {
         'https://dropcalc-front.vercel.app',
         'http://localhost:5173',
         'http://localhost:3000',
-        'https://appdropcalc.onrender.com', // ← IMPORTANTE!
       ];
 
   console.log('🌐 CORS ORIGINS ATIVADOS:', allowedOrigins);

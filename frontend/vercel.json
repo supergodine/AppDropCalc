@@ -4,21 +4,17 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "env": {
-    "VITE_API_URL": "https://appdropcalc.onrender.com"
-  },
+  "env": {},
   "git": {
     "branch": "feat/login-recuperacao-senha"
   },
   "build": {
-    "env": {
-      "VITE_API_URL": "https://appdropcalc.onrender.com"
-    }
+    "env": {}
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://appdropcalc.onrender.com/api/$1"
+      "destination": "/api/$1"
     },
     {
       "source": "/(.*)",
