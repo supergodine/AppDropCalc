@@ -94,5 +94,35 @@
         });
       }
     </script>
+    
+    <!-- One-time unregister of old service workers and cache cleanup to ensure clients pick up new bundles -->
+    <script>
+      (function() {
+        try {
+          if (!('serviceWorker' in navigator)) return;
+          // Run only once per client
+          if (localStorage.getItem('dropcalc_sw_unregistered')) return;
+
+          // Unregister all existing service workers
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            registrations.forEach(function(reg) {
+              try { reg.unregister(); } catch (e) { /* ignore */ }
+            });
+          }).catch(function(){});
+
+          // Clear caches (best-effort)
+          if ('caches' in window) {
+            caches.keys().then(function(keys) {
+              return Promise.all(keys.map(function(key) { return caches.delete(key); }));
+            }).catch(function(){});
+          }
+
+          localStorage.setItem('dropcalc_sw_unregistered', '1');
+          console.info('DropCalc: unregistered old service workers and cleared caches (one-time)');
+        } catch (err) {
+          console.warn('DropCalc: failed to cleanup SW/caches', err);
+        }
+      })();
+    </script>
   </body>
 </html>
