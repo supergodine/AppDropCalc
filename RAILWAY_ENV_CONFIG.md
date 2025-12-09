@@ -1,5 +1,5 @@
-# Configuração de Variáveis de Ambiente para Railway
-# Execute estes comandos no Railway Dashboard ou CLI
+# Configuração de Variáveis de Ambiente para provedor de deploy
+# Execute estes comandos no painel do provedor de deploy ou CLI
 
 # Database Configuration
 DATABASE_TYPE=sqlite
@@ -12,7 +12,7 @@ JWT_EXPIRATION=7d
 # OAuth Google Configuration
 GOOGLE_CLIENT_ID=931741442377-t814hbaisjjah0nadg6hukpqphjmafv.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=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
-GOOGLE_CALLBACK_URL=https://appdropcalc-production.up.railway.app/auth/google/callback
+GOOGLE_CALLBACK_URL=https://api.seu-dominio.com/auth/google/callback
 
 # Gmail Configuration
 GMAIL_USER=massuplas@gmail.com

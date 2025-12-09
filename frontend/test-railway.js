@@ -1,4 +1,4 @@
-// Teste de comunicação com o backend Render
+// Teste de comunicação com o backend
 console.log('🔥 Testando comunicação com backend (usando VITE_API_URL)...');
 
 const testAPI = async () => {
@@ -12,7 +12,7 @@ const testAPI = async () => {
             console.log('✅ Dados recebidos:', data);
             document.body.innerHTML = `
                 <h1>✅ SUCESSO!</h1>
-                <p>Backend Render respondeu corretamente!</p>
+                <p>Backend respondeu corretamente!</p>
                 <p>Status: ${response.status}</p>
                 <p>Endpoints funcionando: /calc/platforms</p>
                 <h3>Plataformas disponíveis:</h3>
