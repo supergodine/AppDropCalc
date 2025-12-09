@@ -25,7 +25,7 @@ async function testDatabaseConnectionAndMigrate() {
 
 async function bootstrap() {
   console.log('🔎 [DEBUG] Iniciando bootstrap do backend...');
-  // Removido testDatabaseConnectionAndMigrate para evitar conflito de conexão
+  // Bootstrap normal da aplicação (assume que o banco já foi verificado/migrado)
   console.log('🔎 [DEBUG] Criando app NestJS...');
   const app = await NestFactory.create(AppModule);
 
@@ -72,7 +72,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // Porta do servidor (Fly/Render usa variável PORT)
+  // Porta do servidor (use variável PORT)
   const port = Number(process.env.PORT) || 10000;
 
   await app.listen(port, '0.0.0.0');
@@ -82,4 +82,8 @@ async function bootstrap() {
   console.log('🔎 [DEBUG] Backend inicializado com sucesso!');
 }
 
-bootstrap();
+(async () => {
+  // Antes de iniciar o app, garanta que o banco está acessível e migrações aplicadas
+  await testDatabaseConnectionAndMigrate();
+  await bootstrap();
+})();

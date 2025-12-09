@@ -4,7 +4,8 @@ async function testSignup() {
   try {
     console.log('🔄 Testando cadastro...');
     
-    const response = await axios.post('https://appdropcalc.onrender.com/api/auth/signup', {
+    const API_BASE = process.env.API_BASE || '';
+    const response = await axios.post(`${API_BASE}/api/auth/signup`, {
       email: 'massuplas@gmail.com',
       password: 'Dhiko35@',
       name: 'Diego'
