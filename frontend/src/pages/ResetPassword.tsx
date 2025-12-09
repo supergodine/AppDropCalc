@@ -22,13 +22,11 @@ const ResetPassword: React.FC = () => {
   const token = searchParams.get('token');
 
   useEffect(() => {
-    // Apenas verificar se o token está presente no link.
-    // A validação efetiva do token (inválido/expirado) é feita pelo backend
-    // quando o usuário submete o formulário (POST /auth/reset-password).
+    // Não fazer qualquer requisição à API na montagem.
+    // Apenas marcar token como inválido se o parâmetro estiver ausente.
     console.log('ResetPassword mounted, token=', token);
     if (!token) {
       setIsValidToken(false);
-      toast.error('Token de recuperação inválido ou expirado');
     }
   }, [token]);
 
@@ -79,13 +77,12 @@ const ResetPassword: React.FC = () => {
       toast.success(result?.message || 'Senha redefinida com sucesso!');
     } catch (error: any) {
       console.error('ResetPassword submit error:', error?.response?.data || error);
+      const status = error?.response?.status;
       const msg = error?.response?.data?.message || error?.message || 'Erro ao redefinir senha. Tente novamente';
-      // Se o backend indicar que o token é inválido ou expirou, exibir a tela de token inválido
-      const lower = (msg || '').toString().toLowerCase();
-      if (lower.includes('token') || lower.includes('inválid') || lower.includes('expir')) {
+      // Se o backend retornar 400 ou 404, considerar token inválido/expirado
+      if (status === 400 || status === 404) {
         setIsValidToken(false);
-        // Log para diagnóstico; a UI de token inválido será exibida
-        console.warn('ResetPassword: token inválido sinalizado pelo backend:', msg);
+        console.warn('ResetPassword: backend returned status indicating invalid token:', status, msg);
       } else {
         toast.error(msg);
       }
