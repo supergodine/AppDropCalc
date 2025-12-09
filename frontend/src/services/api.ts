@@ -111,6 +111,12 @@ export const authApi = {
     });
     return response.data;
   },
+  async validateResetToken(token: string): Promise<{ valid: boolean; message?: string }> {
+    const response: AxiosResponse<{ valid: boolean; message?: string }> = await api.get('/auth/reset-password/validate', {
+      params: { token },
+    });
+    return response.data;
+  },
 };
 
 // Calculations API

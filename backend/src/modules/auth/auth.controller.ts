@@ -61,6 +61,23 @@ export class AuthController {
       const result = await this.authService.resetPassword(body);
       return result;
     }
+  
+    @Get('reset-password/validate')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Validar token de recuperação de senha' })
+    async validateResetToken(@Request() req) {
+      const token = req?.query?.token;
+      if (!token) {
+        return { valid: false, message: 'Token ausente' };
+      }
+      try {
+        const result = await this.authService.validateResetToken(token);
+        return result;
+      } catch (error) {
+        console.error('[validateResetToken] Erro interno:', error);
+        return { valid: false, message: 'Erro ao validar token' };
+      }
+    }
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: SignUpDto })
