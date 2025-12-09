@@ -8,6 +8,7 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { toast } from 'react-hot-toast';
+import { authApi } from '../services/api';
 
 const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -33,23 +34,12 @@ const ForgotPassword: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Chamar endpoint real do backend
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-      if (response.ok) {
-        setEmailSent(true);
-        toast.success('Email de recuperação enviado com sucesso!');
-      } else {
-        const data = await response.json();
-        toast.error(data.message || 'Erro ao enviar email de recuperação');
-      }
-    } catch (error) {
-      toast.error('Erro ao enviar email de recuperação');
+      const response = await authApi.forgotPassword(email);
+      setEmailSent(true);
+      toast.success(response.message);
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || 'Erro ao enviar email de recuperação';
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -79,21 +69,11 @@ const ForgotPassword: React.FC = () => {
     setCanResend(false);
     setTimer(60);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-      if (response.ok) {
-        toast.success('Email reenviado com sucesso!');
-      } else {
-        const data = await response.json();
-        toast.error(data.message || 'Erro ao reenviar email de recuperação');
-      }
-    } catch (error) {
-      toast.error('Erro ao reenviar email de recuperação');
+      const response = await authApi.forgotPassword(email);
+      toast.success(response.message);
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || 'Erro ao reenviar email de recuperação';
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
