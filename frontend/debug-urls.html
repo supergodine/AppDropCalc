@@ -14,7 +14,7 @@
     <h1>Debug URLs - DropCalc</h1>
     <div id="results"></div>
     
-    <script>
+    <script type="module">
         const results = document.getElementById('results');
         
         function addResult(title, status, message, data = {}) {
@@ -42,11 +42,10 @@
             addResult('Firebase', 'error', 'Firebase NÃO carregado');
         }
         
-        // 3. Simular getBaseURL
+        // 3. Usar VITE_API_URL do build (exige build Vite)
         function getBaseURL() {
-            console.log('� Usando API_URL do ambiente');
-            return 'https://appdropcalc.onrender.com';
-            // return 'https://appdropcalc.onrender.com'; // Render
+            console.log('ℹ Usando API_URL do ambiente (VITE_API_URL)');
+            return import.meta.env.VITE_API_URL;
         }
         
         const baseURL = getBaseURL();

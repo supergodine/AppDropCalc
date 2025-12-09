@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
+import { API_BASE_URL } from '../config/api';
 import type {
   // LoginResponse, // COMENTADO - não mais usado (Firebase Auth)
   User,
@@ -12,9 +13,7 @@ import type {
   CalculationResult,
 } from '../types';
 
-// Usando sempre a variável de ambiente VITE_API_URL
-const API_BASE_URL = import.meta.env.VITE_API_URL;
-
+// Usando exclusivamente a constante exportada `API_BASE_URL` (vinda de VITE_API_URL)
 // Debug: mostrar base da API
 console.log('🔥 API_BASE_URL:', API_BASE_URL);
 
