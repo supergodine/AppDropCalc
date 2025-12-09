@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Welcome from '@/pages/Welcome';
 import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
 import Login from '@/pages/Login';
 import LoginSimple from '@/pages/LoginSimple';
 import Payment from '@/pages/Payment';
@@ -40,6 +41,7 @@ const App: React.FC = () => {
           <Route path="/signup" element={<Login />} />
           <Route path="/help" element={<Help />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           
           {/* Protected Routes */}
           <Route 
