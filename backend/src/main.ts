@@ -76,8 +76,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // Porta do servidor (Render usa variável PORT)
-  const port = process.env.PORT || 3000;
+  // Porta do servidor (Fly/Render usa variável PORT)
+  const port = Number(process.env.PORT) || 10000;
 
   await app.listen(port, '0.0.0.0');
 
