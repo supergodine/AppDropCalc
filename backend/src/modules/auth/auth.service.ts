@@ -90,6 +90,23 @@ export class AuthService {
     console.log(`[resetPassword] Senha redefinida com sucesso para usuário: ${user.email}`);
     return { success: true, message: 'Senha redefinida com sucesso' };
   }
+
+  /**
+   * Validar token de recuperação (presente e não expirado)
+   */
+  async validateResetToken(token: string): Promise<{ valid: boolean; message?: string }> {
+    if (!token) {
+      return { valid: false, message: 'Token ausente' };
+    }
+    const user = await this.userRepository.findOne({ where: { passwordResetToken: token } });
+    if (!user) {
+      return { valid: false, message: 'Token inválido ou usuário não encontrado' };
+    }
+    if (!user.passwordResetExpires || user.passwordResetExpires < new Date()) {
+      return { valid: false, message: 'Token expirado' };
+    }
+    return { valid: true, message: 'Token válido' };
+  }
   // Buscar usuário por email
   async findUserByEmail(email: string): Promise<User | null> {
     return await this.userRepository.findOne({ where: { email } });
