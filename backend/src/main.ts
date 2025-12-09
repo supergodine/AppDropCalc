@@ -25,12 +25,13 @@ async function testDatabaseConnectionAndMigrate() {
 
 async function bootstrap() {
   console.log('🔎 [DEBUG] Iniciando bootstrap do backend...');
-  await testDatabaseConnectionAndMigrate();
-  console.log('🔎 [DEBUG] Migração concluída, criando app NestJS...');
+  // Bootstrap normal da aplicação (assume que o banco já foi verificado/migrado)
+  console.log('🔎 [DEBUG] Criando app NestJS...');
   const app = await NestFactory.create(AppModule);
 
-  // TRUST PROXY (necessário em Render / Railway)
-  app.getHttpAdapter().getInstance().set('trust proxy', 1);
+
+  // Prefixo global da API
+  app.setGlobalPrefix('api');
 
   // CORS ORIGINS
   const originsFromEnv = process.env.CORS_ORIGINS;
@@ -42,7 +43,6 @@ async function bootstrap() {
         'https://dropcalc-front.vercel.app',
         'http://localhost:5173',
         'http://localhost:3000',
-        'https://appdropcalc.onrender.com', // ← IMPORTANTE!
       ];
 
   console.log('🌐 CORS ORIGINS ATIVADOS:', allowedOrigins);
@@ -72,8 +72,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // Porta do servidor (Render usa variável PORT)
-  const port = process.env.PORT || 3000;
+  // Porta do servidor (use variável PORT)
+  const port = Number(process.env.PORT) || 10000;
 
   await app.listen(port, '0.0.0.0');
 
@@ -82,4 +82,8 @@ async function bootstrap() {
   console.log('🔎 [DEBUG] Backend inicializado com sucesso!');
 }
 
-bootstrap();
+(async () => {
+  // Antes de iniciar o app, garanta que o banco está acessível e migrações aplicadas
+  await testDatabaseConnectionAndMigrate();
+  await bootstrap();
+})();

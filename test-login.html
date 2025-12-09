@@ -47,7 +47,7 @@
 <body>
     <div class="container">
         <h1>🔧 Teste Login DropCalc</h1>
-        <p>API: <strong>https://appdropcalc-production.up.railway.app</strong></p>
+        <p>API: <strong>defina `VITE_API_URL` no ambiente (ex.: https://api.seu-dominio.com)</strong></p>
         
         <form id="loginForm">
             <input type="email" id="email" placeholder="Email" value="test@test.com" required>
@@ -65,7 +65,7 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'https://appdropcalc-production.up.railway.app';
+        const API_BASE_URL = '';
         
         function showResult(message, isSuccess = true) {
             const result = document.getElementById('result');

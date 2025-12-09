@@ -41,7 +41,7 @@ async function bootstrap() {
   await testDatabaseConnectionAndMigrate();
   const app = await NestFactory.create(AppModule);
 
-  // TRUST PROXY (necessário em Render / Railway)
+  // TRUST PROXY (not required to reference specific PaaS)
   app.getHttpAdapter().getInstance().set('trust proxy', 1);
 
   // CORS ORIGINS
@@ -54,7 +54,7 @@ async function bootstrap() {
         'https://dropcalc-front.vercel.app',
         'http://localhost:5173',
         'http://localhost:3000',
-        'https://appdropcalc.onrender.com', // ← IMPORTANTE!
+        // removed old onrender.com reference
       ];
 
   console.log('🌐 CORS ORIGINS ATIVADOS:', allowedOrigins);
@@ -110,8 +110,8 @@ DB_USERNAME=diego
 DB_PASSWORD=P6XhjDqhdOIgPcTCG7WKJjmjVFYYwr9M
 DB_NAME=appdb_xyim
 DATABASE_URL=postgresql://diego:P6XhjDqhdOIgPcTCG7WKJjmjVFYYwr9M@dpg-d4kphmgdl3ps73fk0ci0-a/appdb_xyim
-DATABASE_URL_EXTERNAL=postgresql://diego:P6XhjDqhdOIgPcTCG7WKJjmjVFYYwr9M@dpg-d4kphmgdl3ps73fk0ci0-a.oregon-postgres.render.com/appdb_xyim
-PSQL_COMMAND=PGPASSWORD=P6XhjDqhdOIgPcTCG7WKJjmjVFYYwr9M psql -h dpg-d4kphmgdl3ps73fk0ci0-a.oregon-postgres.render.com -U diego appdb_xyim
+DATABASE_URL_EXTERNAL=
+PSQL_COMMAND=
 # --------------------------------------------
 # JWT
 # --------------------------------------------
@@ -135,8 +135,8 @@ EXCHANGERATE_API_BASE_URL="https://api.exchangerate-api.com/v4"
 # Aplicação
 ##############################################
 NODE_ENV=production
-BACKEND_URL="https://appdropcalc.onrender.com"
-#BACKEND_URL="https://appdropcalc-production.up.railway.app"  # antigo Railway
+BACKEND_URL=""
+# old Railway/Render references removed
 API_PREFIX=api
 
 # --------------------------------------------

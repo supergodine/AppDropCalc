@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Welcome from '@/pages/Welcome';
 import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
 import Login from '@/pages/Login';
 import LoginSimple from '@/pages/LoginSimple';
 import Payment from '@/pages/Payment';
@@ -14,9 +15,14 @@ import Settings from '@/pages/Settings';
 
 const App: React.FC = () => {
   const { loading, user } = useAuth();
+  const location = window.location?.pathname + window.location?.search;
+  React.useEffect(() => {
+    console.log('AppWithAuth: current location =', location);
+  }, [location]);
   
   console.log('=== AppWithAuth carregando ===');
   console.log('Loading:', loading, 'User:', user);
+  console.log('AppWithAuth: user state changed. current user =', user);
 
   if (loading) {
     return (
@@ -40,6 +46,7 @@ const App: React.FC = () => {
           <Route path="/signup" element={<Login />} />
           <Route path="/help" element={<Help />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           
           {/* Protected Routes */}
           <Route 

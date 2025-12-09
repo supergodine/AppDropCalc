@@ -1,19 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from '../users/entities/user.entity';
-import * as nodemailer from 'nodemailer';
+import { UsersService } from '../users/users.service';
+import { MailerService } from '../../common/mailer/mailer.service';
+
 
 @Injectable()
 export class MailService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly usersService: UsersService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async sendPasswordRecovery(email: string, token: string): Promise<void> {
     console.log(`[MailService] Iniciando recuperação de senha para: ${email}`);
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.usersService.findByEmail(email);
     if (!user) {
       console.log(`[MailService] Usuário não encontrado: ${email}`);
       // Por segurança, não lançar erro, apenas logar e retornar
@@ -21,28 +20,19 @@ export class MailService {
     }
 
     // Persistir token e expiração (1 hora)
-    user.passwordResetToken = token;
-    user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000);
-    await this.userRepository.save(user);
-
-    // Configure o transporter (exemplo: Gmail, SMTP, etc)
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASSWORD,
-      },
-    });
+    await this.usersService.updatePasswordResetToken(user.id, token, new Date(Date.now() + 60 * 60 * 1000));
 
     const recoveryUrl = `${process.env.FRONTEND_URL || 'https://app-drop-calc.vercel.app'}/reset-password?token=${token}`;
-    console.log(`[MailService] Enviando e-mail de recuperação para: ${email} com link: ${recoveryUrl}`);
 
-    await transporter.sendMail({
-      from: `DropCalc <${process.env.GMAIL_USER}>`,
+    const html = `<p>Olá,</p><p>Recebemos uma solicitação para redefinir sua senha. Clique no link abaixo para continuar:</p><p><a href="${recoveryUrl}">${recoveryUrl}</a></p><p>Se você não solicitou, ignore este e-mail.</p>`;
+    const text = `Olá,\nRecebemos uma solicitação para redefinir sua senha. Acesse: ${recoveryUrl}`;
+
+    // Enviar via MailerService (Mailjet)
+    await this.mailerService.sendMail({
       to: email,
       subject: 'Recuperação de senha - DropCalc',
-      html: `<p>Olá,</p><p>Recebemos uma solicitação para redefinir sua senha. Clique no link abaixo para continuar:</p><p><a href="${recoveryUrl}">${recoveryUrl}</a></p><p>Se você não solicitou, ignore este e-mail.</p>`
+      html,
+      text,
     });
-    console.log(`[MailService] E-mail enviado para: ${email}`);
   }
 }

@@ -61,15 +61,14 @@ CNAME   cdn         dropcalc.b-cdn.net      300
 - **Preço:** €4.15/mês (~R$ 25/mês)
 
 ### **Opção 2: PaaS (Mais Simples)**
-**Railway:**
-- Deploy direto do GitHub
-- PostgreSQL incluído
-- **Preço:** $5-20/mês
+**Fly.io:**
+- Deploy via Docker or buildpacks; recomendado para APIs com baixa-latência
+- Suporta múltiplas regiões e volumes
+- **Preço:** grátis até limites modestos, planos pagos conforme uso
 
-**Render:**
-- Static site + Web service
-- PostgreSQL incluído
-- **Preço:** $7-25/mês
+**Vercel (para Frontend):**
+- Deploy automático de apps Vite/Next; ótimo para frontend estático e PWA
+- Recomenda-se usar Vercel apenas para o frontend e Fly.io para o backend
 
 ## 🐳 **3. Setup do Servidor (VPS)**
 

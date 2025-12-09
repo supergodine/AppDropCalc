@@ -1,10 +1,10 @@
-// Teste de comunicação com o backend Render
-console.log('🔥 Testando comunicação com Render...');
+// Teste de comunicação com o backend
+console.log('🔥 Testando comunicação com backend (usando VITE_API_URL)...');
 
 const testAPI = async () => {
     try {
-    const response = await fetch('https://appdropcalc.onrender.com/calc/platforms');
-    // const response = await fetch('https://appdropcalc.onrender.com/calc/platforms'); // Render
+    const API_BASE_URL = import.meta.env.VITE_API_URL;
+    const response = await fetch(`${API_BASE_URL}/calc/platforms`);
         console.log('✅ Status:', response.status);
         
         if (response.ok) {
@@ -12,7 +12,7 @@ const testAPI = async () => {
             console.log('✅ Dados recebidos:', data);
             document.body.innerHTML = `
                 <h1>✅ SUCESSO!</h1>
-                <p>Backend Render respondeu corretamente!</p>
+                <p>Backend respondeu corretamente!</p>
                 <p>Status: ${response.status}</p>
                 <p>Endpoints funcionando: /calc/platforms</p>
                 <h3>Plataformas disponíveis:</h3>

@@ -1,13 +1,14 @@
 const CACHE_NAME = 'dropcalc-v1.0.0';
 const urlsToCache = [
   '/',
+  '/index.html',
   '/dashboard',
   '/login',
   '/settings',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/icon-192x192.png',
-  '/icon-512x512.png'
+  '/manifest.json',
+  '/pwa-192x192.png',
+  '/pwa-512x512.png',
+  '/icon.svg'
 ];
 
 // Instalar Service Worker
@@ -43,13 +44,20 @@ self.addEventListener('fetch', (event) => {
               return response;
             }
 
-            // Clona a resposta
-            const responseToCache = response.clone();
+                // Clona a resposta
+                const responseToCache = response.clone();
 
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
+                // Evita tentar cachear requests não-http (ex: chrome-extension:, data:)
+                try {
+                  if (event.request && typeof event.request.url === 'string' && event.request.url.startsWith('http')) {
+                    caches.open(CACHE_NAME).then((cache) => {
+                      cache.put(event.request, responseToCache);
+                    });
+                  }
+                } catch (err) {
+                  // Falha ao tentar cache.put — ignorar silenciosamente
+                  console.warn('ServiceWorker: unable to cache request', err);
+                }
 
             return response;
           })

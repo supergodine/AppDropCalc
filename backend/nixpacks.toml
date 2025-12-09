@@ -1,5 +1,5 @@
 
-# Railway/Nixpacks: Force install all dependencies for NestJS build
+# Nixpacks: Force install all dependencies for NestJS build
 [phases.setup]
 nixPkgs = ["nodejs"]
 

@@ -57,4 +57,11 @@ export class UsersService {
     await this.userRepository.update(id, updateData);
     return this.findById(id);
   }
+
+  async updatePasswordResetToken(id: string, token: string, expiresAt: Date): Promise<void> {
+    await this.userRepository.update(id, {
+      passwordResetToken: token,
+      passwordResetExpires: expiresAt,
+    });
+  }
 }

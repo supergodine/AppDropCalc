@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
+import { API_BASE_URL, API_ROOT } from '../config/api';
 import type {
   // LoginResponse, // COMENTADO - não mais usado (Firebase Auth)
   User,
@@ -12,15 +13,13 @@ import type {
   CalculationResult,
 } from '../types';
 
-// Usando sempre a variável de ambiente VITE_API_URL
-const API_BASE_URL = import.meta.env.VITE_API_URL;
-
+// Usando exclusivamente a constante exportada `API_BASE_URL` (vinda de VITE_API_URL)
 // Debug: mostrar base da API
-console.log('🔥 API_BASE_URL:', API_BASE_URL);
+console.log('🔥 API_BASE_URL:', API_BASE_URL, '🔥 API_ROOT:', API_ROOT);
 
 // Create axios instance
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_ROOT || API_BASE_URL,
   timeout: 10000,
 });
 
@@ -95,6 +94,27 @@ export const authApi = {
 
   async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
     const response = await api.post('/auth/refresh', { refreshToken });
+    return response.data;
+  },
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const response: AxiosResponse<{ message: string }> = await api.post('/auth/forgot-password', {
+      email,
+    });
+    return response.data;
+  },
+
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    const response: AxiosResponse<{ message: string }> = await api.post('/auth/reset-password', {
+      token,
+      newPassword,
+    });
+    return response.data;
+  },
+  async validateResetToken(token: string): Promise<{ valid: boolean; message?: string }> {
+    const response: AxiosResponse<{ valid: boolean; message?: string }> = await api.get('/auth/reset-password/validate', {
+      params: { token },
+    });
     return response.data;
   },
 };

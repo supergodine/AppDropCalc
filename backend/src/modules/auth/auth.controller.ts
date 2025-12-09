@@ -18,9 +18,10 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import admin from '../../common/firebase-admin';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { MailService } from './mail.service';
+// Removido MailService antigo. MailerService é global.
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 // import { GoogleAuthGuard } from './guards/google-auth.guard'; // DESATIVADO - USANDO FIREBASE
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -33,7 +34,7 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly mailService: MailService,
+    // Removido mailService. MailerService é global via módulo.
   ) {}
   @Post('forgot-password')
   @HttpCode(HttpStatus.ACCEPTED)
@@ -59,6 +60,23 @@ export class AuthController {
     async resetPassword(@Body() body: ResetPasswordDto) {
       const result = await this.authService.resetPassword(body);
       return result;
+    }
+  
+    @Get('reset-password/validate')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Validar token de recuperação de senha' })
+    async validateResetToken(@Request() req) {
+      const token = req?.query?.token;
+      if (!token) {
+        return { valid: false, message: 'Token ausente' };
+      }
+      try {
+        const result = await this.authService.validateResetToken(token);
+        return result;
+      } catch (error) {
+        console.error('[validateResetToken] Erro interno:', error);
+        return { valid: false, message: 'Erro ao validar token' };
+      }
     }
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
@@ -97,6 +115,54 @@ export class AuthController {
     } catch (error) {
       console.error('❌ Erro no login service:', error);
       return res.status(401).json({ success: false, message: error.message || 'Credenciais inválidas' });
+    }
+  }
+
+  // Endpoint para login via provedores sociais (ex: Google) usando token enviado pelo frontend
+  @Post('social')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Login com provedores sociais (Google) - aceita dados do frontend' })
+  async socialLogin(@Body() body: any, @Request() req, @Res() res: Response) {
+    console.log('REQ RECEBIDA: POST /auth/social', { provider: body?.provider, email: body?.email });
+    try {
+      // Atualmente suportamos apenas 'google'
+      if (!body || body.provider !== 'google') {
+        return res.status(400).json({ success: false, message: 'Provider não suportado' });
+      }
+
+      // Esperamos receber: idToken (Firebase ID token) enviado pelo frontend
+      let idToken = body.idToken;
+      // Se não veio no body, aceitar token pelo header Authorization: Bearer <idToken>
+      const authHeader = req?.headers?.authorization || req?.headers?.Authorization;
+      if (!idToken && authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+        idToken = authHeader.slice(7);
+      }
+      if (!idToken) {
+        return res.status(400).json({ success: false, message: 'idToken ausente' });
+      }
+
+      // Verificar token com Firebase Admin
+      let decoded: any;
+      try {
+        decoded = await admin.auth().verifyIdToken(idToken);
+      } catch (verifyErr) {
+        console.error('[socialLogin] Falha ao verificar idToken:', verifyErr?.message || verifyErr);
+        return res.status(401).json({ success: false, message: 'Token Firebase inválido' });
+      }
+
+      // Construir objeto do usuário a partir do token verificado
+      const googleUser = {
+        id: decoded.uid,
+        email: decoded.email,
+        name: decoded.name || body.name || decoded.email?.split('@')[0],
+        photoURL: decoded.picture || body.photoURL,
+      };
+
+      const result = await this.authService.handleGoogleLogin(googleUser);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('❌ Erro no social login:', error);
+      return res.status(500).json({ success: false, message: 'Erro no login social' });
     }
   }
 

@@ -143,9 +143,10 @@ npm run build
 vercel --prod
 ```
 
-### Railway/Heroku (Backend)
+### Fly.io (Backend)
 ```bash
-git push heroku main
+# Use Fly for backend deployments (see `backend/Dockerfile` and `backend/fly.toml`)
+flyctl deploy --remote-only
 ```
 
 ## 🤝 Contribuição

@@ -1,15 +1,30 @@
 import { DataSource } from 'typeorm';
 require('dotenv').config();
 
-const dataSource = new DataSource({
+const isProd = process.env.NODE_ENV === 'production';
+
+const dataSourceOptions: any = {
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  entities: [],
   logging: true,
-});
+};
+
+if (process.env.DATABASE_URL) {
+  dataSourceOptions.url = process.env.DATABASE_URL;
+  if (isProd) {
+    dataSourceOptions.ssl = { rejectUnauthorized: false };
+    dataSourceOptions.extra = { ssl: { rejectUnauthorized: false } };
+  }
+} else {
+  // fallback only for local/dev (not for production)
+  dataSourceOptions.host = process.env.DB_HOST;
+  dataSourceOptions.port = Number(process.env.DB_PORT || 5432);
+  dataSourceOptions.username = process.env.DB_USERNAME;
+  dataSourceOptions.password = process.env.DB_PASSWORD;
+  dataSourceOptions.database = process.env.DB_NAME;
+}
+
+const dataSource = new DataSource(dataSourceOptions);
 
 async function testDatabaseConnection() {
   try {

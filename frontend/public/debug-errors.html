@@ -62,7 +62,7 @@
         <pre id="test-results"></pre>
     </div>
 
-    <script>
+    <script type="module">
         // Capturar todos os erros
         const errorLog = document.getElementById('error-log');
         let errorCount = 0;
@@ -104,13 +104,10 @@ Porta: ${window.location.port}
 Desenvolvimento: ${window.location.hostname === 'localhost'}
         `;
         
-        // Simular configuração da API
+        // Forçar uso exclusivo de VITE_API_URL (sem fallback)
         const API_CONFIG = {
             getBaseURL() {
-                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                    return 'http://localhost:3001';
-                }
-                return 'https://appdropcalc.onrender.com';
+                return import.meta.env.VITE_API_URL;
             },
             get auth() {
                 const base = this.getBaseURL();

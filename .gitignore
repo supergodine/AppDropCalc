@@ -11,3 +11,31 @@ yarn-error.log*
 .vscode/
 .DS_Store
 backend/node_modules/
+
+# Bloqueio de arquivos sensíveis
+.env*
+*.key
+*.pem
+replacesecret.txt
+*.keystore
+*.p12
+*.crt
+*.csr
+*.der
+*.jks
+*.pfx
+*.asc
+*.gpg
+*.sqlite
+*.db
+
+# Instruções para nunca mais commitar segredos
+# Nunca commite segredos, tokens ou credenciais!
+# Sempre mantenha arquivos de configuração sensíveis fora do git.
+# Use variáveis de ambiente e serviços de secrets management.
+# Antes de commitar, revise com:
+#   git status
+#   git diff
+# Utilize ferramentas como git-secrets, husky, ou pre-commit hooks para bloquear segredos automaticamente.
+# Se um segredo for cometido, remova do histórico com git filter-repo ou BFG Repo-Cleaner.
+# Consulte: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/secret-scanning

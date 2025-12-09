@@ -4,18 +4,26 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "env": {
-  "VITE_API_URL": "https://appdropcalc.onrender.com"
-  },
+  "env": {},
   "git": {
     "branch": "feat/login-recuperacao-senha"
   },
   "build": {
-    "env": {
-  "VITE_API_URL": "https://appdropcalc.onrender.com"
-    }
+    "env": {}
   },
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://backend-holy-fog-6984.fly.dev/api/$1"
+    },
+    {
+      "source": "/assets/(.*)",
+      "destination": "/assets/$1"
+    },
+    {
+      "source": "/(.*\\.(?:js|css|png|jpg|jpeg|svg|ico|json|webmanifest))",
+      "destination": "/$1"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
@@ -32,6 +40,10 @@
         {
           "key": "X-Content-Type-Options",
           "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer-when-downgrade"
         }
       ]
     },

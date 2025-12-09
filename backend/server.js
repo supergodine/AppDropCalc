@@ -1,4 +1,5 @@
 // Simple Express server for testing
+// Força deploy: atualização técnica 2025-12-02
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');

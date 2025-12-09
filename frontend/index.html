@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="pt-BR">
   <head>
+    <!-- Deploy trigger: 03/12/2025 -->
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
@@ -15,7 +16,7 @@
     <meta name="language" content="Portuguese" />
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#6366f1" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -51,9 +52,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     
     
-    <!-- Security Headers -->
+    <!-- Security Headers: server will set X-Frame-Options header -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="X-Frame-Options" content="DENY" />
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
     
     <!-- Splash Screen Colors -->
@@ -93,6 +93,36 @@
           navigator.serviceWorker.register('/sw.js');
         });
       }
+    </script>
+    
+    <!-- One-time unregister of old service workers and cache cleanup to ensure clients pick up new bundles -->
+    <script>
+      (function() {
+        try {
+          if (!('serviceWorker' in navigator)) return;
+          // Run only once per client
+          if (localStorage.getItem('dropcalc_sw_unregistered')) return;
+
+          // Unregister all existing service workers
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            registrations.forEach(function(reg) {
+              try { reg.unregister(); } catch (e) { /* ignore */ }
+            });
+          }).catch(function(){});
+
+          // Clear caches (best-effort)
+          if ('caches' in window) {
+            caches.keys().then(function(keys) {
+              return Promise.all(keys.map(function(key) { return caches.delete(key); }));
+            }).catch(function(){});
+          }
+
+          localStorage.setItem('dropcalc_sw_unregistered', '1');
+          console.info('DropCalc: unregistered old service workers and cleared caches (one-time)');
+        } catch (err) {
+          console.warn('DropCalc: failed to cleanup SW/caches', err);
+        }
+      })();
     </script>
   </body>
 </html>

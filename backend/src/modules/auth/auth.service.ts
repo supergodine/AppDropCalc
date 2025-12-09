@@ -13,12 +13,16 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import { User, UserRole, UserPlan, UserStatus } from '../users/entities/user.entity';
+import { MailerService } from '../../common/mailer/mailer.service';
 import { MailService } from './mail.service';
 import { SignUpDto } from './dto/signup.dto';
 import { AuthResponseDto, UserResponseDto } from './dto/auth-response.dto';
 
+
 @Injectable()
 export class AuthService {
+
+
   /**
    * Solicitar recuperação de senha (não vaza existência de e-mail)
    */
@@ -33,7 +37,13 @@ export class AuthService {
         await this.userRepository.save(user);
         // Enviar e-mail (simular envio se falhar)
         try {
-          await this.mailService.sendPasswordRecovery(email, token);
+          const recoveryUrl = `${process.env.FRONTEND_URL || 'https://app-drop-calc.vercel.app'}/reset-password?token=${token}`;
+          await this.mailerService.sendMail({
+            to: email,
+            subject: 'Recuperação de senha - DropCalc',
+            html: `<p>Olá,</p><p>Recebemos uma solicitação para redefinir sua senha. Clique no link abaixo para continuar:</p><p><a href="${recoveryUrl}">${recoveryUrl}</a></p><p>Se você não solicitou, ignore este e-mail.</p>`,
+            text: `Olá,\nRecebemos uma solicitação para redefinir sua senha. Acesse: ${recoveryUrl}`,
+          });
           console.log(`[requestPasswordReset] Token gerado e e-mail enviado para: ${email}`);
         } catch (mailErr) {
           console.error(`[requestPasswordReset] Falha ao enviar e-mail:`, mailErr);
@@ -80,6 +90,23 @@ export class AuthService {
     console.log(`[resetPassword] Senha redefinida com sucesso para usuário: ${user.email}`);
     return { success: true, message: 'Senha redefinida com sucesso' };
   }
+
+  /**
+   * Validar token de recuperação (presente e não expirado)
+   */
+  async validateResetToken(token: string): Promise<{ valid: boolean; message?: string }> {
+    if (!token) {
+      return { valid: false, message: 'Token ausente' };
+    }
+    const user = await this.userRepository.findOne({ where: { passwordResetToken: token } });
+    if (!user) {
+      return { valid: false, message: 'Token inválido ou usuário não encontrado' };
+    }
+    if (!user.passwordResetExpires || user.passwordResetExpires < new Date()) {
+      return { valid: false, message: 'Token expirado' };
+    }
+    return { valid: true, message: 'Token válido' };
+  }
   // Buscar usuário por email
   async findUserByEmail(email: string): Promise<User | null> {
     return await this.userRepository.findOne({ where: { email } });
@@ -92,7 +119,7 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
-    private readonly mailService: MailService,
+    private readonly mailerService: MailerService,
   ) {}
 
   /**
@@ -171,44 +198,23 @@ export class AuthService {
    */
   async login(user: User): Promise<AuthResponseDto> {
     try {
-      // Forçar plano premium para o usuário Diego
+      // Grant special privileges for a specific test user (kept from previous behavior)
       if (user.email === 'massuplas@gmail.com') {
         user.plan = UserPlan.PREMIUM;
         user.role = UserRole.ADMIN;
       }
-      // Permitir login social (Google) sem senha
-      if (user.googleId) {
-        // Usuário Google: validar apenas por email/googleId
-        if (!user.email || !user.googleId) {
-          throw new UnauthorizedException('Usuário Google inválido');
-        }
-      } else {
-        // Usuário tradicional: validar status
-        if (user.status !== 'active') {
-          throw new UnauthorizedException('Usuário inativo');
-        }
+
+      // If not a Google user, ensure account is active
+      if (!user.googleId && user.status !== UserStatus.ACTIVE) {
+        throw new UnauthorizedException('Usuário inativo');
       }
-      // Gerar token JWT
-      const payload = { sub: user.id, email: user.email };
-      const accessToken = this.jwtService.sign(payload);
-      return {
-        accessToken,
-        tokenType: 'Bearer',
-        expiresIn: 604800, // 7 dias em segundos (7 * 24 * 60 * 60)
-        message: 'Login realizado com sucesso',
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          currencyDefault: user.currencyDefault,
-          country: user.country,
-          plan: user.plan,
-          status: user.status,
-          role: user.role,
-          createdAt: user.createdAt,
-          calculationsCount: 0
-        },
-      };
+
+      // Update last login timestamp
+      user.lastLoginAt = new Date();
+      await this.userRepository.save(user);
+
+      // Return standard auth response
+      return this.generateAuthResponse(user, 'Login realizado com sucesso');
     } catch (error) {
       console.error('❌ Erro interno no login:', error);
       throw error;
@@ -241,7 +247,22 @@ export class AuthService {
       }
       user.lastLoginAt = new Date();
       
-      return await this.userRepository.save(user);
+            // Envio de e-mail via SMTP
+            // O token precisa estar definido no escopo. Se não existir, gere um novo ou recupere do usuário.
+            let recoveryToken = user.passwordResetToken;
+            if (!recoveryToken) {
+              recoveryToken = crypto.randomBytes(32).toString('hex');
+              user.passwordResetToken = recoveryToken;
+              user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000);
+              await this.userRepository.save(user);
+            }
+            const recoveryUrl = `${process.env.FRONTEND_URL || 'https://app-drop-calc.vercel.app'}/reset-password?token=${recoveryToken}`;
+            await this.mailerService.sendMail({
+              to: email,
+              subject: 'Recuperação de senha - DropCalc',
+              html: `<p>Olá,</p><p>Recebemos uma solicitação para redefinir sua senha. Clique no link abaixo para continuar:</p><p><a href="${recoveryUrl}">${recoveryUrl}</a></p><p>Se você não solicitou, ignore este e-mail.</p>`,
+              text: `Olá,\nRecebemos uma solicitação para redefinir sua senha. Acesse: ${recoveryUrl}`,
+            });
     }
 
     // Criar novo usuário
