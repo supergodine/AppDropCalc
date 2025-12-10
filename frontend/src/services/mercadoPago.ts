@@ -93,18 +93,14 @@ export async function createPaymentPreferenceWithPending(opts: {
         },
       }
     );
-    // Require backend-provided externalReference. If missing, treat as failure.
+    // Require backend-provided externalReference. If missing, fail immediately.
     if (!res || !res.data || !res.data.externalReference) {
-      console.error('Backend did not return externalReference for pending payment', res?.data);
-      const err = new Error('PENDING_FAILED');
-      throw err;
+      throw new Error('PENDING_FAILED');
     }
     externalRef = res.data.externalReference;
   } catch (err) {
-    console.error('Failed to register pending payment in backend', err);
     // Hard-fail: do not create preference if pending registration failed
-    const e = new Error('PENDING_FAILED');
-    throw e;
+    throw new Error('PENDING_FAILED');
   }
 
   // proceed to create Mercado Pago preference
