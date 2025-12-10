@@ -274,12 +274,16 @@ const Payment: React.FC = () => {
                           price: getPriceByPeriod(plan, selectedPeriod).value,
                           planId: plan.id,
                           userId: user.id,
-                          period: selectedPeriod
+                          period: selectedPeriod,
                         });
                         window.location.href = preference.init_point;
-                      } catch (error) {
+                      } catch (error: any) {
                         console.error('Erro ao criar pagamento:', error);
-                        toast.error('Erro ao redirecionar para pagamento.', { id: 'purchase' });
+                        if (error?.message === 'PENDING_FAILED') {
+                          toast.error('Erro ao iniciar assinatura, tente novamente.', { id: 'purchase' });
+                        } else {
+                          toast.error('Erro ao redirecionar para pagamento.', { id: 'purchase' });
+                        }
                       } finally {
                         setIsPurchasing(null);
                       }

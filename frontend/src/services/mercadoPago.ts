@@ -93,11 +93,18 @@ export async function createPaymentPreferenceWithPending(opts: {
         },
       }
     );
-    // prefer backend-provided external reference if available
-    externalRef = res?.data?.externalReference || external;
+    // Require backend-provided externalReference. If missing, treat as failure.
+    if (!res || !res.data || !res.data.externalReference) {
+      console.error('Backend did not return externalReference for pending payment', res?.data);
+      const err = new Error('PENDING_FAILED');
+      throw err;
+    }
+    externalRef = res.data.externalReference;
   } catch (err) {
     console.error('Failed to register pending payment in backend', err);
-    // continue anyway, to not break checkout flow
+    // Hard-fail: do not create preference if pending registration failed
+    const e = new Error('PENDING_FAILED');
+    throw e;
   }
 
   // proceed to create Mercado Pago preference
@@ -105,8 +112,8 @@ export async function createPaymentPreferenceWithPending(opts: {
   const preferenceOpts: any = {
     ...opts,
     metadata: { period: opts.period || 'monthly' },
-    externalReference: externalRef,
   };
+  if (externalRef) preferenceOpts.externalReference = externalRef;
 
   return createPaymentPreference(preferenceOpts as any);
 }
