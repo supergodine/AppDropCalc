@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { ExchangeModule } from './modules/exchange/exchange.module';
 import { MailerModule } from './common/mailer/mailer.module';
+import { [REDACTED_MERCADOPAGO_TOKEN] } from './modules/mercadopago/mercadopago.module';
 
 // Config
 import { DatabaseConfig } from './config/database.config';
@@ -37,6 +38,7 @@ import { DatabaseConfig } from './config/database.config';
     AuthModule,
     UsersModule,
     ExchangeModule,
+    [REDACTED_MERCADOPAGO_TOKEN],
     MailerModule,
   ],
   controllers: [AppController],
