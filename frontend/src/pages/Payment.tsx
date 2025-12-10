@@ -265,25 +265,38 @@ const Payment: React.FC = () => {
                     onClick={async () => {
                       if (currentPlan === plan.id) return;
                       setIsPurchasing(`${plan.id}_${selectedPeriod}`);
+                      toast.loading('Redirecionando para pagamento...', { id: 'purchase' });
                       try {
-                        toast.loading('Redirecionando para pagamento...', { id: 'purchase' });
                         if (!user?.id) throw new Error('Usuário não encontrado');
-                        const preference = await createPaymentPreferenceWithPending({
-                          title: `Assinatura DropCalc - ${plan.name}`,
-                          description: `Plano ${plan.name} (${selectedPeriod})`,
-                          price: getPriceByPeriod(plan, selectedPeriod).value,
-                          planId: plan.id,
-                          userId: user.id,
-                          period: selectedPeriod,
-                        });
-                        window.location.href = preference.init_point;
-                      } catch (error: any) {
-                        console.error('Erro ao criar pagamento:', error);
-                        if (error?.message === 'PENDING_FAILED') {
+                        // Call createPaymentPreferenceWithPending and enforce hard-fail behavior.
+                        // If it throws, show the specific toast and abort without redirecting.
+                        let preference;
+                        try {
+                          preference = await createPaymentPreferenceWithPending({
+                            title: `Assinatura DropCalc - ${plan.name}`,
+                            description: `Plano ${plan.name} (${selectedPeriod})`,
+                            price: getPriceByPeriod(plan, selectedPeriod).value,
+                            planId: plan.id,
+                            userId: user.id,
+                            period: selectedPeriod,
+                          });
+                        } catch (err) {
+                          console.error('Erro ao criar pending/payment preference:', err);
                           toast.error('Erro ao iniciar assinatura, tente novamente.', { id: 'purchase' });
-                        } else {
-                          toast.error('Erro ao redirecionar para pagamento.', { id: 'purchase' });
+                          return;
                         }
+
+                        // Only redirect if preference was created successfully
+                        if (preference && preference.init_point) {
+                          window.location.href = preference.init_point;
+                        } else {
+                          console.error('Preferência criada sem init_point:', preference);
+                          toast.error('Erro ao iniciar assinatura, tente novamente.', { id: 'purchase' });
+                        }
+                      } catch (error: any) {
+                        console.error('Erro no fluxo de compra:', error);
+                        // General fallback: show initiation error and abort
+                        toast.error('Erro ao iniciar assinatura, tente novamente.', { id: 'purchase' });
                       } finally {
                         setIsPurchasing(null);
                       }
