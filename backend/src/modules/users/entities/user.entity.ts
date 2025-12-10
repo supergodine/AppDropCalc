@@ -95,6 +95,12 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   planExpiresAt?: Date; // Para planos pagos
 
+  @Column({ name: 'subscription_period', type: 'varchar', length: 50, nullable: true })
+  subscriptionPeriod?: string;
+
+  @Column({ name: 'subscription_status', type: 'varchar', length: 50, nullable: true })
+  subscriptionStatus?: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

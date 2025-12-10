@@ -64,4 +64,35 @@ export class UsersService {
       passwordResetExpires: expiresAt,
     });
   }
+
+  // Update user's plan/subscription details
+  async updatePlan(userId: string, planId: string, period: string = 'monthly'): Promise<User | null> {
+    const user = await this.findById(userId);
+    if (!user) return null;
+
+    // Compute expiration based on period
+    const now = new Date();
+    let expiresAt: Date | null = null;
+    const p = (period || 'monthly').toLowerCase();
+    if (p === 'monthly' || p === 'month') {
+      expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    } else if (p === 'quarter' || p === 'quarterly' || p === 'trimestral') {
+      expiresAt = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+    } else if (p === 'annual' || p === 'yearly' || p === 'annualy') {
+      expiresAt = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+    } else {
+      // default to 30 days
+      expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    }
+
+    await this.userRepository.update(userId, {
+      plan: planId as any,
+      planExpiresAt: expiresAt,
+      subscriptionPeriod: p,
+      subscriptionStatus: 'active',
+      status: UserStatus.ACTIVE,
+    });
+
+    return this.findById(userId);
+  }
 }
