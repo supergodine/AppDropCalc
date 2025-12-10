@@ -1,6 +1,7 @@
 import { Injectable, HttpService, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { UsersService } from '../users/users.service';
+import { PaymentsService } from '../payments/payments.service';
 
 const MP_BASE = 'https://api.mercadopago.com';
 
@@ -8,7 +9,10 @@ const MP_BASE = 'https://api.mercadopago.com';
 export class MercadoPagoService {
   private readonly logger = new Logger(MercadoPagoService.name);
 
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly paymentsService: PaymentsService,
+  ) {}
 
   async verifyPayment(paymentId: string, accessToken: string): Promise<any> {
     const url = `${MP_BASE}/v1/payments/${paymentId}`;
@@ -56,20 +60,45 @@ export class MercadoPagoService {
       const planId = parts[0];
       const userId = parts.slice(1).join('_');
 
+      // find local payment record
+      const localPayment = await this.paymentsService.findByExternalReference(external);
+
       // Determine period - try to read from metadata or items description
       let period = 'monthly';
       try {
         if (payment.metadata && payment.metadata.period) period = payment.metadata.period;
       } catch (err) {}
 
-      const updated = await this.usersService.updatePlan(userId, planId, period);
-      if (!updated) {
-        return { ok: false, reason: 'user-not-found' };
+      if (payment.status.toLowerCase() === 'approved') {
+        // idempotent: if local payment exists and already approved, skip
+        if (localPayment && localPayment.status === 'approved') {
+          this.logger.log('Payment already approved locally: ' + (localPayment.id || 'unknown'));
+          return { ok: true };
+        }
+
+        // mark approved in local DB if exists
+        if (localPayment) {
+          await this.paymentsService.markApproved(localPayment.id, payment.id, payment);
+        }
+
+        const updated = await this.usersService.updatePlan(userId, planId, period);
+        if (!updated) {
+          return { ok: false, reason: 'user-not-found' };
+        }
+
+        this.logger.log(JSON.stringify({ action: 'plan-updated', userId, planId, period }));
+        return { ok: true };
       }
 
-      this.logger.log(JSON.stringify({ action: 'plan-updated', userId, planId, period }));
+      // handle rejected/cancelled
+      if (payment.status.toLowerCase() === 'rejected' || payment.status.toLowerCase() === 'cancelled') {
+        if (localPayment) {
+          await this.paymentsService.markRejected(localPayment.id, payment);
+        }
+        return { ok: false, reason: `status-${payment.status}` };
+      }
 
-      return { ok: true };
+      return { ok: false, reason: `status-${payment.status}` };
     } catch (err: any) {
       this.logger.error('processNotification error: ' + (err?.message || err));
       return { ok: false, reason: 'exception' };
