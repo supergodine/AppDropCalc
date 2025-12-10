@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.dropcalc.calculadora",
+      "sha256_cert_fingerprints": [
+        "2F:C6:46:B9:BE:F6:8D:F6:BC:65:C7:73:22:4B:AA:6F:C6:76:47:6F:B1:09:4B:61:48:4D:D7:C8:2C:EC:3B:2D"
+      ]
+    }
+  }
+]
