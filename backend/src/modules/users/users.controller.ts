@@ -37,6 +37,21 @@ export class UsersController {
     };
   }
 
+  @Get('me')
+  @ApiOperation({ summary: 'Obter plano/assinatura atual do usuário' })
+  async getMyPlan(@Request() req) {
+    const user = await this.usersService.findById(req.user.sub);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return {
+      planId: user.plan,
+      subscriptionStatus: user.subscriptionStatus || 'inactive',
+      subscriptionPeriod: user.subscriptionPeriod || null,
+      planExpiresAt: user.planExpiresAt || null,
+    };
+  }
+
   @Get('list')
   @ApiOperation({ summary: 'Listar todos os usuários (admin)' })
   async getAllUsers() {
