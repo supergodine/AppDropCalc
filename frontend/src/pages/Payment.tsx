@@ -9,7 +9,7 @@ import {
   Zap,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { createPaymentPreference } from '../services/mercadoPago';
+import { createPaymentPreferenceWithPending } from '../services/mercadoPago';
 import { useAuth } from '../hooks/useAuth';
 
 // Tipagem dos planos
@@ -268,12 +268,13 @@ const Payment: React.FC = () => {
                       try {
                         toast.loading('Redirecionando para pagamento...', { id: 'purchase' });
                         if (!user?.id) throw new Error('Usuário não encontrado');
-                        const preference = await createPaymentPreference({
+                        const preference = await createPaymentPreferenceWithPending({
                           title: `Assinatura DropCalc - ${plan.name}`,
                           description: `Plano ${plan.name} (${selectedPeriod})`,
                           price: getPriceByPeriod(plan, selectedPeriod).value,
                           planId: plan.id,
-                          userId: user.id
+                          userId: user.id,
+                          period: selectedPeriod
                         });
                         window.location.href = preference.init_point;
                       } catch (error) {
