@@ -14,7 +14,9 @@ export async function createPaymentPreference({
   price,
   quantity = 1,
   planId,
-  userId
+  userId,
+  externalReference,
+  metadata,
 }: {
   title: string;
   description: string;
@@ -22,39 +24,43 @@ export async function createPaymentPreference({
   quantity?: number;
   planId: string;
   userId: string;
+  externalReference?: string;
+  metadata?: any;
 }) {
-  const preference = {
+  const extRef = externalReference || `${planId}_${userId}`;
+  const preference: any = {
     items: [
       {
         title,
         description,
         quantity,
         currency_id: 'BRL',
-        unit_price: price
-      }
+        unit_price: price,
+      },
     ],
-    external_reference: `${planId}_${userId}`,
+    external_reference: extRef,
     back_urls: {
       success: `${window.location.origin}/payment-success`,
       failure: `${window.location.origin}/payment-failure`,
-      pending: `${window.location.origin}/payment-pending`
+      pending: `${window.location.origin}/payment-pending`,
     },
     auto_return: 'approved',
     payer: {
-      id: userId
-    }
+      id: userId,
+    },
   };
 
-  const response = await axios.post(
-    `${MP_BASE_URL}/checkout/preferences`,
-    preference,
-    {
-      headers: {
-        Authorization: `Bearer ${MP_ACCESS_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
-    }
-  );
+  if (metadata) {
+    // Mercado Pago supports a metadata object in some flows
+    preference.metadata = metadata;
+  }
+
+  const response = await axios.post(`${MP_BASE_URL}/checkout/preferences`, preference, {
+    headers: {
+      Authorization: `Bearer ${MP_ACCESS_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+  });
 
   return response.data;
 }
@@ -67,12 +73,14 @@ export async function createPaymentPreferenceWithPending(opts: {
   quantity?: number;
   planId: string;
   userId: string;
+  period?: 'monthly' | 'quarterly' | 'annual';
 }) {
   // Register pending payment in backend
+  let externalRef: string | undefined = undefined;
   try {
     const token = localStorage.getItem('accessToken');
     const external = `${opts.planId}_${opts.userId}`;
-    await axios.post(
+    const res = await axios.post(
       `${BACKEND_BASE}/payments/create-pending`,
       {
         planId: opts.planId,
@@ -85,11 +93,20 @@ export async function createPaymentPreferenceWithPending(opts: {
         },
       }
     );
+    // prefer backend-provided external reference if available
+    externalRef = res?.data?.externalReference || external;
   } catch (err) {
     console.error('Failed to register pending payment in backend', err);
     // continue anyway, to not break checkout flow
   }
 
   // proceed to create Mercado Pago preference
-  return createPaymentPreference(opts as any);
+  // include metadata.period so backend can read period from MP payment
+  const preferenceOpts: any = {
+    ...opts,
+    metadata: { period: opts.period || 'monthly' },
+    externalReference: externalRef,
+  };
+
+  return createPaymentPreference(preferenceOpts as any);
 }
