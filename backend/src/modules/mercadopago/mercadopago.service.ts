@@ -42,9 +42,7 @@ export class [REDACTED_MERCADOPAGO_TOKEN] {
         return { ok: false, reason: 'no-payment-data' };
       }
 
-      if (payment.status.toLowerCase() !== 'approved') {
-        return { ok: false, reason: `status-${payment.status}` };
-      }
+      // We'll normalize status and handle multiple flows (approved, refunded/chargeback, rejected/cancelled)
 
       // external_reference expected in payment.order or payment.external_reference
       const external = payment.external_reference || (payment.order && payment.order.external_reference) || null;
@@ -74,7 +72,9 @@ export class [REDACTED_MERCADOPAGO_TOKEN] {
         if (payment.metadata && payment.metadata.period) period = payment.metadata.period;
       } catch (err) {}
 
-      if (payment.status.toLowerCase() === 'approved') {
+      const status = String(payment.status).toLowerCase();
+
+      if (status === 'approved') {
         // idempotent: if local payment exists and already approved, skip
         if (localPayment && localPayment.status === 'approved') {
           this.logger.log('Payment already approved locally: ' + (localPayment.id || 'unknown'));
@@ -97,12 +97,30 @@ export class [REDACTED_MERCADOPAGO_TOKEN] {
         return { ok: true };
       }
 
-      // handle rejected/cancelled
-      if (payment.status.toLowerCase() === 'rejected' || payment.status.toLowerCase() === 'cancelled') {
+      // handle refunded/chargeback/cancelled/rejected
+      if (['refunded', 'charged_back', 'cancelled', 'rejected'].includes(status)) {
         if (localPayment) {
-          await this.paymentsService.markRejected(localPayment.id, payment);
+          // mark payment refunded or rejected appropriately
+          if (['refunded', 'charged_back'].includes(status)) {
+            await this.paymentsService.markRefunded(localPayment.id, payment);
+          } else {
+            await this.paymentsService.markRejected(localPayment.id, payment);
+          }
         }
-        return { ok: false, reason: `status-${payment.status}` };
+
+        // Hybrid policy: mark user's subscription as past_due and schedule downgrade
+        try {
+          if (userId) {
+            await this.usersService.markSubscriptionPastDue(userId, 48); // 48h grace period
+            this.logger.log(`Marked user ${userId} as past_due due to payment status ${status}`);
+          } else {
+            this.logger.warn('Could not determine userId from external_reference for refund handling.');
+          }
+        } catch (err) {
+          this.logger.error('Error marking subscription past_due: ' + (err?.message || err));
+        }
+
+        return { ok: true, reason: `handled-${status}` };
       }
 
       return { ok: false, reason: `status-${payment.status}` };
