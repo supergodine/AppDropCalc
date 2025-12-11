@@ -7,6 +7,7 @@ import { User } from '../modules/users/entities/user.entity';
 import { Calculation } from '../modules/calculations/entities/calculation.entity';
 import { PresetPlatform } from '../modules/presets/entities/preset-platform.entity';
 import { Gateway } from '../modules/presets/entities/gateway.entity';
+import { Payment } from '../modules/payments/payment.entity';
 
 @Injectable()
 export class DatabaseConfig implements TypeOrmOptionsFactory {
@@ -19,7 +20,8 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
     const base: TypeOrmModuleOptions = {
       type: 'postgres',
       url: databaseUrl,
-      entities: [User, Calculation, PresetPlatform, Gateway],
+      // Register Payment entity so TypeORM has metadata at runtime
+      entities: [User, Calculation, PresetPlatform, Gateway, Payment],
       migrations: [__dirname + '/../database/migrations/*.{ts,js}'],
       synchronize: !isProduction,
       logging: this.configService.get('LOG_LEVEL') === 'debug',
