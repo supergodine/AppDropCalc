@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Request, NotFoundException } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request, NotFoundException, Post, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
@@ -50,6 +50,17 @@ export class UsersController {
       subscriptionPeriod: user.subscriptionPeriod || null,
       planExpiresAt: user.planExpiresAt || null,
     };
+  }
+
+  @Post('admin/process-past-due')
+  @ApiOperation({ summary: 'Process pending past_due downgrades (admin only)' })
+  async processPastDue(@Request() req) {
+    const calling = await this.usersService.findById(req.user.sub);
+    if (!calling || !calling.isAdmin()) {
+      throw new ForbiddenException('Admin access required');
+    }
+    const result = await this.usersService.processPastDueDowngrades();
+    return result;
   }
 
   @Get('list')
