@@ -120,14 +120,9 @@ const Login: React.FC = () => {
         }
         
         if (loginSuccess && user) {
-          // Definir premium como ativo para testes (salvar objeto estruturado)
-          localStorage.setItem('premiumActive', 'true');
-          localStorage.setItem('userPlan', JSON.stringify({ type: 'premium', name: 'Premium', price: 19.9, active: true }));
-          localStorage.setItem('billingStatus', 'active');
-          
+          // Use backend-provided plan (authService.login already saved userPlan when present)
           // Atualizar estado de autenticação
           refreshAuth();
-          
           toast.success('Login realizado com sucesso!');
           navigate('/dashboard');
         }
@@ -135,15 +130,8 @@ const Login: React.FC = () => {
         await authService.register(name, email, password);
         toast.success('Conta criada com sucesso!');
         
-        // Definir premium como ativo para testes (salvar objeto estruturado)
-        localStorage.setItem('premiumActive', 'true');
-        localStorage.setItem('userPlan', JSON.stringify({ type: 'premium', name: 'Premium', price: 19.9, active: true }));
-        localStorage.setItem('billingStatus', 'active');
-        
-        // Atualizar estado de autenticação
+        // After register, authService.register will create the user; refresh auth to sync
         refreshAuth();
-        
-        // Ir direto para dashboard para testes
         navigate('/dashboard');
       }
     } catch (error: any) {
