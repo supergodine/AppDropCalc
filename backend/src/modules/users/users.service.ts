@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -8,6 +8,7 @@ import { UserStatus } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
   async createAdminUser(): Promise<User> {
     const email = 'massuplas@gmail.com';
     const name = 'Diego';
@@ -94,5 +95,50 @@ export class UsersService {
     });
 
     return this.findById(userId);
+  }
+
+  // Mark a user's subscription as past_due and schedule a downgrade after `graceHours`.
+  async markSubscriptionPastDue(userId: string, graceHours = 48): Promise<User | null> {
+    const user = await this.findById(userId);
+    if (!user) return null;
+    const now = new Date();
+    const downgradeAt = new Date(now.getTime() + graceHours * 60 * 60 * 1000);
+    await this.userRepository.update(userId, {
+      subscriptionStatus: 'past_due',
+      // reuse planExpiresAt as the scheduled downgrade moment for simplicity
+      planExpiresAt: downgradeAt,
+    });
+    this.logger?.log?.(`Marked user ${userId} as past_due; scheduled downgrade at ${downgradeAt.toISOString()}`);
+    return this.findById(userId);
+  }
+
+  // Downgrade user to basic/free immediately.
+  async downgradeToBasic(userId: string): Promise<User | null> {
+    const user = await this.findById(userId);
+    if (!user) return null;
+    await this.userRepository.update(userId, {
+      plan: 'free',
+      planExpiresAt: null,
+      subscriptionPeriod: null,
+      subscriptionStatus: 'inactive',
+    });
+    this.logger?.log?.(`Downgraded user ${userId} to free`);
+    return this.findById(userId);
+  }
+
+  // Process all users that have been marked past_due and whose scheduled downgrade time has arrived.
+  async processPastDueDowngrades(): Promise<{ downgraded: string[] }> {
+    const now = new Date();
+    const usersToDowngrade = await this.userRepository.createQueryBuilder('user')
+      .where("user.subscription_status = :status", { status: 'past_due' })
+      .andWhere('user.plan_expires_at <= :now', { now })
+      .getMany();
+
+    const downgraded: string[] = [];
+    for (const u of usersToDowngrade) {
+      await this.downgradeToBasic(u.id);
+      downgraded.push(u.id);
+    }
+    return { downgraded };
   }
 }
