@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment } from './payment.entity';
@@ -13,6 +13,11 @@ export class PaymentsService {
   ) {}
 
   async createPending(userId: string, planId: string, amount: number, externalReference: string): Promise<Payment> {
+    if (!userId) {
+      this.logger.error('createPending called with null/undefined userId');
+      throw new UnauthorizedException('Invalid user id');
+    }
+
     const payment = this.paymentRepository.create({
       userId,
       planId,
