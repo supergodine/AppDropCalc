@@ -63,6 +63,19 @@ export class UsersController {
     return result;
   }
 
+  @Post('admin/downgrade/:userId')
+  @ApiOperation({ summary: 'Admin: downgrade a user immediately to free/basic' })
+  async adminDowngrade(@Request() req) {
+    const calling = await this.usersService.findById(req.user.sub);
+    if (!calling || !calling.isAdmin()) {
+      throw new ForbiddenException('Admin access required');
+    }
+    const userId = req.params.userId;
+    const downgraded = await this.usersService.downgradeToBasic(userId);
+    if (!downgraded) throw new NotFoundException('User not found');
+    return { ok: true, userId: downgraded.id, plan: downgraded.plan };
+  }
+
   @Get('list')
   @ApiOperation({ summary: 'Listar todos os usuários (admin)' })
   async getAllUsers() {

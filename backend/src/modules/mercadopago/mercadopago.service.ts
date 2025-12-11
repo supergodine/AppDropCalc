@@ -108,17 +108,9 @@ export class MercadoPagoService {
           }
         }
 
-        // Hybrid policy: mark user's subscription as past_due and schedule downgrade
-        try {
-          if (userId) {
-            await this.usersService.markSubscriptionPastDue(userId, 48); // 48h grace period
-            this.logger.log(`Marked user ${userId} as past_due due to payment status ${status}`);
-          } else {
-            this.logger.warn('Could not determine userId from external_reference for refund handling.');
-          }
-        } catch (err) {
-          this.logger.error('Error marking subscription past_due: ' + (err?.message || err));
-        }
+        // Manual policy chosen: do NOT change user's plan automatically.
+        // Log the event so admins can take action manually (via DB or admin endpoint).
+        this.logger.log(`Payment ${paymentId} has status ${status}; marked local payment accordingly. Manual admin action required to change user plan.`);
 
         return { ok: true, reason: `handled-${status}` };
       }
