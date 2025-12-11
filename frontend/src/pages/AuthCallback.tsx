@@ -27,9 +27,9 @@ const AuthCallback: React.FC = () => {
           localStorage.setItem('accessToken', token);
           localStorage.setItem('currentUser', JSON.stringify(user));
           
-          // Definir premium como ativo para testes
+          // Definir premium como ativo para testes (salvar objeto estruturado)
           localStorage.setItem('premiumActive', 'true');
-          localStorage.setItem('userPlan', 'premium');
+          localStorage.setItem('userPlan', JSON.stringify({ type: 'premium', name: 'Premium', price: 19.9, active: true }));
           localStorage.setItem('billingStatus', 'active');
           
           toast.success('Login com Google realizado com sucesso!');

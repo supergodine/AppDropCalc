@@ -360,21 +360,46 @@ class AuthService {
   getUserPlan(): UserPlan {
     const storedPlan = localStorage.getItem('userPlan');
     if (storedPlan) {
+      // Primeiro, tentar parsear como JSON (objeto salvo por outras partes do app)
       try {
-        // Verificar se é JSON válido
         const parsed = JSON.parse(storedPlan);
-        // Verificar se tem a estrutura correta
         if (parsed && typeof parsed === 'object' && parsed.type && parsed.name) {
-          return parsed;
+          return parsed as UserPlan;
         }
       } catch (error) {
-        console.warn('🚨 userPlan inválido no localStorage:', storedPlan);
-        console.warn('Erro:', error);
-        // Limpar o localStorage inválido
-        localStorage.removeItem('userPlan');
+        // Se não for JSON válido, pode ser um valor legado salvo como string simples
+        console.warn('⚠️ userPlan detectado como string legada:', storedPlan);
+      }
+
+      // Tratar o caso em que o valor é uma string simples (ex: 'premium', 'gold', 'basic')
+      try {
+        // Remover possíveis aspas extras
+        const plain = storedPlan.replace(/^\"|\"$/g, '');
+        const type = (plain || 'basic').toLowerCase();
+
+        // Mapear nomes legados para um objeto UserPlan
+        const mapping: Record<string, UserPlan> = {
+          basic: { type: 'basic', name: 'Básico', price: 0, active: true },
+          gold: { type: 'gold' as any, name: 'Gold', price: 9.9, active: true },
+          professional: { type: 'professional' as any, name: 'Profissional', price: 19.9, active: true },
+          premium: { type: 'premium', name: 'Premium', price: 19.9, active: true }
+        };
+
+        const resolved = mapping[type] || mapping['basic'];
+
+        // Normalizar armazenamento para o formato de objeto
+        try {
+          localStorage.setItem('userPlan', JSON.stringify(resolved));
+        } catch (e) {
+          // ignore storage errors
+        }
+
+        return resolved;
+      } catch (e) {
+        console.warn('⚠️ Erro ao normalizar userPlan legada:', e);
       }
     }
-    
+
     // Default to basic plan
     return {
       type: 'basic',
