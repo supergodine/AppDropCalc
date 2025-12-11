@@ -35,8 +35,9 @@ export class PaymentsService {
     payment.status = 'approved';
     payment.mpPaymentId = mpPaymentId;
     payment.rawPayload = payload;
-    await this.paymentRepository.save(payment);
-    return payment;
+    const saved = await this.paymentRepository.save(payment);
+    this.logger.log('PaymentsService.markApproved saved payment: ' + JSON.stringify({ id: saved.id, status: saved.status, userId: saved.userId }));
+    return saved;
   }
 
   async markRejected(paymentId: string, payload: any): Promise<Payment | null> {
