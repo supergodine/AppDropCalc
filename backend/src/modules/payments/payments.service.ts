@@ -65,4 +65,12 @@ export class PaymentsService {
   async findByExternalReference(externalReference: string): Promise<Payment | null> {
     return this.paymentRepository.findOne({ where: { externalReference } });
   }
+
+  async findById(paymentId: string): Promise<Payment | null> {
+    return this.paymentRepository.findOne({ where: { id: paymentId } });
+  }
+
+  async findByStatus(status: string): Promise<Payment[]> {
+    return this.paymentRepository.find({ where: { status } });
+  }
 }
