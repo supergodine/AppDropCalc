@@ -52,7 +52,22 @@ const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
 
 export function useUserPlan() {
   // Recupera plano do localStorage ou backend
-  const plan: PlanType = (localStorage.getItem('userPlan') as PlanType) || 'basic';
+  const raw = localStorage.getItem('userPlan');
+  let plan: PlanType = 'basic';
+  if (raw) {
+    // Se for um JSON de objeto (ex: { type: 'premium', ... })
+    if (raw.trim().startsWith('{')) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.type) plan = parsed.type as PlanType;
+      } catch (e) {
+        // ignore and fallback
+      }
+    } else {
+      // Valor legado salvo como string simples ('gold', 'premium')
+      plan = raw as PlanType;
+    }
+  }
   const limits = useMemo(() => PLAN_LIMITS[plan], [plan]);
 
   return {

@@ -163,7 +163,18 @@ const Payment: React.FC = () => {
         const now = new Date();
         const hoursDiff = (now.getTime() - planDate.getTime()) / (1000 * 60 * 60);
         if (hoursDiff < 24) {
-          setCurrentPlan(userPlan);
+          try {
+            // Se userPlan for um JSON com estrutura, pegar campo type
+            if (userPlan.trim().startsWith('{')) {
+              const parsed = JSON.parse(userPlan);
+              if (parsed && parsed.type) setCurrentPlan(parsed.type);
+              else setCurrentPlan(String(userPlan));
+            } else {
+              setCurrentPlan(userPlan);
+            }
+          } catch (e) {
+            setCurrentPlan(String(userPlan));
+          }
         } else {
           localStorage.removeItem('userPlan');
           localStorage.removeItem('billingStatus');
