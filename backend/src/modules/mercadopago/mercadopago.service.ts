@@ -1,4 +1,4 @@
-import { Injectable, HttpService, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { UsersService } from '../users/users.service';
 import { PaymentsService } from '../payments/payments.service';
