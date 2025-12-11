@@ -4,6 +4,7 @@ import { User } from '../modules/users/entities/user.entity';
 import { Calculation } from '../modules/calculations/entities/calculation.entity';
 import { PresetPlatform } from '../modules/presets/entities/preset-platform.entity';
 import { Gateway } from '../modules/presets/entities/gateway.entity';
+import { Payment } from '../modules/payments/payment.entity';
 
 // Load appropriate .env file
 dotenv.config({
@@ -15,7 +16,7 @@ const isProd = process.env.NODE_ENV === 'production';
 const AppDataSource = new DataSource({
   type: 'postgres',
   url: process.env.DATABASE_URL,
-  entities: [User, Calculation, PresetPlatform, Gateway],
+  entities: [User, Calculation, PresetPlatform, Gateway, Payment],
   migrations: [__dirname + '/../migrations/*.{js,ts}'],
   synchronize: false, // keep false for migrations safety; runtime config may differ
   logging: process.env.LOG_LEVEL === 'debug',
