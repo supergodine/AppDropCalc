@@ -27,10 +27,8 @@ const AuthCallback: React.FC = () => {
           localStorage.setItem('accessToken', token);
           localStorage.setItem('currentUser', JSON.stringify(user));
           
-          // Definir premium como ativo para testes (salvar objeto estruturado)
-          localStorage.setItem('premiumActive', 'true');
-          localStorage.setItem('userPlan', JSON.stringify({ type: 'premium', name: 'Premium', price: 19.9, active: true }));
-          localStorage.setItem('billingStatus', 'active');
+          // Rely on backend-provided plan if available. Avoid forcing test plans here.
+          // If the backend provided a plan via user object, normalize it elsewhere (useAuth)
           
           toast.success('Login com Google realizado com sucesso!');
           navigate('/dashboard');
