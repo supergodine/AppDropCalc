@@ -120,9 +120,9 @@ const Login: React.FC = () => {
         }
         
         if (loginSuccess && user) {
-          // Definir premium como ativo para testes
+          // Definir premium como ativo para testes (salvar objeto estruturado)
           localStorage.setItem('premiumActive', 'true');
-          localStorage.setItem('userPlan', 'premium');
+          localStorage.setItem('userPlan', JSON.stringify({ type: 'premium', name: 'Premium', price: 19.9, active: true }));
           localStorage.setItem('billingStatus', 'active');
           
           // Atualizar estado de autenticação
@@ -135,9 +135,9 @@ const Login: React.FC = () => {
         await authService.register(name, email, password);
         toast.success('Conta criada com sucesso!');
         
-        // Definir premium como ativo para testes
+        // Definir premium como ativo para testes (salvar objeto estruturado)
         localStorage.setItem('premiumActive', 'true');
-        localStorage.setItem('userPlan', 'premium');
+        localStorage.setItem('userPlan', JSON.stringify({ type: 'premium', name: 'Premium', price: 19.9, active: true }));
         localStorage.setItem('billingStatus', 'active');
         
         // Atualizar estado de autenticação
