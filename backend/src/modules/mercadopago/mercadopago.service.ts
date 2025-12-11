@@ -33,7 +33,10 @@ export class [REDACTED_MERCADOPAGO_TOKEN] {
     try {
       const payment = await this.verifyPayment(paymentId, accessToken);
 
-      this.logger.log(JSON.stringify({ action: 'processNotification', paymentId, status: payment.status }));
+      this.logger.log(JSON.stringify({ action: 'processNotification', paymentId, status: payment.status, external_reference: payment.external_reference || (payment.order && payment.order.external_reference) }));
+
+      // Extra debug logging to help trace why users aren't being updated
+      this.logger.log('Payment raw object snippet: ' + JSON.stringify({ id: payment.id, status: payment.status, external_reference: payment.external_reference || null, order: payment.order ? { external_reference: payment.order.external_reference } : null }));
 
       if (!payment || !payment.status) {
         return { ok: false, reason: 'no-payment-data' };
@@ -62,6 +65,8 @@ export class [REDACTED_MERCADOPAGO_TOKEN] {
 
       // find local payment record
       const localPayment = await this.paymentsService.findByExternalReference(external);
+      this.logger.log('Resolved external reference parts: ' + JSON.stringify({ planId, userId, external }));
+      this.logger.log('Local payment lookup result: ' + (localPayment ? JSON.stringify({ id: localPayment.id, status: localPayment.status, userId: localPayment.userId }) : 'null'));
 
       // Determine period - try to read from metadata or items description
       let period = 'monthly';
@@ -78,10 +83,12 @@ export class [REDACTED_MERCADOPAGO_TOKEN] {
 
         // mark approved in local DB if exists
         if (localPayment) {
-          await this.paymentsService.markApproved(localPayment.id, payment.id, payment);
+          const marked = await this.paymentsService.markApproved(localPayment.id, payment.id, payment);
+          this.logger.log('markApproved result: ' + (marked ? JSON.stringify({ id: marked.id, status: marked.status }) : 'null'));
         }
 
         const updated = await this.usersService.updatePlan(userId, planId, period);
+        this.logger.log('usersService.updatePlan returned: ' + (updated ? JSON.stringify({ id: updated.id, plan: updated.plan, planExpiresAt: updated.planExpiresAt }) : 'null'));
         if (!updated) {
           return { ok: false, reason: 'user-not-found' };
         }
