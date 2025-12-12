@@ -1,0 +1,15 @@
+FROM node:20
+
+WORKDIR /app/backend
+
+# Copy only package files first to leverage Docker layer cache for npm install
+COPY backend/package.json ./
+COPY backend/package-lock.json ./
+
+RUN npm ci --no-audit --no-fund
+
+# Copy source
+COPY backend/ ./
+
+# Default command: keep container running so tests/migrations can be exec'd into
+CMD ["tail", "-f", "/dev/null"]
