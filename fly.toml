@@ -1,0 +1,27 @@
+# Fly.io config for backend deployment
+# Replace `app` with your Fly app name or set `FLY_APP_NAME` when deploying
+app = "REPLACE_WITH_YOUR_FLY_APP_NAME"
+kill_signal = "SIGINT"
+kill_timeout = 5
+
+[build]
+# If you prefer to use a prebuilt image, set it here. By default flyctl will build from your repo.
+# image = "registry.fly.io/your-org/your-image:tag"
+
+[env]
+NODE_ENV = "production"
+# The internal port your NestJS app listens on
+PORT = "3000"
+
+# Run migrations as a release command so they execute during deploy
+[deploy]
+  release_command = "npm run typeorm:migration:run"
+
+[[services]]
+  internal_port = 3000
+  protocol = "tcp"
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+  [[services.ports]]
+    port = 443
