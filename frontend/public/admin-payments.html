@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin - Pagamentos Estornados</title>
+    <style>
+      body { font-family: Arial, Helvetica, sans-serif; padding: 24px; background:#f7fafc }
+      table { width:100%; border-collapse: collapse; margin-top:12px }
+      th,td { padding:8px; border:1px solid #e2e8f0; text-align:left }
+      button { padding:6px 10px; border-radius:6px; border:0; cursor:pointer }
+      .primary { background:#2563eb; color:white }
+      .danger { background:#ef4444; color:white }
+      .muted { background:#94a3b8; color:white }
+      .container { max-width:1000px; margin:0 auto }
+      .controls { display:flex; gap:8px; align-items:center }
+      .small { font-size:13px }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Admin — Pagamentos Estornados</h1>
+      <p class="small">Página simples para listar pagamentos com status <strong>refunded</strong> e executar downgrade manual.</p>
+
+      <div class="controls">
+        <label for="token">Token (localStorage `accessToken` será usado se vazio):</label>
+        <input id="token" style="flex:1;padding:8px;border:1px solid #cbd5e1;border-radius:6px" placeholder="Cole aqui o Bearer token (opcional)" />
+        <button id="refresh" class="primary">Atualizar lista</button>
+      </div>
+
+      <div id="status" style="margin-top:12px;color:#334155"></div>
+
+      <table id="paymentsTable" aria-live="polite">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>External Reference</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>MP Status</th>
+            <th>Criado Em</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <script>
+      const apiBase = (window.__API_BASE__ || '') || '';
+
+      function getToken() {
+        const input = document.getElementById('token').value.trim();
+        if (input) return input;
+        return localStorage.getItem('accessToken') || '';
+      }
+
+      function setStatus(msg, isError) {
+        const s = document.getElementById('status');
+        s.textContent = msg;
+        s.style.color = isError ? '#b91c1c' : '#065f46';
+      }
+
+      async function fetchRefunded() {
+        const token = getToken();
+        if (!token) setStatus('Aviso: sem token. Forneça um token válido.', true);
+        setStatus('Buscando pagamentos (status=refunded)...');
+        const url = (apiBase || '') + '/api/payments/admin/list?status=refunded';
+        try {
+          const res = await fetch(url, {
+            headers: { 'Authorization': token ? `Bearer ${token}` : '' }
+          });
+          if (res.status === 401) throw new Error('401 Unauthorized — token inválido/expirado');
+          if (!res.ok) throw new Error('Erro ao buscar pagamentos: ' + res.statusText);
+          const data = await res.json();
+          renderTable(data || []);
+          setStatus(`Encontrados ${ (data||[]).length } pagamentos.`);
+        } catch (err) {
+          console.error(err);
+          setStatus(String(err), true);
+          renderTable([]);
+        }
+      }
+
+      function renderTable(items) {
+        const tbody = document.querySelector('#paymentsTable tbody');
+        tbody.innerHTML = '';
+        if (!items || items.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#475569">Nenhum pagamento encontrado.</td></tr>';
+          return;
+        }
+
+        items.forEach(p => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${p.id}</td>
+            <td>${p.externalReference || ''}</td>
+            <td>${p.transaction_amount ?? ''}</td>
+            <td>${p.status}</td>
+            <td>${p.mp_status || ''}</td>
+            <td>${new Date(p.createdAt).toLocaleString()}</td>
+            <td></td>
+          `;
+
+          const actionsTd = tr.querySelector('td:last-child');
+
+          const downgradeBtn = document.createElement('button');
+          downgradeBtn.className = 'danger';
+          downgradeBtn.textContent = 'Downgrade por pagamento';
+          downgradeBtn.onclick = async () => {
+            if (!confirm('Executar downgrade do usuário vinculado a este pagamento?')) return;
+            await callDowngradeByPayment(p.id);
+          };
+
+          const downgradeUserBtn = document.createElement('button');
+          downgradeUserBtn.className = 'muted';
+          downgradeUserBtn.style.marginLeft = '8px';
+          const userId = (p.externalReference || '').split('_').pop();
+          downgradeUserBtn.textContent = 'Downgrade por usuário';
+          downgradeUserBtn.onclick = async () => {
+            if (!userId) return alert('External reference inválida.');
+            if (!confirm('Executar downgrade do usuário: ' + userId + '?')) return;
+            await callDowngradeByUser(userId);
+          };
+
+          actionsTd.appendChild(downgradeBtn);
+          actionsTd.appendChild(downgradeUserBtn);
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      async function callDowngradeByPayment(paymentId) {
+        const token = getToken();
+        setStatus('Executando downgrade por paymentId...');
+        try {
+          const res = await fetch((apiBase || '') + '/api/payments/admin/downgrade-by-payment/' + encodeURIComponent(paymentId), {
+            method: 'POST', headers: { 'Authorization': token ? `Bearer ${token}` : '' }
+          });
+          if (!res.ok) throw new Error('Falha: ' + res.statusText);
+          const data = await res.json();
+          setStatus('Downgrade executado: ' + JSON.stringify(data));
+          await fetchRefunded();
+        } catch (err) {
+          console.error(err);
+          setStatus(String(err), true);
+        }
+      }
+
+      async function callDowngradeByUser(userId) {
+        const token = getToken();
+        setStatus('Executando downgrade por userId...');
+        try {
+          const res = await fetch((apiBase || '') + '/api/users/admin/downgrade/' + encodeURIComponent(userId), {
+            method: 'POST', headers: { 'Authorization': token ? `Bearer ${token}` : '' }
+          });
+          if (!res.ok) throw new Error('Falha: ' + res.statusText);
+          const data = await res.json();
+          setStatus('Downgrade executado: ' + JSON.stringify(data));
+          await fetchRefunded();
+        } catch (err) {
+          console.error(err);
+          setStatus(String(err), true);
+        }
+      }
+
+      document.getElementById('refresh').addEventListener('click', fetchRefunded);
+
+      // Auto-fetch on load
+      fetchRefunded();
+    </script>
+  </body>
+</html>

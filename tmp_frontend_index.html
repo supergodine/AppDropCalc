@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <!-- Deploy trigger: 03/12/2025 -->
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    
+    <!-- Primary Meta Tags -->
+    <title>DropCalc - Calculadora de Dropshipping | Precificação Inteligente</title>
+    <meta name="title" content="DropCalc - Calculadora de Dropshipping | Precificação Inteligente" />
+    <meta name="description" content="Calculadora profissional para dropshipping com 70+ moedas, cálculo de impostos, margens e taxas. Precifique seus produtos com precisão e maximize lucros." />
+    <meta name="keywords" content="dropshipping, calculadora, precificação, câmbio, marketplace, e-commerce, lucro, margem, impostos, produtos" />
+    <meta name="author" content="DropCalc Team" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="Portuguese" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#6366f1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="DropCalc" />
+    <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+    
+    <!-- Microsoft Edge -->
+    <meta name="msapplication-TileColor" content="#6366f1" />
+    <meta name="msapplication-TileImage" content="/pwa-192x192.png" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://dropcalc.app/" />
+    <meta property="og:title" content="DropCalc - Calculadora de Dropshipping | Precificação Inteligente" />
+    <meta property="og:description" content="Calculadora profissional para dropshipping com 70+ moedas, cálculo de impostos, margens e taxas. Precifique seus produtos com precisão." />
+    <meta property="og:image" content="/pwa-512x512.png" />
+    <meta property="og:site_name" content="DropCalc" />
+    <meta property="og:locale" content="pt_BR" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://dropcalc.app/" />
+    <meta property="twitter:title" content="DropCalc - Calculadora de Dropshipping" />
+    <meta property="twitter:description" content="Calculadora profissional para dropshipping com 70+ moedas e cálculo de impostos." />
+    <meta property="twitter:image" content="/pwa-512x512.png" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://dropcalc.app/" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    
+    <!-- Security Headers: server will set X-Frame-Options header -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    
+    <!-- Splash Screen Colors -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "DropCalc",
+      "description": "Calculadora profissional para dropshipping com suporte a 70+ moedas",
+      "url": "https://dropcalc.app",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "BRL"
+      }
+    }
+    </script>
+    <script type="module" crossorigin src="/assets/index-BR3xqJln-1765573536099.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-QYCSsVv3-1765573536099.js">
+    <link rel="modulepreload" crossorigin href="/assets/router-Ch7Tu9Z_-1765573536099.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-WTlNyCxy-1765573536099.css">
+  </head>
+  <body>
+    <!-- INTERCEPTADOR GLOBAL DESATIVADO - CAUSAVA PROBLEMAS COM GOOGLE AUTH -->
+    <!-- <script src="/interceptor.js"></script> -->
+    
+    <div id="root"></div>
+    
+    <!-- PWA Install Prompt -->
+    <script>
+      // Register service worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    </script>
+    
+    <!-- One-time unregister of old service workers and cache cleanup to ensure clients pick up new bundles -->
+    <script>
+      (function() {
+        try {
+          if (!('serviceWorker' in navigator)) return;
+          // Run only once per client
+          if (localStorage.getItem('dropcalc_sw_unregistered')) return;
+
+          // Unregister all existing service workers
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            registrations.forEach(function(reg) {
+              try { reg.unregister(); } catch (e) { /* ignore */ }
+            });
+          }).catch(function(){});
+
+          // Clear caches (best-effort)
+          if ('caches' in window) {
+            caches.keys().then(function(keys) {
+              return Promise.all(keys.map(function(key) { return caches.delete(key); }));
+            }).catch(function(){});
+          }
+
+          localStorage.setItem('dropcalc_sw_unregistered', '1');
+          console.info('DropCalc: unregistered old service workers and cleared caches (one-time)');
+        } catch (err) {
+          console.warn('DropCalc: failed to cleanup SW/caches', err);
+        }
+      })();
+    </script>
+  </body>
+</html>

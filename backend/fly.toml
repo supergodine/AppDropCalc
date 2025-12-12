@@ -1,8 +1,8 @@
-app = "backend-holy-fog-6984"
+[app = "backend-holy-fog-6984"]
 primary_region = "gru"
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = "backend/Dockerfile"
 
 [machines]
   auto_start_machines = true
@@ -10,7 +10,7 @@ primary_region = "gru"
   min_machines_running = 1
 
 [[services]]
-  internal_port = 10000
+  internal_port = 3000
   protocol = "tcp"
 
   [[services.ports]]
