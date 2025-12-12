@@ -428,8 +428,24 @@ class AuthService {
   }
 
   isAdmin(): boolean {
-    const user = this.getCurrentUser();
-    return user?.role === 'admin';
+    const user = this.getCurrentUser() as any;
+    if (!user) return false;
+
+    // Explicit boolean flag (some backends provide isAdmin)
+    if (user.isAdmin === true) return true;
+
+    // Role as string (admin, administrator, superadmin)
+    if (typeof user.role === 'string') {
+      const role = user.role.toLowerCase();
+      if (['admin', 'administrator', 'superadmin'].includes(role)) return true;
+    }
+
+    // Roles array (e.g. roles: ['user','admin'])
+    if (Array.isArray(user.roles)) {
+      if (user.roles.some((r: any) => typeof r === 'string' && r.toLowerCase() === 'admin')) return true;
+    }
+
+    return false;
   }
 }
 
