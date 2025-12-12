@@ -42,9 +42,7 @@ export class MercadoPagoService {
         return { ok: false, reason: 'no-payment-data' };
       }
 
-      if (payment.status.toLowerCase() !== 'approved') {
-        return { ok: false, reason: `status-${payment.status}` };
-      }
+      // We'll normalize status and handle multiple flows (approved, refunded/chargeback, rejected/cancelled)
 
       // external_reference expected in payment.order or payment.external_reference
       const external = payment.external_reference || (payment.order && payment.order.external_reference) || null;
@@ -74,7 +72,9 @@ export class MercadoPagoService {
         if (payment.metadata && payment.metadata.period) period = payment.metadata.period;
       } catch (err) {}
 
-      if (payment.status.toLowerCase() === 'approved') {
+      const status = String(payment.status).toLowerCase();
+
+      if (status === 'approved') {
         // idempotent: if local payment exists and already approved, skip
         if (localPayment && localPayment.status === 'approved') {
           this.logger.log('Payment already approved locally: ' + (localPayment.id || 'unknown'));
@@ -97,12 +97,22 @@ export class MercadoPagoService {
         return { ok: true };
       }
 
-      // handle rejected/cancelled
-      if (payment.status.toLowerCase() === 'rejected' || payment.status.toLowerCase() === 'cancelled') {
+      // handle refunded/chargeback/cancelled/rejected
+      if (['refunded', 'charged_back', 'cancelled', 'rejected'].includes(status)) {
         if (localPayment) {
-          await this.paymentsService.markRejected(localPayment.id, payment);
+          // mark payment refunded or rejected appropriately
+          if (['refunded', 'charged_back'].includes(status)) {
+            await this.paymentsService.markRefunded(localPayment.id, payment);
+          } else {
+            await this.paymentsService.markRejected(localPayment.id, payment);
+          }
         }
-        return { ok: false, reason: `status-${payment.status}` };
+
+        // Manual policy chosen: do NOT change user's plan automatically.
+        // Log the event so admins can take action manually (via DB or admin endpoint).
+        this.logger.log(`Payment ${paymentId} has status ${status}; marked local payment accordingly. Manual admin action required to change user plan.`);
+
+        return { ok: true, reason: `handled-${status}` };
       }
 
       return { ok: false, reason: `status-${payment.status}` };
