@@ -549,6 +549,15 @@ const DashboardSimples: React.FC = () => {
             <div className="flex items-center">
               <Calculator className="h-8 w-8 text-purple-400 mr-3" />
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">DropCalc</h1>
+              {isAdmin && (
+                <button
+                  onClick={() => navigate('/admin/logs')}
+                  className="ml-3 px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold rounded-md transition-colors"
+                  title="Ver logs administrativos"
+                >
+                  Ver Logs
+                </button>
+              )}
             </div>
 
             <div className="hidden md:flex items-center space-x-4">

@@ -50,7 +50,27 @@ export class PaymentsService {
     return payment;
   }
 
+  async markRefunded(paymentId: string, payload: any): Promise<Payment | null> {
+    const payment = await this.paymentRepository.findOne({ where: { id: paymentId } });
+    if (!payment) return null;
+    // Allow transitioning from approved -> refunded; idempotent if already refunded
+    if (payment.status === 'refunded') return payment;
+    payment.status = 'refunded';
+    payment.rawPayload = payload;
+    const saved = await this.paymentRepository.save(payment);
+    this.logger.log('PaymentsService.markRefunded saved payment: ' + JSON.stringify({ id: saved.id, status: saved.status, userId: saved.userId }));
+    return saved;
+  }
+
   async findByExternalReference(externalReference: string): Promise<Payment | null> {
     return this.paymentRepository.findOne({ where: { externalReference } });
+  }
+
+  async findById(paymentId: string): Promise<Payment | null> {
+    return this.paymentRepository.findOne({ where: { id: paymentId } });
+  }
+
+  async findByStatus(status: string): Promise<Payment[]> {
+    return this.paymentRepository.find({ where: { status } });
   }
 }

@@ -17,7 +17,7 @@
   "maskableIconUrl": "https://app-drop-calc.vercel.app/pwa-512x512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
-    "path": "C:\\Users\\DIEGO\\Desktop\\calculadora\\dropcalc-keystore.jks",
+    "path": "C:\\Users\\DIEGO\\keystores\\dropcalc-keystore.jks",
     "alias": "dropcalc"
   },
   "appVersionName": "1",
