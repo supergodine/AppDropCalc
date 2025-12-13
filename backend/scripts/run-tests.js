@@ -14,8 +14,8 @@ async function main() {
     const repoRoot = path.resolve(__dirname, '..', '..');
     const composeFile = path.resolve(repoRoot, 'docker-compose.test.yml');
 
-    // Build backend image unless explicitly skipped
-    if (!process.env.SKIP_BUILD) {
+    // Build backend image unless explicitly skipped (expect SKIP_BUILD='true')
+    if (process.env.SKIP_BUILD !== 'true') {
       console.log('Building backend image (appdropcalc-backend:test)');
       run('docker', ['build', '-f', path.join(repoRoot, 'backend', 'Dockerfile.test'), '-t', 'appdropcalc-backend:test', repoRoot]);
     } else {
