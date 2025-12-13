@@ -28,18 +28,50 @@ primary_region = "gru"
   [services.http_checks]
     path = "/api/health"
     method = "get"
-    interval = "15s"
-    timeout = "2s"
-    grace_period = "60s"
-    restart_limit = 0
+    app = "backend-holy-fog-6984"
+    primary_region = "gru"
 
-  [services.tcp_checks]
-    interval = "15s"
-    timeout = "2s"
-    grace_period = "60s"
-    restart_limit = 0
+    [build]
+      dockerfile = "Dockerfile"
 
-  [services.concurrency]
-    type = "connections"
-    soft_limit = 25
-    hard_limit = 50
+    [machines]
+      auto_start_machines = true
+      auto_stop_machines = true
+      min_machines_running = 1
+
+    [[services]]
+      internal_port = 3000
+      protocol = "tcp"
+
+      [[services.ports]]
+        port = 80
+        handlers = ["http"]
+
+      [[services.ports]]
+        port = 443
+        handlers = ["tls","http"]
+
+      # Optional: keep explicit external mapping for 10000 if you need it,
+      # but internal_port determines the port the container listens on.
+      [[services.ports]]
+        port = 10000
+        handlers = ["http"]
+
+      [services.http_checks]
+        path = "/api/health"
+        method = "get"
+        interval = "15s"
+        timeout = "2s"
+        grace_period = "60s"
+        restart_limit = 0
+
+      [services.tcp_checks]
+        interval = "15s"
+        timeout = "2s"
+        grace_period = "60s"
+        restart_limit = 0
+
+      [services.concurrency]
+        type = "connections"
+        soft_limit = 25
+        hard_limit = 50
