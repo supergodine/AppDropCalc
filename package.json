@@ -11,6 +11,9 @@
     "tailwindcss": "^4.1.17",
     "typeorm": "^0.3.28"
   },
+  "scripts": {
+    "test:ci": "npm --prefix ./backend run test:ci"
+  },
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^24.10.1",
