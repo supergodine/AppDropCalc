@@ -1,9 +1,18 @@
 import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
 import { MailerService } from '../../common/mailer/mailer.service';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 class SupportDto {
+  @IsString()
+  @IsNotEmpty()
   nome: string;
+
+  @IsEmail()
+  @IsNotEmpty()
   email: string;
+
+  @IsString()
+  @IsNotEmpty()
   mensagem: string;
 }
 
