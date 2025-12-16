@@ -7,6 +7,8 @@ kill_timeout = 5
 [build]
 # If you prefer to use a prebuilt image, set it here. By default flyctl will build from your repo.
 # image = "registry.fly.io/your-org/your-image:tag"
+# Use the backend Dockerfile for remote builds
+dockerfile = "backend/Dockerfile"
 
 [env]
 NODE_ENV = "production"

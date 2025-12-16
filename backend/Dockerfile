@@ -1,5 +1,34 @@
 FROM node:18-alpine AS builder
 
+WORKDIR /usr/src/app
+
+# Install dependencies (including dev for build)
+COPY backend/package*.json ./
+RUN npm ci
+
+# Copy source and build
+COPY backend/ .
+RUN npm run build
+
+FROM node:18-alpine
+
+WORKDIR /usr/src/app
+
+# Production dependencies only
+COPY backend/package*.json ./
+RUN npm ci --production
+
+# Copy built output
+COPY --from=builder /usr/src/app/dist ./dist
+
+ENV NODE_ENV=production
+ENV PORT=3000
+
+EXPOSE 3000
+
+CMD ["node", "dist/main.js"]
+FROM node:18-alpine AS builder
+
 # Create app directory
 WORKDIR /app
 
