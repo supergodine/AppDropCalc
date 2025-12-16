@@ -117,7 +117,7 @@ export class UsersService {
     const user = await this.findById(userId);
     if (!user) return null;
     await this.userRepository.update(userId, {
-      plan: 'free',
+      plan: UserPlan.FREE,
       planExpiresAt: null,
       subscriptionPeriod: null,
       subscriptionStatus: 'inactive',

@@ -5,7 +5,10 @@ import { UsersService } from '../users/users.service';
 
 @Controller('payments')
 export class PaymentsController {
-  constructor(private readonly paymentsService: PaymentsService) {}
+  constructor(
+    private readonly paymentsService: PaymentsService,
+    private readonly usersService: UsersService,
+  ) {}
 
   // Create a pending payment record before sending preference to Mercado Pago
   @UseGuards(AuthGuard('jwt'))
