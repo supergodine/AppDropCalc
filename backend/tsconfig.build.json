@@ -5,6 +5,7 @@
     "types": []
   },
   "exclude": [
+    "dist",
     "**/*.spec.ts",
     "**/*.test.ts"
   ]
