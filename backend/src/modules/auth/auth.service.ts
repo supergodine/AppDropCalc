@@ -214,7 +214,7 @@ export class AuthService {
       await this.userRepository.save(user);
 
       // Return standard auth response
-      return this.generateAuthResponse(user, 'Login realizado com sucesso');
+      return await this.generateAuthResponse(user, 'Login realizado com sucesso');
     } catch (error) {
       console.error('❌ Erro interno no login:', error);
       throw error;
@@ -341,18 +341,20 @@ export class AuthService {
       throw new UnauthorizedException('Usuário não encontrado');
     }
 
-    return this.generateAuthResponse(currentUser, 'Token renovado com sucesso');
+    return await this.generateAuthResponse(currentUser, 'Token renovado com sucesso');
   }
 
   /**
    * Gerar resposta de autenticação com token JWT
    */
-  private generateAuthResponse(user: User, message: string): AuthResponseDto {
+  private async generateAuthResponse(user: User, message: string): Promise<AuthResponseDto> {
+    // Fetch fresh user record from DB to avoid stale or overwritten fields
+    const fresh = await this.findUserById(user.id);
     const payload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-      plan: user.plan,
+      sub: fresh.id,
+      email: fresh.email,
+      role: fresh.role,
+      plan: fresh.plan,
     };
 
     const accessToken = this.jwtService.sign(payload);
@@ -361,7 +363,7 @@ export class AuthService {
       accessToken,
       tokenType: 'Bearer',
       expiresIn: 7 * 24 * 60 * 60, // 7 dias em segundos
-      user: new UserResponseDto(user),
+      user: new UserResponseDto(fresh),
       message,
     };
   }
