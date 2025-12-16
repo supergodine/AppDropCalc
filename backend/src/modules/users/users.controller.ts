@@ -26,11 +26,11 @@ export class UsersController {
   @Get('profile')
   @ApiOperation({ summary: 'Obter perfil completo do usuário' })
   async getProfile(@Request() req) {
-    const callerId = req?.user?.id ?? req?.user?.sub;
-    if (!callerId) {
-      throw new NotFoundException('User not found');
-    }
-    const user = await this.usersService.findById(callerId);
+    // JwtStrategy already validates the token and returns the User entity as `req.user`.
+    // Return the authenticated user directly to avoid an extra DB lookup which
+    // can produce inconsistent results when multiple instances or DB replicas
+    // are in play. Only expose safe fields.
+    const user = req?.user;
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -44,11 +44,7 @@ export class UsersController {
   @Get('me')
   @ApiOperation({ summary: 'Obter plano/assinatura atual do usuário' })
   async getMyPlan(@Request() req) {
-    const callerId = req?.user?.id ?? req?.user?.sub;
-    if (!callerId) {
-      throw new NotFoundException('User not found');
-    }
-    const user = await this.usersService.findById(callerId);
+    const user = req?.user;
     if (!user) {
       throw new NotFoundException('User not found');
     }
