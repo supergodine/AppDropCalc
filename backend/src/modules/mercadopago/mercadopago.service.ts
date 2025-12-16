@@ -6,8 +6,8 @@ import { PaymentsService } from '../payments/payments.service';
 const MP_BASE = 'https://api.mercadopago.com';
 
 @Injectable()
-export class [REDACTED_MERCADOPAGO_TOKEN] {
-  private readonly logger = new Logger([REDACTED_MERCADOPAGO_TOKEN].name);
+export class MercadoPagoService {
+  private readonly logger = new Logger(MercadoPagoService.name);
 
   constructor(
     private readonly usersService: UsersService,

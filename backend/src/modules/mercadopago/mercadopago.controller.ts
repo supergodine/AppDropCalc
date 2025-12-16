@@ -1,10 +1,10 @@
 import { Controller, Post, Body, Headers, HttpCode, HttpStatus, Get, Param, Logger } from '@nestjs/common';
-import { [REDACTED_MERCADOPAGO_TOKEN] } from './mercadopago.service';
+import { MercadoPagoService } from './mercadopago.service';
 
 @Controller('mercadopago')
-export class [REDACTED_MERCADOPAGO_TOKEN] {
-  private readonly logger = new Logger([REDACTED_MERCADOPAGO_TOKEN].name);
-  constructor(private readonly mpService: [REDACTED_MERCADOPAGO_TOKEN]) {}
+export class MercadoPagoController {
+  private readonly logger = new Logger(MercadoPagoController.name);
+  constructor(private readonly mpService: MercadoPagoService) {}
 
   @Post('webhook')
   @HttpCode(200)
