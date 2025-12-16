@@ -26,7 +26,11 @@ export class UsersController {
   @Get('profile')
   @ApiOperation({ summary: 'Obter perfil completo do usuário' })
   async getProfile(@Request() req) {
-    const user = await this.usersService.findById(req.user.sub);
+    const callerId = req?.user?.id ?? req?.user?.sub;
+    if (!callerId) {
+      throw new NotFoundException('User not found');
+    }
+    const user = await this.usersService.findById(callerId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -40,7 +44,11 @@ export class UsersController {
   @Get('me')
   @ApiOperation({ summary: 'Obter plano/assinatura atual do usuário' })
   async getMyPlan(@Request() req) {
-    const user = await this.usersService.findById(req.user.sub);
+    const callerId = req?.user?.id ?? req?.user?.sub;
+    if (!callerId) {
+      throw new NotFoundException('User not found');
+    }
+    const user = await this.usersService.findById(callerId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -55,7 +63,8 @@ export class UsersController {
   @Post('admin/process-past-due')
   @ApiOperation({ summary: 'Process pending past_due downgrades (admin only)' })
   async processPastDue(@Request() req) {
-    const calling = await this.usersService.findById(req.user.sub);
+    const callerId = req?.user?.id ?? req?.user?.sub;
+    const calling = callerId ? await this.usersService.findById(callerId) : null;
     if (!calling || !calling.isAdmin()) {
       throw new ForbiddenException('Admin access required');
     }
@@ -66,7 +75,8 @@ export class UsersController {
   @Post('admin/downgrade/:userId')
   @ApiOperation({ summary: 'Admin: downgrade a user immediately to free/basic' })
   async adminDowngrade(@Request() req) {
-    const calling = await this.usersService.findById(req.user.sub);
+    const callerId = req?.user?.id ?? req?.user?.sub;
+    const calling = callerId ? await this.usersService.findById(callerId) : null;
     if (!calling || !calling.isAdmin()) {
       throw new ForbiddenException('Admin access required');
     }
