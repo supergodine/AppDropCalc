@@ -15,7 +15,7 @@
   "monochromeIconUrl": "https://dropcalc.vercel.app/icon-192x192.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
-    "path": "../keystore/android.keystore",
+    "path": "./android.keystore",
     "alias": "dropcalc"
   },
   "appVersionName": "1.0.0",

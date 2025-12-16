@@ -3,6 +3,9 @@
 
 import axios from 'axios';
 
+const MP_BASE_URL = 'https://api.mercadopago.com';
+const MP_ACCESS_TOKEN = import.meta.env.VITE_MP_ACCESS_TOKEN;
+
 const BACKEND_BASE = import.meta.env.VITE_API_URL || '';
 
 export async function createPaymentPreference({
@@ -52,9 +55,9 @@ export async function createPaymentPreference({
     preference.metadata = metadata;
   }
 
-  // Delegate Mercado Pago preference creation to backend to avoid exposing secrets in the client
-  const response = await axios.post(`${BACKEND_BASE}/payments/create-preference`, preference, {
+  const response = await axios.post(`${MP_BASE_URL}/checkout/preferences`, preference, {
     headers: {
+      Authorization: `Bearer ${MP_ACCESS_TOKEN}`,
       'Content-Type': 'application/json',
     },
   });

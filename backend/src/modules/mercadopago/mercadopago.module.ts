@@ -2,13 +2,13 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
 import { PaymentsModule } from '../payments/payments.module';
-import { MercadoPagoController } from './mercadopago.controller';
-import { MercadoPagoService } from './mercadopago.service';
+import { [REDACTED_MERCADOPAGO_TOKEN] } from './mercadopago.controller';
+import { [REDACTED_MERCADOPAGO_TOKEN] } from './mercadopago.service';
 
 @Module({
   imports: [UsersModule, PaymentsModule],
-  controllers: [MercadoPagoController],
-  providers: [MercadoPagoService],
-  exports: [MercadoPagoService],
+  controllers: [[REDACTED_MERCADOPAGO_TOKEN]],
+  providers: [[REDACTED_MERCADOPAGO_TOKEN]],
+  exports: [[REDACTED_MERCADOPAGO_TOKEN]],
 })
-export class MercadoPagoModule {}
+export class [REDACTED_MERCADOPAGO_TOKEN] {}

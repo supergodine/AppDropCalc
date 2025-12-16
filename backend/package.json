@@ -57,8 +57,6 @@
     "start": "node dist/main.js",
     "start:prod": "node dist/main.js",
     "start:dev": "nodemon --exec ts-node src/main.ts",
-    "test": "jest --runInBand",
-    "test:ci": "node ./scripts/run-tests.js",
     "typeorm:migration:run": "npx ts-node ./node_modules/typeorm/cli.js migration:run --dataSource src/database/data-source.ts"
   },
   "devDependencies": {
@@ -88,7 +86,7 @@
       "ts"
     ],
     "rootDir": "src",
-    "testRegex": "^(?!.*(\\.pg\\.spec|\\.db\\.spec|\\.integration\\.spec)).*\\.spec\\.ts$",
+    "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },

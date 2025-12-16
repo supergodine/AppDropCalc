@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { API_CONFIG } from './config/api';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import AdminPayments from './pages/AdminPayments';
-import AdminLogs from './pages/AdminLogs';
-import { authService } from './lib/auth';
 
 interface Platform {
   nome: string;
@@ -15,7 +11,7 @@ interface Gateway {
   taxa: number;
 }
 
-function HomeContent() {
+function App() {
   const API_BASE = API_CONFIG.getBaseURL();
   // Log de ambiente e branch
   console.log('🔎 Ambiente VITE:', {
@@ -555,32 +551,4 @@ function HomeContent() {
   );
 }
 
-}
-
-function RouterWrapper() {
-  return (
-    <BrowserRouter>
-      <div style={{ padding: 8, background: '#ffffffcc' }}>
-        <nav style={{ display: 'flex', gap: 12, alignItems: 'center', maxWidth: 1100, margin: '0 auto' }}>
-          <Link to="/" style={{ fontWeight: '600' }}>Home</Link>
-          {authService.isAdmin() ? (
-            <>
-              <Link to="/admin/payments" style={{ color: '#1d4ed8', fontWeight: 600 }}>Admin - Pagamentos</Link>
-              <span style={{ margin: '0 8px' }}>|</span>
-              <Link to="/admin/logs" style={{ color: '#1d4ed8', fontWeight: 600 }}>Admin - Logs</Link>
-              {/* Prominent button for admins to quickly jump to logs */}
-              <Link to="/admin/logs" style={{ marginLeft: 12, background: '#1d4ed8', color: '#fff', padding: '6px 10px', borderRadius: 6, textDecoration: 'none', fontWeight: 700 }}>Ver Logs</Link>
-            </>
-          ) : null}
-        </nav>
-      </div>
-      <Routes>
-        <Route path="/" element={<HomeContent />} />
-        <Route path="/admin/payments" element={<AdminPayments />} />
-        <Route path="/admin/logs" element={<AdminLogs />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-export default RouterWrapper;
+export default App;

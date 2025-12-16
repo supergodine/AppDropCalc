@@ -2,11 +2,10 @@ import { Controller, Post, Body, UseGuards, Request, Get, Param, UnauthorizedExc
 import { AuthGuard } from '@nestjs/passport';
 import { PaymentsService } from './payments.service';
 import { UsersService } from '../users/users.service';
-import { AdminLogsService } from '../admin-logs/admin-logs.service';
 
 @Controller('payments')
 export class PaymentsController {
-  constructor(private readonly paymentsService: PaymentsService, private readonly usersService: UsersService, private readonly adminLogsService: AdminLogsService) {}
+  constructor(private readonly paymentsService: PaymentsService) {}
 
   // Create a pending payment record before sending preference to Mercado Pago
   @UseGuards(AuthGuard('jwt'))
@@ -40,14 +39,7 @@ export class PaymentsController {
     if (!callingUser || !callingUser.isAdmin()) throw new ForbiddenException('Admin required');
 
     const status = req.query.status || 'refunded';
-    const result = await this.paymentsService.findByStatus(String(status));
-    // record admin action
-    try {
-      await this.adminLogsService.record(callerId, 'list_payments', { metadata: { status: String(status), count: Array.isArray(result) ? result.length : 0 } });
-    } catch (e) {
-      // ignore logging errors
-    }
-    return result;
+    return this.paymentsService.findByStatus(String(status));
   }
 
   // Admin: downgrade the user related to a payment (by payment id)
@@ -67,12 +59,6 @@ export class PaymentsController {
     const userId = parts.slice(1).join('_');
     const downgraded = await this.usersService.downgradeToBasic(userId);
     if (!downgraded) throw new UnauthorizedException('User not found for downgrade');
-    // record admin action
-    try {
-      await this.adminLogsService.record(callerId, 'downgrade_by_payment', { targetPaymentId: paymentId, targetUserId: userId });
-    } catch (e) {
-      // ignore logging errors
-    }
     return { ok: true, userId: downgraded.id };
   }
 }

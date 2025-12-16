@@ -38,6 +38,11 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Run CI tests (use prebuilt image)
+        working-directory: backend
+        env:
+          SKIP_BUILD: 'true'
+        run: npm run test:ci
 
       - name: Upload test artifacts (if any)
         if: failure()

@@ -99,7 +99,7 @@ Lucro = PreçoVenda - CustoTotal - (Taxas sobre PreçoVenda) - Ads
 
 - **Câmbio**: OpenExchangeRates (primary), ExchangeRate-API (fallback)
 - **Impostos BR**: IBPT (tabela de tributos simplificada)
-- **Gateways**: Stripe, PayPal, MercadoPago, PagSeguro
+- **Gateways**: Stripe, PayPal, [REDACTED_MERCADOPAGO_TOKEN], PagSeguro
 
 ## 📈 Planos de Monetização
 
