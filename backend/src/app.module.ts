@@ -13,6 +13,7 @@ import { UsersModule } from './modules/users/users.module';
 import { ExchangeModule } from './modules/exchange/exchange.module';
 import { MailerModule } from './common/mailer/mailer.module';
 import { MercadoPagoModule } from './modules/mercadopago/mercadopago.module';
+import { SupportModule } from './modules/support/support.module';
 
 // Config
 import { DatabaseConfig } from './config/database.config';
@@ -40,6 +41,7 @@ import { DatabaseConfig } from './config/database.config';
     ExchangeModule,
     MercadoPagoModule,
     MailerModule,
+    SupportModule,
   ],
   controllers: [AppController],
   providers: [AppService],

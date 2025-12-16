@@ -123,7 +123,14 @@ const Login: React.FC = () => {
           // Use backend-provided plan (authService.login already saved userPlan when present)
           // Atualizar estado de autenticação
           refreshAuth();
-          toast.success('Login realizado com sucesso!');
+          // Re-read the stored user to ensure UI shows correct name
+          const currentUser = authService.getCurrentUser();
+          if (currentUser && currentUser.name) {
+            const nameToShow = currentUser.name;
+            toast.success(`Bem-vindo, ${nameToShow}!`);
+          } else {
+            toast.success('Login realizado com sucesso!');
+          }
           navigate('/dashboard');
         }
       } else {

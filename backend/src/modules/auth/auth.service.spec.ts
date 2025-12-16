@@ -4,14 +4,15 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../users/entities/user.entity';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { MailerService } from '../../common/mailer/mailer.service';
 
 const mockUser = {
   id: '1',
   email: 'test@example.com',
   passwordHash: '$2b$12$abcdefghijklmnopqrstuv',
   status: 'active',
-  passwordresettoken: 'token123',
-  passwordresetexpires: new Date(Date.now() + 60 * 60 * 1000),
+  passwordResetToken: 'token123',
+  passwordResetExpires: new Date(Date.now() + 60 * 60 * 1000),
 };
 
 const userRepositoryMock = {
@@ -28,6 +29,8 @@ describe('AuthService', () => {
         AuthService,
         { provide: getRepositoryToken(User), useValue: userRepositoryMock },
         { provide: JwtService, useValue: {} },
+        // Provide a simple mock for MailerService used by AuthService
+        { provide: MailerService, useValue: { sendMail: jest.fn() } },
       ],
     }).compile();
 
@@ -61,7 +64,7 @@ describe('AuthService', () => {
     });
 
     it('deve falhar se o token estiver expirado', async () => {
-      userRepositoryMock.findOne.mockResolvedValue({ ...mockUser, passwordresetexpires: new Date(Date.now() - 1000) });
+      userRepositoryMock.findOne.mockResolvedValue({ ...mockUser, passwordResetExpires: new Date(Date.now() - 1000) });
       const dto: ResetPasswordDto = {
         token: 'token123',
         newPassword: 'novaSenhaSegura',

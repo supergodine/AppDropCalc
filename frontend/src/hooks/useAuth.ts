@@ -74,8 +74,20 @@ export const useAuth = () => {
         const backendUser = data.currentUser || data.user || data;
         if (backendUser) {
           try {
-            localStorage.setItem('currentUser', JSON.stringify(backendUser));
-            console.log('✅ useAuth - currentUser sincronizado com backend');
+            // Merge backend user with existing local user to avoid
+            // unintentionally removing fields like `role`, `isAdmin` or `roles`
+            const existing = authService.getCurrentUser();
+            const merged = Object.assign({}, existing || {}, backendUser || {});
+
+            // Preserve explicit admin markers if backend didn't return them
+            if (existing) {
+              if (!('role' in backendUser) && existing.role) merged.role = existing.role;
+              if (!('isAdmin' in backendUser) && (existing as any).isAdmin) (merged as any).isAdmin = (existing as any).isAdmin;
+              if (!('roles' in backendUser) && Array.isArray((existing as any).roles)) (merged as any).roles = (existing as any).roles;
+            }
+
+            localStorage.setItem('currentUser', JSON.stringify(merged));
+            console.log('✅ useAuth - currentUser sincronizado com backend (merge)');
           } catch (err) {
             console.warn('🚨 useAuth - erro ao salvar currentUser:', err);
           }

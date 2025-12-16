@@ -254,24 +254,27 @@ const Help: React.FC = () => {
             transition={{ delay: 0.8 }}
             className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white text-center"
             onSubmit={async (e) => {
-              e.preventDefault();
-              const form = e.target as HTMLFormElement;
-              const formData = new FormData(form);
-              const nome = formData.get('nome');
-              const email = formData.get('email');
-              const mensagem = formData.get('mensagem');
-              try {
-                await fetch('https://formspree.io/f/xwkzqgqg', {
-                  method: 'POST',
-                  headers: { 'Accept': 'application/json' },
-                  body: JSON.stringify({ nome, email, mensagem })
-                });
-                alert('Mensagem enviada com sucesso!');
-                form.reset();
-              } catch {
-                alert('Erro ao enviar mensagem. Tente novamente.');
-              }
-            }}
+                e.preventDefault();
+                const form = e.target as HTMLFormElement;
+                const formData = new FormData(form);
+                const nome = String(formData.get('nome') || '');
+                const email = String(formData.get('email') || '');
+                const mensagem = String(formData.get('mensagem') || '');
+                try {
+                  const apiRoot = (await import('../config/api')).API_ROOT;
+                  const res = await fetch(`${apiRoot}/support/contact`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, email, mensagem })
+                  });
+                  if (!res.ok) throw new Error('send-failed');
+                  alert('Mensagem enviada com sucesso!');
+                  form.reset();
+                } catch (err) {
+                  console.error('Erro ao enviar suporte', err);
+                  alert('Erro ao enviar mensagem. Tente novamente mais tarde.');
+                }
+              }}
           >
             <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-80" />
             <h3 className="text-xl font-bold mb-2">Ainda precisa de ajuda?</h3>

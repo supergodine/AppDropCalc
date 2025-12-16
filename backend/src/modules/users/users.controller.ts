@@ -2,6 +2,7 @@ import { Controller, Get, UseGuards, Request, NotFoundException, Post, Forbidden
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
+import { AdminLogsService } from '../admin-logs/admin-logs.service';
 
 @ApiTags('users')
 @Controller('users')
@@ -21,7 +22,7 @@ export class UsersController {
       status: user.status,
     };
   }
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService, private readonly adminLogsService: AdminLogsService) {}
 
   @Get('profile')
   @ApiOperation({ summary: 'Obter perfil completo do usuário' })
@@ -44,6 +45,15 @@ export class UsersController {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    // If admin requested this endpoint as a token validation, record it
+    try {
+      if (user && user.isAdmin && user.isAdmin()) {
+        // record that an admin validated their token / queried own plan
+        await this.adminLogsService.record(user.id, 'validate_token', { metadata: { endpoint: 'users/me' } });
+      }
+    } catch (e) {
+      // ignore logging errors
+    }
     return {
       planId: user.plan,
       subscriptionStatus: user.subscriptionStatus || 'inactive',
@@ -60,6 +70,11 @@ export class UsersController {
       throw new ForbiddenException('Admin access required');
     }
     const result = await this.usersService.processPastDueDowngrades();
+    try {
+      // record admin action
+      const count = (result && (result as any).downgraded) ? (result as any).downgraded.length : 0;
+      await this.adminLogsService.record(req.user.sub, 'process_past_due', { metadata: { resultCount: count } });
+    } catch (e) {}
     return result;
   }
 
@@ -73,6 +88,9 @@ export class UsersController {
     const userId = req.params.userId;
     const downgraded = await this.usersService.downgradeToBasic(userId);
     if (!downgraded) throw new NotFoundException('User not found');
+    try {
+      await this.adminLogsService.record(req.user.sub, 'downgrade_user', { targetUserId: userId });
+    } catch (e) {}
     return { ok: true, userId: downgraded.id, plan: downgraded.plan };
   }
 

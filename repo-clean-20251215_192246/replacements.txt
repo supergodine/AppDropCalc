@@ -1,0 +1,9 @@
+# Replace Mercado Pago tokens and APP_USR- style tokens
+regex:APP_USR-[A-Za-z0-9_\-]+==>[REDACTED_APP_USR_TOKEN]
+regex:Bearer\s+APP_USR-[A-Za-z0-9_\-]+==>[REDACTED_BEARER_APP_USR]
+
+# Generic MercadoPago keywords (adjust if needed)
+regex:MercadoPago[A-Za-z0-9_\-]{0,50}==>[REDACTED_MERCADOPAGO_TOKEN]
+
+# Optionally redact long token-like strings (20+ chars). Disabled by default - uncomment to enable
+#regex:[A-Za-z0-9_\-]{20,}==>[REDACTED_LONG_TOKEN]

@@ -1,0 +1,9 @@
+android/android.keystore
+android.keystore
+build-responses.txt
+tmp_app_auth.js
+tmp_app_*.js
+*.keystore
+
+# Explicit android path for build responses
+android/build-responses.txt

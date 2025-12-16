@@ -1,0 +1,11 @@
+refs/heads/dashboard
+refs/heads/dezembro
+refs/heads/feat/login-recuperacao-senha
+refs/heads/feature/ajustes-novembro
+refs/heads/feature/payment
+refs/heads/feature/payment-screen-config
+refs/heads/feature/reembolso
+refs/heads/fix/auth-recover-login
+refs/heads/fix/cors-preflight
+refs/heads/hotfix/frontend-require-bug
+refs/heads/main

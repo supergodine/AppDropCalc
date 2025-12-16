@@ -1,0 +1,11 @@
+7f9ead45b7c774f63a83d4eead68d85787565979	refs/heads/dashboard
+de88110810649231b55cd2bf9f03cb4906288ede	refs/heads/dezembro
+82bcedb0df9d27ff75a91c2a7769cd67c1632a34	refs/heads/feat/login-recuperacao-senha
+a7c081433205990c9ce7c74974eee2163e573eb1	refs/heads/feature/ajustes-novembro
+3bc05c8dc6c9a345ec7cc091eae93bed6ea21da3	refs/heads/feature/payment
+3ae7f7d5d3ce00a4ec6a169170dfaeac0c33f363	refs/heads/feature/payment-screen-config
+6009b5e0c75c2d0329f34038c018b890c7e7bd32	refs/heads/feature/reembolso
+d20bc38e02040647ce6647d0a5f03bb70f649b33	refs/heads/fix/auth-recover-login
+fa5d6dbb4dbb420858845c59fc9e2acda2c54318	refs/heads/fix/cors-preflight
+bd0ad19f5d3cab2d1a4bd3a2ea76315a8248609b	refs/heads/hotfix/frontend-require-bug
+c53b27d6da2ccc940f1db998a7726541ba763bc7	refs/heads/main

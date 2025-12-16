@@ -1,0 +1,12 @@
+old                                      new                                      ref
+740134da6d99b9f98d51c6ef789f7d3ba8d0c143 cdf0bdb0c3298ac67e809ff5b42400efe5d78383 refs/heads/dashboard
+ac5ce07ea3d7bc9a1bc22f407cb4bffb8789f1b0 b76e0b4f618f3123ccce40eced5fae86398ae872 refs/heads/dezembro
+2bb159dc46ae3d50e4ae2244109b11d0a2399127 59bc4cbf3cb27707c3da27e8c9add99df3b2b5d0 refs/heads/feat/login-recuperacao-senha
+654b3986b72995c5090a27f8164f082c984eb234 9e7d9843c5c1af9a076584fdd8ae896c328e471c refs/heads/feature/ajustes-novembro
+6a200d4a355778ed31e15b77ed4599f50f8e472d 2dc4807b2fac8b9a08fdc37170fe04a6b5d06d39 refs/heads/feature/payment
+7a685bae348f9d6977035b8b11769601b1e5ace7 e4873c723c16409a3070f4d08c4ad3cdf5c9969b refs/heads/feature/payment-screen-config
+1d63a5c867f995a054dd2c5c9a06cd1fce5dccc1 86e4ab21a3b0a042ffcab416218d4f5413f6a2d6 refs/heads/feature/reembolso
+fc9e28b518dbb54191f31bcbc7024b0db3c25122 905ef2e641646c43da4b2b24509b7e92eb2b2010 refs/heads/fix/auth-recover-login
+7c9846c45924c645e92a880de356e31192fd7f05 c05b0b0b48e89dc7a61679f702785ba495f4884a refs/heads/fix/cors-preflight
+26735e05645cbc7eb86542360553df51052488e4 51863b250a8b04413a842633eecc474be16d6cdd refs/heads/hotfix/frontend-require-bug
+4d5b036da2e01ad2b1e7a68beee38d27e8e4882f 0ddbc2baa6b24e5d2b63e2d219348d564d168bc2 refs/heads/main
