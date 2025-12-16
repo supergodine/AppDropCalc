@@ -46,3 +46,6 @@ android/android.keystore
 android.keystore
 *.keystore
 
+# Prevent accidental commit of temporary auth bundle that contained tokens
+tmp_app_auth.js
+
