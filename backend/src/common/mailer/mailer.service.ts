@@ -92,7 +92,16 @@ export class MailerService {
         };
 
         const res = await this.client.post('send', { version: 'v3.1' }).request(requestBody);
-        this.logger.log(`[MailerService] Mailjet enviado com status: ${res?.status}`);
+        // Log multiple possible status fields and the response body for debugging
+        const statusField = res?.status ?? res?.statusCode ?? (res && res.body && res.body.Status ? res.body.Status : undefined);
+        this.logger.log(`[MailerService] Mailjet enviado com status: ${statusField}`);
+        try {
+          const bodyToLog = res?.body ?? res;
+          this.logger.log(`[MailerService] Mailjet response body: ${JSON.stringify(bodyToLog, null, 2)}`);
+        } catch (e) {
+          this.logger.debug('[MailerService] Não foi possível serializar a resposta Mailjet', e?.message || e);
+          this.logger.debug(res);
+        }
         return res.body;
       } catch (err) {
         this.logger.error(`[MailerService] Falha ao enviar Mailjet: ${err?.message || err}`);
