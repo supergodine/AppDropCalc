@@ -1,8 +1,8 @@
-[app = "backend-holy-fog-6984"]
+app = "backend-holy-fog-6984"
 primary_region = "gru"
 
 [build]
-  dockerfile = "backend/Dockerfile"
+  dockerfile = "Dockerfile"
 
 [machines]
   auto_start_machines = true
@@ -21,33 +21,7 @@ primary_region = "gru"
     port = 443
     handlers = ["tls","http"]
 
-  [[services.ports]]
-    port = 10000
-    handlers = ["http"]
-
-  [services.http_checks]
-    path = "/api/health"
-    method = "get"
-    app = "backend-holy-fog-6984"
-    primary_region = "gru"
-
-  [build]
-    dockerfile = "Dockerfile"
-
-  [machines]
-    auto_start_machines = true
-    auto_stop_machines = true
-    min_machines_running = 1
-
-  [[services.ports]]
-    port = 80
-    handlers = ["http"]
-
-  [[services.ports]]
-    port = 443
-    handlers = ["tls","http"]
-
-  # External mapping for 10000 (optional)
+  # Optional external mapping for port 10000
   [[services.ports]]
     port = 10000
     handlers = ["http"]
