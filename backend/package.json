@@ -57,6 +57,7 @@
     "start": "node dist/main.js",
     "start:prod": "node dist/main.js",
     "start:dev": "nodemon --exec ts-node src/main.ts",
+    "test:ci": "jest --ci --runInBand",
     "typeorm:migration:run": "npx ts-node ./node_modules/typeorm/cli.js migration:run --dataSource src/database/data-source.ts",
     "typeorm:migration:run:prod": "node ./node_modules/typeorm/cli.js migration:run --dataSource dist/database/data-source.js"
   },
