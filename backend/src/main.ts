@@ -47,9 +47,21 @@ async function bootstrap() {
 
   console.log('🌐 CORS ORIGINS ATIVADOS:', allowedOrigins);
 
+  // Enable CORS with a function so we can log and allow requests
+  // from the configured origins while still supporting non-browser
+  // traffic (no origin) used by some tooling.
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      // Log origin for debugging
+      console.log('🌐 CORS incoming origin:', origin);
+      // If no origin (curl, server-to-server) allow it
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error('CORS policy: origin not allowed'));
+    },
     credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
   });
 
   // ValidationPipe global
