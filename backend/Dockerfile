@@ -28,7 +28,8 @@ RUN npm ci --omit=dev --silent
 
 # Copy built artifacts and node_modules from builder to avoid rebuilding
 COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/node_modules ./node_modules
+## Do NOT copy node_modules from builder: install production modules
+## in the runner so native modules are built for the runtime environment.
 
 RUN chown -R appuser:appgroup /usr/src/app
 USER appuser

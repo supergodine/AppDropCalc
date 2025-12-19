@@ -17,7 +17,7 @@ PORT = "3000"
 
 # Run migrations as a release command so they execute during deploy
 [deploy]
-  release_command = "npm run typeorm:migration:run"
+  release_command = "npm run typeorm:migration:run:prod"
 
 [[services]]
   internal_port = 3000
