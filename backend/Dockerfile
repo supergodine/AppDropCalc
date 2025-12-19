@@ -6,11 +6,11 @@ WORKDIR /usr/src/app
 RUN apk add --no-cache python3 make g++ bash
 
 # Copy package manifests and install dependencies
-COPY backend/package*.json ./
+COPY package*.json ./
 RUN npm ci --silent
 
-# Copy source code and build
-COPY backend/ ./
+# Copy source code and build (context is backend/ when deploying from backend folder)
+COPY . ./
 RUN npm run build --silent
 
 FROM node:20-alpine AS runner
@@ -20,10 +20,10 @@ WORKDIR /usr/src/app
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=10000
 
 # Copy package manifests and install production deps
-COPY backend/package*.json ./
+COPY package*.json ./
 RUN npm ci --omit=dev --silent
 
 # Copy built artifacts and node_modules from builder to avoid rebuilding
@@ -34,5 +34,5 @@ COPY --from=builder /usr/src/app/dist ./dist
 RUN chown -R appuser:appgroup /usr/src/app
 USER appuser
 
-EXPOSE 3000
+EXPOSE 10000
 CMD ["node", "dist/main.js"]
